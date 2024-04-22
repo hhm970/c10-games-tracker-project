@@ -24,6 +24,7 @@ jobs:
           
         - name: "Install pylint/pytest"
           run: pip3 install -r pipeline/requirements.txt
+          run: pip3 install -r dashboard/requirements.txt
           
         - name: "Pylint"
           run: pylint --fail-under=8 $(git ls-files '*.py')
