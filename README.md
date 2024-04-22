@@ -57,7 +57,7 @@ The requirements are:
 
 
 ## ERD
-
+![ERD Diagram](<diagrams/ERD diagram.png>)
 
 ## Architecture Diagram
 
