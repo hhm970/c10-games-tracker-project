@@ -1,0 +1,32 @@
+on:
+  push:
+    branches:
+    - main
+    - '**'
+  pull_request:
+    branches: 
+    - main
+  workflow_dispatch:
+
+jobs:
+    lint:
+      name: "Code linting and testing"
+      runs-on: ubuntu-latest
+      steps:
+      
+        - name: "Clone repositry"
+          uses: actions/checkout@v2
+        
+        - name: "Python-Setup"
+          uses: actions/setup-python@v5
+          with:
+            python-version: '3.11.7'
+          
+        - name: "Install pylint/pytest"
+          run: pip3 install -r pipeline/requirements.txt
+          
+        - name: "Pylint"
+          run: pylint --fail-under=8 $(git ls-files '*.py')
+
+        - name: "Pytest"
+          run: "pytest"
