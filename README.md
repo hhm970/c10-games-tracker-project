@@ -7,7 +7,6 @@
 
 ### Deliverables
 
-- 
 
 ### Dashboard Requirements
 
@@ -68,4 +67,5 @@ The requirements are:
 * [hhm970](https://github.com/hhm970)
 * [annalisev](https://github.com/annalisev)
 * [EIbironke](https://github.com/EIbironke)
+* [shindym](https://github.com/shindym)
 
