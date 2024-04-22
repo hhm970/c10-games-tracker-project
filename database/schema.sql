@@ -1,7 +1,7 @@
 -- This file contains table definitions for the database.
 
 
-
+DROP TABLE website CASCADE;
 DROP TABLE platform CASCADE;
 DROP TABLE subscriber CASCADE;
 DROP TABLE tag CASCADE;
@@ -11,6 +11,13 @@ DROP TABLE platform_assignment CASCADE;
 DROP TABLE game_tag_matching CASCADE;
 
 
+
+
+CREATE TABLE website (
+    website_id INT GENERATED ALWAYS AS IDENTITY,
+    website_name VARCHAR(20) UNIQUE NOT NULL,
+    PRIMARY KEY (website_id)
+);
 
 
 
@@ -76,3 +83,6 @@ CREATE TABLE game_tag_matching (
 
 INSERT INTO subscriber (first_name, last_name, email)
 VALUES ('Annalise', 'Verzijl', 'trainee.annalise.verzijl@sigmalabs.co.uk');
+
+INSERT INTO website (website_name)
+VALUES ('Steam'),('GOG'),('Epic');
