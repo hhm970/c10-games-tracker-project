@@ -13,5 +13,3 @@ if __name__ == "__main__":
     }
 
     res = req.get(ENV["EPIC_URL"], headers=headers).json()
-
-    print(res['data']['t'])
