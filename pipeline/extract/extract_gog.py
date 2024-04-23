@@ -10,26 +10,19 @@ from bs4 import BeautifulSoup
 from time import sleep
 
 
-def scrape_from_game_page(web_address: str) -> list:
-    '''Returns a list of scraped data.'''
-    response = req.get(web_address)
-    game_soup = BeautifulSoup(response.text, features="html.parser")
-
+def get_platforms(game_soup) -> list:
+    '''Returns a list of platforms that the game can be run on.'''
     scripts = (game_soup.find_all(
         'script'))
 
-    filtered_scripts = [
-        t for t in scripts if 'window.productcardData.cardProductSystemRequirements' in str(t)][0]
-    j = list(json.loads((filtered_scripts).text.split(
-        'window.productcardData.cardProductSystemRequirements')[-1][3:].split('window.productcardData.cardProductPromoEndDate')[0].split(';')[0]).keys())
-    print(j)
-
-    # game_details = game_soup.find_all(
-    #     'div', class_='table__row')
-    # platform = game_details[6].find(
-    #     'div', class_='details__content table__row-content').text.strip()
-
-    # # print(dev, pub, get_platform_ids(platform), date)
+    filtered_script = [
+        t.text.strip() for t in scripts if 'window.productcardData.cardProductSystemRequirements' in str(t)][1]
+    script_dict = [l.split(' = ')
+                   for l in filtered_script.split(';')]
+    script_dict = [l for l in script_dict if len(l) == 2]
+    script_dict = {l[0].strip(): l[1] for l in script_dict}
+    return list(json.loads(
+        script_dict['window.productcardData.cardProductSystemRequirements']).keys())
 
 
 def get_soup(web_address: str):
@@ -91,15 +84,20 @@ def get_release_date(json: dict) -> datetime:
 def get_platform_ids(platform_str: str) -> list:
     '''Returns a list of platform IDs given a
     string of playable platforms.'''
-    platform_str = platform_str.lower()
     id_list = []
     if 'windows' in platform_str:
         id_list.append(1)
-    if 'mac os' in platform_str:
+    if 'osx' in platform_str:
         id_list.append(2)
     if 'linux' in platform_str:
         id_list.append(3)
     return id_list
+
+
+def get_title(game_soup_small) -> str:
+    '''Returns a string of the game's name.'''
+    return game_soup_small.find(
+        'div', class_='product-tile__title')['title']
 
 
 if __name__ == "__main__":
@@ -109,14 +107,15 @@ if __name__ == "__main__":
     res = req.get(ENV["SCRAPING_URL"])
     soup = BeautifulSoup(res.text, features="html.parser")
     soup = soup.findAll('product-tile', class_='ng-star-inserted')
-    for game in soup[9:11]:
-        title_object = game.find(
-            'div', class_='product-tile__title')['title']
-        price = game.find('span', class_='final-value ng-star-inserted')
-        price = price.text if price is not None else '£0'
+    for game in soup[10:20]:
         address = game.find(
             'a', class_='product-tile product-tile--grid')['href']
+        response = req.get(address)
+        game_soup = BeautifulSoup(response.text, features="html.parser")
+        game_json = get_json(game_soup)
+        link = get_detail_links(game_soup)
         website_id = 2
-        print(title_object, price, address, website_id)
+        print([get_title(game), get_price(game_json), get_developer(link), get_publisher(link), get_release_date(
+            game_json), get_rating(game_json), 2, get_platform_ids(get_platforms(game_soup))])
         scrape_from_game_page(address)
         sleep(1)
