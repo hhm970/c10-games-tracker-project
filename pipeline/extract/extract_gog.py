@@ -19,21 +19,36 @@ def scrape_from_game_page(web_address: str) -> list:
         'div', class_='details__content table__row-content')
     dev = game_soup.find_all('a', class_='details__link')[-3].text
     pub = game_soup.find_all('a', class_='details__link')[-2].text
-    date = game_soup.find_all(
-        'div', class_='details__content table__row-content')
-    date2 = game_soup.find_all(
-        'span', {'ng-cloak': ''})
+    # date = game_soup.find_all(
+    #     'div', class_='details__content table__row-content')
+    # date2 = game_soup.find_all(
+    #     'span', {'ng-cloak': ''})
 
-    date3 = game_soup.find_all(
-        'span', class_='ng-binding')
+    # date3 = game_soup.find_all(
+    #     'span', class_='ng-binding')
     # print(date2)
     # print(date3)
     '''<div class="details__content table__row-content"><span ng-cloak="">{{'2024-04-19T00:00:00+03:00' | date: 'longDate' : ' +0300 ' }}</span></div>,'''
 
     rating = game_soup.find_all(
         'span', class_='average-item__value ng-binding')
-    print(rating)
-    # print(dev, pub)
+    # print(rating)
+
+    # platform = game_soup.find_all(
+    #     'div', class_='details__content table__row-content')
+
+    game_details = game_soup.find_all(
+        'div', class_='table__row')
+    platform = game_details[6].find(
+        'div', class_='details__content table__row-content').text.strip()
+
+    date = game_details[7].find(
+        'span')
+    date = date.text.strip()[3:].split("'")[0] if date is not None else None
+    print(dev, pub, platform, date)
+
+
+def get_platform_ids()
 
 
 if __name__ == "__main__":
@@ -43,7 +58,7 @@ if __name__ == "__main__":
     res = req.get(ENV["SCRAPING_URL"])
     soup = BeautifulSoup(res.text, features="html.parser")
     soup = soup.findAll('product-tile', class_='ng-star-inserted')
-    for game in soup[:1]:
+    for game in soup[6:10]:
         title_object = game.find(
             'div', class_='product-tile__title')['title']
         price = game.find('span', class_='final-value ng-star-inserted')
