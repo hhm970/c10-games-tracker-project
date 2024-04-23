@@ -21,10 +21,19 @@ def scrape_from_game_page(web_address: str) -> list:
     pub = game_soup.find_all('a', class_='details__link')[-2].text
     date = game_soup.find_all(
         'div', class_='details__content table__row-content')
-    print(date)
+    date2 = game_soup.find_all(
+        'span', {'ng-cloak': ''})
+
+    date3 = game_soup.find_all(
+        'span', class_='ng-binding')
+    # print(date2)
+    # print(date3)
     '''<div class="details__content table__row-content"><span ng-cloak="">{{'2024-04-19T00:00:00+03:00' | date: 'longDate' : ' +0300 ' }}</span></div>,'''
 
-    print(dev, pub)
+    rating = game_soup.find_all(
+        'span', class_='average-item__value ng-binding')
+    print(rating)
+    # print(dev, pub)
 
 
 if __name__ == "__main__":
@@ -41,6 +50,7 @@ if __name__ == "__main__":
         price = price.text if price is not None else '$0'
         address = game.find(
             'a', class_='product-tile product-tile--grid')['href']
-        print(title_object, price, address)
+        website_id = 2
+        print(title_object, price, address, website_id)
         scrape_from_game_page(address)
         sleep(1)
