@@ -57,6 +57,7 @@ CREATE TABLE game (
     name VARCHAR(100) NOT NULL,
     price FLOAT NOT NULL,
     developer VARCHAR(40) NOT NULL,
+    publisher VARCHAR(40) NOT NULL,
     release_date DATE NOT NULL,
     rating SMALLINT,
     PRIMARY KEY (game_id)
@@ -86,3 +87,7 @@ VALUES ('Annalise', 'Verzijl', 'trainee.annalise.verzijl@sigmalabs.co.uk');
 
 INSERT INTO website (website_name)
 VALUES ('Steam'),('GOG'),('Epic');
+
+INSERT INTO platform (platform_name)
+VALUES ('Windows'),('macOS'),('Linux');
+
