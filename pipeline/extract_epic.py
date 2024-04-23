@@ -66,7 +66,7 @@ def get_game_details(game_obj):
     price = get_price(game_obj)
     release_date = get_release_date(game_obj)
     platform_ids = get_platform_ids(tags)
-    return [title, title, price, developer, publisher, release_date, tags, platform_ids]
+    return [title, price, developer, publisher, release_date, None, 3, tags, platform_ids]
 
 
 def get_all_games_details(games_obj):
