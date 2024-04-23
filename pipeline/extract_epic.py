@@ -4,6 +4,7 @@ from os import environ
 from datetime import datetime, timedelta
 
 from dotenv import load_dotenv
+
 import requests as req
 
 
