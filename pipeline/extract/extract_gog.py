@@ -15,29 +15,57 @@ def scrape_from_game_page(web_address: str) -> list:
     response = req.get(web_address)
     game_soup = BeautifulSoup(response.text, features="html.parser")
 
-    details_links = game_soup.find_all(
-        'a', class_='details__link')
-    dev = [t.text for t in details_links if 'games?developers=' in t['href']]
-    # print(dev)
-    dev = game_soup.find_all('a', class_='details__link')[-3].text
-    pub = game_soup.find_all('a', class_='details__link')[-2].text
+    scripts = (game_soup.find_all(
+        'script'))
 
-    game_json = json.loads(game_soup.find(
+    filtered_scripts = [
+        t for t in scripts if 'window.productcardData.cardProductSystemRequirements' in str(t)][0]
+    j = list(json.loads((filtered_scripts).text.split(
+        'window.productcardData.cardProductSystemRequirements')[-1][3:].split('window.productcardData.cardProductPromoEndDate')[0].split(';')[0]).keys())
+    print(j)
+
+    # game_details = game_soup.find_all(
+    #     'div', class_='table__row')
+    # platform = game_details[6].find(
+    #     'div', class_='details__content table__row-content').text.strip()
+
+    # # print(dev, pub, get_platform_ids(platform), date)
+
+
+def get_soup(web_address: str):
+    '''Returns a soup object for a game given the web address.'''
+    response = req.get(web_address)
+    return BeautifulSoup(response.text, features="html.parser")
+
+
+def get_detail_links(game_soup) -> list:
+    '''Returns a list of detail link class objects for a given
+    game soup.'''
+    return game_soup.find_all(
+        'a', class_='details__link')
+
+
+def get_json(game_soup) -> dict:
+    '''Returns a JSON object about a given game soup.'''
+    return json.loads(game_soup.find(
         'script', type='application/ld+json').text)
 
-    print(get_release_date(game_json))
 
-    game_details = game_soup.find_all(
-        'div', class_='table__row')
-    platform = game_details[6].find(
-        'div', class_='details__content table__row-content').text.strip()
-
-    # print(dev, pub, get_platform_ids(platform), date)
+def get_developer(links: list) -> str:
+    '''Returns a string of the developer's name,
+    given a game soup.'''
+    return [t.text for t in links if 'games?developers=' in t['href']][0]
 
 
-def get_tags(soup) -> list:
+def get_publisher(links: list) -> str:
+    '''Returns a string of the publisher's name,
+    given a game soup.'''
+    return [t.text for t in links if 'games?publishers=' in t['href']][0]
+
+
+def get_tags(game_soup) -> list:
     '''Returns a list of tags given a game soup.'''
-    tags = soup.find_all(
+    tags = game_soup.find_all(
         'span', class_='details__link-text')
     return [t.text for t in tags]
 
@@ -57,7 +85,7 @@ def get_rating(json: dict) -> float:
 
 def get_release_date(json: dict) -> datetime:
     '''Returns a datetime object of the release day.'''
-    return datetime.strptime(json['releaseDate'], )
+    return datetime.strptime(json['releaseDate'][:-6], '%Y-%m-%dT%H:%M:%S')
 
 
 def get_platform_ids(platform_str: str) -> list:
@@ -81,7 +109,7 @@ if __name__ == "__main__":
     res = req.get(ENV["SCRAPING_URL"])
     soup = BeautifulSoup(res.text, features="html.parser")
     soup = soup.findAll('product-tile', class_='ng-star-inserted')
-    for game in soup[:10]:
+    for game in soup[9:11]:
         title_object = game.find(
             'div', class_='product-tile__title')['title']
         price = game.find('span', class_='final-value ng-star-inserted')
@@ -89,6 +117,6 @@ if __name__ == "__main__":
         address = game.find(
             'a', class_='product-tile product-tile--grid')['href']
         website_id = 2
-        # print(title_object, price, address, website_id)
+        print(title_object, price, address, website_id)
         scrape_from_game_page(address)
         sleep(1)
