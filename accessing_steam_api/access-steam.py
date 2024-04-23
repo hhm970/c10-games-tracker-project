@@ -9,5 +9,3 @@ if __name__ == "__main__":
     load_dotenv()
 
     res = req.get(ENV["BASE_URL"])
-
-    print(res.json())
