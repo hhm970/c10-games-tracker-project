@@ -96,7 +96,7 @@ def get_name_price_date(container: BeautifulSoup) -> list:
 
 
 def get_description(game_soup: BeautifulSoup) -> str:
-    """Function to get the description of a game from its URL"""
+    """Function to get the description of a game from its URL."""
     return game_soup.find('div', id='game_area_description').text.strip()
 
 
