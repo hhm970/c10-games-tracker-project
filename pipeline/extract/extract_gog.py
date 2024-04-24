@@ -109,21 +109,47 @@ def get_description(game_soup) -> str:
     return description_soup.text.strip()
 
 
-def get_games_last_day() -> list:
-    '''Searches all games released recently, and
-    returns a list of lists containing details about
-    all the games released in the last 24 hours.'''
-
+def make_soup():
     load_dotenv()
     response_all_games = req.get(ENV["SCRAPING_URL"], timeout=5)
     soup = BeautifulSoup(response_all_games.text, features="html.parser")
 
     soup = soup.findAll('product-tile', class_='ng-star-inserted')
+    print(len(soup))
+
+    yesterday = datetime.now() - timedelta(days=30)
+    release_date = datetime.now()
+
+    print('yesterday', yesterday)
+    counter = 1
+    while release_date > yesterday:
+        counter += 1
+        new_response_all = req.get(
+            f'{ENV["SCRAPING_URL"]}/pages={counter}', timeout=5)
+        new_soup = BeautifulSoup(new_response_all.text, features="html.parser")
+        soup.extend(new_soup.findAll(
+            'product-tile', class_='ng-star-inserted'))
+        print(len(soup))
+        print(type(soup))
+
+        game = soup[-1]
+        address = game.find(
+            'a', class_='product-tile product-tile--grid')['href']
+        response = req.get(address, timeout=5)
+        game_data = BeautifulSoup(response.text, features="html.parser")
+        game_json = get_json(game_data)
+        release_date = get_release_date(game_json)
+        print('rel date:', release_date)
+        print(get_title(game))
+        sleep(1)
+    return soup
+
+
+def loop_through_soup(soup):
 
     yesterday = datetime.now() - timedelta(days=1)
 
     recently_released = []
-
     for game in soup:
         address = game.find(
             'a', class_='product-tile product-tile--grid')['href']
@@ -147,5 +173,13 @@ def get_games_last_day() -> list:
     return recently_released
 
 
+def get_games_last_day() -> list:
+    '''Searches all games released recently, and
+    returns a list of lists containing details about
+    all the games released in the last 24 hours.'''
+    pass
+
+
 if __name__ == "__main__":
-    print(len(get_games_last_day()))
+    # make_soup()
+    print(len(loop_through_soup(make_soup())))
