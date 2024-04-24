@@ -2,7 +2,7 @@
 
 from os import environ as ENV
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from time import sleep
 
 from dotenv import load_dotenv
@@ -109,24 +109,43 @@ def get_description(game_soup) -> str:
     return description_soup.text.strip()
 
 
-if __name__ == "__main__":
+def get_games_last_day() -> list:
+    '''Searches all games released recently, and
+    returns a list of lists containing details about
+    all the games released in the last 24 hours.'''
 
     load_dotenv()
-
     response_all_games = req.get(ENV["SCRAPING_URL"], timeout=5)
     soup = BeautifulSoup(response_all_games.text, features="html.parser")
+
     soup = soup.findAll('product-tile', class_='ng-star-inserted')
-    for game in soup[:20]:
+
+    yesterday = datetime.now() - timedelta(days=1)
+
+    recently_released = []
+
+    for game in soup:
         address = game.find(
             'a', class_='product-tile product-tile--grid')['href']
         response = req.get(address, timeout=5)
         game_data = BeautifulSoup(response.text, features="html.parser")
         game_json = get_json(game_data)
-        link = get_detail_links(game_data)
-        print([get_title(game), get_description(game_data), get_price(game_json),
-               get_developer(link), get_publisher(
-                   link), get_release_date(game_json),
-               get_rating(game_json), 2, get_tags(game_data),
-               get_platform_ids(get_platforms(game_data))])
+        release_date = get_release_date(game_json)
 
-        sleep(1)
+        if release_date > yesterday:
+            link = get_detail_links(game_data)
+            recently_released.append([get_title(game), get_description(game_data),
+                                      get_price(game_json), get_developer(
+                                          link), get_publisher(link),
+                                      release_date, get_rating(
+                                          game_json), 2, get_tags(game_data),
+                                      get_platform_ids(get_platforms(game_data))])
+
+            sleep(1)
+        else:
+            break
+    return recently_released
+
+
+if __name__ == "__main__":
+    print(len(get_games_last_day()))
