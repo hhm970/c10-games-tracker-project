@@ -4,10 +4,6 @@ import requests as req
 from dotenv import load_dotenv
 from os import environ
 from datetime import datetime, timedelta
-<< << << < HEAD
-
-== == == =
->>>>>> > 2b1928a(attempt-2-fix-merge-conflict)
 
 
 def get_games_data(config) -> list[dict]:
