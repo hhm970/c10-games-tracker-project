@@ -22,8 +22,10 @@ jobs:
           with:
             python-version: '3.11.7'
           
-        - name: "Install pylint/pytest"
+        - name: "Install requirements pipeline"
           run: pip3 install -r pipeline/requirements.txt
+          
+        - name: "Install requirements dashboard"
           run: pip3 install -r dashboard/requirements.txt
           
         - name: "Pylint"
