@@ -130,4 +130,3 @@ if __name__ == "__main__":
     games = get_games_data(environ)
     if len(games) > 0:
         games_details = get_all_games_details(games)
-)
