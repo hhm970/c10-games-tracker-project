@@ -1,13 +1,13 @@
 """Extracting game details from EPIC games"""
 
 from os import environ
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
 
 from dotenv import load_dotenv
 import requests as req
 
 
-def get_games_data(config) -> list[dict] :
+def get_games_data(config) -> list[dict]:
     """Returns games json data."""
     today_date = str(datetime.now().date())
     yesterday_date = str((datetime.now()-timedelta(days=1.0)).date())
@@ -35,26 +35,28 @@ def get_games_data(config) -> list[dict] :
 			}}
 		}}
 	}}
-}}""".format(previous_day = yesterday_date,today = today_date)
+}}""".format(previous_day=yesterday_date, today=today_date)
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:123.0) Gecko/20100101 Firefox/123.0"
     }
-    res = req.post(config["BASE_URL"], json={"query": query}, headers=headers,timeout=10)
+    res = req.post(config["BASE_URL"], json={
+                   "query": query}, headers=headers, timeout=10)
     game_data = res.json()
     games = game_data['data']['Catalog']['searchStore']['elements']
     return games
 
 
-def get_game_title(game_obj:dict) -> str:
+def get_game_title(game_obj: dict) -> str:
     """Returns title from game json object."""
     return game_obj['title']
 
-def get_game_description(game_obj:dict) -> str:
+
+def get_game_description(game_obj: dict) -> str:
     """Returns game description from game json object."""
     return game_obj['description']
 
 
-def get_tags(game_obj:dict)->list[str]:
+def get_tags(game_obj: dict) -> list[str]:
     """Returns tag ids from game json object."""
     game_tags = []
     tags = game_obj['tags']
@@ -63,38 +65,38 @@ def get_tags(game_obj:dict)->list[str]:
     return game_tags
 
 
-def get_developer(game_obj:dict) -> str :
+def get_developer(game_obj: dict) -> str:
     """Returns developer from game json object."""
     return game_obj['developerDisplayName']
 
 
-def get_publisher(game_obj:dict) -> str:
+def get_publisher(game_obj: dict) -> str:
     """Returns publisher from game json object."""
     return game_obj['publisherDisplayName']
 
 
-def get_price(game_obj:dict) -> float:
+def get_price(game_obj: dict) -> float:
     """Returns price from game json object."""
     return game_obj['currentPrice']/100
 
 
-def get_release_date(game_obj:dict):
+def get_release_date(game_obj: dict):
     """Returns release date from game json object."""
     return datetime.fromisoformat(game_obj['releaseDate'][:-5])
 
 
-def get_platform_ids(game_tags:list[str]) -> list[int]:
+def get_platform_ids(game_tags: list[str]) -> list[int]:
     """Returns platform ids from game json object."""
-    platform_id_translations ={'Windows':1,'Mac OS':2}
+    platform_id_translations = {'Windows': 1, 'Mac OS': 2}
     platform_ids = []
     for tag in game_tags:
-        platform_id = platform_id_translations.get(tag,None)
+        platform_id = platform_id_translations.get(tag, None)
         if platform_id is not None:
             platform_ids.append(platform_id)
     return platform_ids
 
 
-def get_game_details(game_obj:dict) -> list:
+def get_game_details(game_obj: dict) -> list:
     """Returns list of relevant details from game json object."""
     title = get_game_title(game_obj)
     description = get_game_description(game_obj)
@@ -104,11 +106,11 @@ def get_game_details(game_obj:dict) -> list:
     price = get_price(game_obj)
     release_date = get_release_date(game_obj)
     platform_ids = get_platform_ids(tags)
-    return [title,description ,price, developer, publisher,
+    return [title, description, price, developer, publisher,
             release_date, None, 3, tags, platform_ids]
 
 
-def get_all_games_details(games_obj:dict) -> list:
+def get_all_games_details(games_obj: dict) -> list:
     """Returns list of games and their relevant details."""
     games_details = []
     for game in games_obj:
