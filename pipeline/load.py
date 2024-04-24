@@ -30,20 +30,36 @@ def input_game_into_db(game_data: list[list], conn: connection) -> None:
     """Given our game data, we insert each row into the game table, excluding
     the tags and the platforms."""
     with conn.cursor() as cur:
-        cur.executemany(
-            """INSERT INTO (name, description, price, developer, publisher, release_date, rating, website_id)
-            VALUES %s""", game_data[:-2])
+        for game in game_data:
+            cur.execute(
+                """INSERT INTO game (name, description, price, developer, publisher, 
+                release_date, rating, website_id)
+                VALUES %s""", game[:-2])
 
         cur.close()
-        conn.commit()
-
-
-def input_game_tags_into_db(game_data: list[list], conn: connection) -> None:
-    """"""
-    pass
+    conn.commit()
 
 
 def input_game_plat_into_db(game_data: list[list], conn: connection) -> None:
+    """For each game in our input data, we input all of its supported platforms
+    into the platform_assignment table."""
+    with conn.cursor() as cur:
+        for game in game_data:
+            cur.execute("""SELECT game_id FROM game
+                        WHERE name = %s""", (game_data[0],))
+
+            game_id = cur.fetchone()[0]
+            game_plat_list = game[-1]
+
+            for plat in game_plat_list:
+                cur.execute(
+                    """INSERT INTO platform_assignment (platform_id, game_id)
+                    VALUES %s""", (plat, game_id))
+        cur.close()
+    conn.commit()
+
+
+def input_game_tags_into_db(game_data: list[list], conn: connection) -> None:
     """"""
     pass
 
