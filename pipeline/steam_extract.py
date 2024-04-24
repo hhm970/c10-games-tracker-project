@@ -115,7 +115,7 @@ def get_platform_ids(platform: list) -> list:
 
 def get_each_game_details(game_url: str) -> list:
     """Function to get all the details of a game from its URL
-    returns a list"""
+    returns a list."""
     game_res = req.get(game_url, timeout=10)
     game_soup = BeautifulSoup(game_res.text, features="html.parser")
 
