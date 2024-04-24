@@ -85,11 +85,12 @@ def get_release_date(game_obj:dict):
 
 def get_platform_ids(game_tags:list[str]) -> list[int]:
     """Returns platform ids from game json object."""
+    platform_id_translations ={'Windows':1,'Mac OS':2}
     platform_ids = []
-    if 'Windows' in game_tags:
-        platform_ids.append(1)
-    if 'Mac OS' in game_tags:
-        platform_ids.append(2)
+    for tag in game_tags:
+        platform_id = platform_id_translations.get(tag,None)
+        if platform_id is not None:
+            platform_ids.append(platform_id)
     return platform_ids
 
 
