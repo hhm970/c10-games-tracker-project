@@ -111,9 +111,6 @@ def get_game_details(game_obj: dict) -> list:
             release_date, None, 3, tags, platform_ids]
 
 
-)
-
-
 def get_all_games_details(games_obj: dict) -> list:
     """Returns list of games and their relevant details."""
     games_details = []
