@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 
 
 def get_rating(game_soup: BeautifulSoup) -> float:
-    """Function to get the rating percentage of a game from its URL"""
+    """Function to get the rating percentage of a game from its URL."""
 
     rating = game_soup.find('div', class_="review_ctn")
     if "There are no reviews for this product" in rating:
