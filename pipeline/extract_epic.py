@@ -118,4 +118,5 @@ def get_all_games_details(games_obj:dict) -> list:
 if __name__ == "__main__":
     load_dotenv()
     games = get_games_data(environ)
-    games_details = get_all_games_details(games)
+    if len(games):
+        games_details = get_all_games_details(games)
