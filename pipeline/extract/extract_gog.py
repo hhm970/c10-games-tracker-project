@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup
 PLATFORM_TITLE = 'window.productcardData.cardProductSystemRequirements'
 
 
-def get_platforms(game_soup) -> list:
+def get_platforms(game_soup: BeautifulSoup) -> list:
     '''Returns a list of platforms that the game can be run on.'''
     scripts = (game_soup.find_all(
         'script'))
@@ -27,20 +27,20 @@ def get_platforms(game_soup) -> list:
     return list(json.loads(script_dict[PLATFORM_TITLE]).keys())
 
 
-def get_soup(web_address: str):
+def get_soup(web_address: str) -> BeautifulSoup:
     '''Returns a soup object for a game given the web address.'''
     res = req.get(web_address, timeout=5)
     return BeautifulSoup(res.text, features="html.parser")
 
 
-def get_detail_links(game_soup) -> list:
+def get_detail_links(game_soup: BeautifulSoup) -> list:
     '''Returns a list of detail link class objects for a given
     game soup.'''
     return game_soup.find_all(
         'a', class_='details__link')
 
 
-def get_json(game_soup) -> dict:
+def get_json(game_soup: BeautifulSoup) -> dict:
     '''Returns a JSON object about a given game soup.'''
     return json.loads(game_soup.find(
         'script', type='application/ld+json').text)
@@ -58,7 +58,7 @@ def get_publisher(links: list) -> str:
     return [t.text for t in links if 'games?publishers=' in t['href']][0]
 
 
-def get_tags(game_soup) -> list:
+def get_tags(game_soup: BeautifulSoup) -> list:
     '''Returns a list of tags given a game soup.'''
     tags = game_soup.find_all(
         'span', class_='details__link-text')
@@ -96,20 +96,20 @@ def get_platform_ids(platform_str: str) -> list:
     return id_list
 
 
-def get_title(game_soup_small) -> str:
+def get_title(game_soup_small: BeautifulSoup) -> str:
     '''Returns a string of the game's name.'''
     return game_soup_small.find(
         'div', class_='product-tile__title')['title']
 
 
-def get_description(game_soup) -> str:
+def get_description(game_soup: BeautifulSoup) -> str:
     '''Returns a string description about the game.'''
     description_soup = game_soup.find(
         'div', class_='description')
     return description_soup.text.strip()
 
 
-def get_game_details(game) -> list:
+def get_game_details(game: BeautifulSoup) -> list:
     '''Returns a list of key data points about a given
     game soup.'''
 
@@ -127,7 +127,7 @@ def get_game_details(game) -> list:
             get_platform_ids(get_platforms(game_data))]
 
 
-def get_games_from_page(soup) -> list:
+def get_games_from_page(soup: BeautifulSoup) -> list:
     '''Searches all games released recently, and
     returns a list of lists containing details about
     all the games released in the last 24 hours.'''
