@@ -175,4 +175,4 @@ def search_pages_last_day() -> list:
 
 
 if __name__ == "__main__":
-    print([f[0] for f in search_pages_last_day()])
+    new_games = search_pages_last_day()
