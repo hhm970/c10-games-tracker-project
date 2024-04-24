@@ -82,7 +82,7 @@ def get_publisher(game_soup: BeautifulSoup) -> str:
 
 def get_name_price_date(container: BeautifulSoup) -> list:
     """Function that returns a list containing the:
-      title, price and date of a game from its from the search page"""
+      title, price and date of a game from its from the search page."""
     title = container.find('span', {'class': 'title'}).text
     price = container.find('div', {'class': "discount_final_price"}).text
     if price == "Free":
