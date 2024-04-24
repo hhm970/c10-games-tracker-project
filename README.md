@@ -57,9 +57,12 @@ The requirements are:
 
 
 ## ERD
-
+![ERD Diagram](<diagrams/ERD diagram.png>)
 
 ## Architecture Diagram
+![Architecture Diagram](<diagrams/game-tracker.drawio.png>)
+[Architecture Drawio](https://drive.google.com/file/d/1eyiUtG28TyXLwHTw9276TIMAXI4Pgwh3/view?usp=sharing)
+
 
 
 ## Maintainers

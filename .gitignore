@@ -1,4 +1,17 @@
-venv
-.venv
+# environment
+venv/
 .env
+
+# terraform
 .terraform
+*.tfvars
+*.tfstate
+*.lock.hcl
+*tfstate.backup
+
+# testing
+.pytest_cache
+__pycache__
+/coverage
+
+.DS_Store
