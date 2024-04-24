@@ -46,13 +46,13 @@ def get_json(game_soup: BeautifulSoup) -> dict:
         'script', type='application/ld+json').text)
 
 
-def get_developer(links: list) -> str:
+def get_developer(links: BeautifulSoup) -> str:
     '''Returns a string of the developer's name,
     given a game soup.'''
     return [t.text for t in links if 'games?developers=' in t['href']][0]
 
 
-def get_publisher(links: list) -> str:
+def get_publisher(links: BeautifulSoup) -> str:
     '''Returns a string of the publisher's name,
     given a game soup.'''
     return [t.text for t in links if 'games?publishers=' in t['href']][0]
@@ -67,7 +67,10 @@ def get_tags(game_soup: BeautifulSoup) -> list:
 
 def get_price(game_dict: dict) -> float:
     '''Returns the current price of the game as a float.'''
-    return float(game_dict['offers']['price'])
+    try:
+        return float(game_dict['offers']['price'])
+    except:
+        return 0
 
 
 def get_rating(game_dict: dict) -> float:
@@ -83,9 +86,9 @@ def get_release_date(game_dict: dict) -> datetime:
     return datetime.strptime(game_dict['releaseDate'][:-6], '%Y-%m-%dT%H:%M:%S')
 
 
-def get_platform_ids(platform_str: str) -> list:
+def get_platform_ids(platform_str: list) -> list:
     '''Returns a list of platform IDs given a
-    string of playable platforms.'''
+    list of playable platforms.'''
     id_list = []
     if 'windows' in platform_str:
         id_list.append(1)
