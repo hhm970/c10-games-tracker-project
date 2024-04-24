@@ -50,13 +50,13 @@ def get_platforms(game_soup: BeautifulSoup) -> list:
             'ul', class_='bb_ul').text for platform in platforms if platform.find(
                 'ul', class_='bb_ul')][0]
         if "Windows" in platform_list:
-            return "Windows"
+            return ["Windows"]
         if "mac" in platform_list:
-            return "macOS"
+            return ["macOS"]
         if "Linux" in platform_list:
-            return "Linux"
+            return ["Linux"]
 
-        return "Windows"
+        return ["Windows"]
 
 
 def get_tags(game_soup: BeautifulSoup) -> list:
@@ -160,12 +160,10 @@ def get_everything(all_web_containers: BeautifulSoup) -> list[list]:
 
 if __name__ == "__main__":
 
-    load_dotenv()
+    """load_dotenv()
 
     res = req.get(ENV["BASE_URL"], timeout=10)
     soup = BeautifulSoup(res.text, features="html.parser")
 
     all_containers = soup.find_all(
-        'a', class_="search_result_row")
-
-    print(get_everything(all_containers))
+        'a', class_="search_result_row")"""
