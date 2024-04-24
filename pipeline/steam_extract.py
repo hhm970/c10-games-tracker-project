@@ -60,7 +60,7 @@ def get_platforms(game_soup: BeautifulSoup) -> list:
 
 
 def get_tags(game_soup: BeautifulSoup) -> list:
-    """Function to get the tags of a game from its URL"""
+    """Function to get the tags of a game from its URL."""
     return [i.text.strip()
             for i in game_soup.find_all('a', class_='app_tag')]
 
