@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 import requests as req
 
 
@@ -50,6 +51,11 @@ def get_games_data(config) -> list[dict]:
 def get_game_title(game_obj: dict) -> str:
     """Returns title from game json object."""
     return game_obj['title']
+
+
+def get_game_description(game_obj: dict) -> str:
+    """Returns game description from game json object."""
+    return game_obj['description']
 
 
 def get_game_description(game_obj: dict) -> str:
