@@ -71,7 +71,7 @@ def get_developer(game_soup: BeautifulSoup) -> str:
 
 
 def get_publisher(game_soup: BeautifulSoup) -> str:
-    """Function to get the publisher of a game from its URL"""
+    """Function to get the publisher of a game from its URL."""
     pub = game_soup.find_all('div', class_='dev_row')
     pub_list = [x.text.split('\n') for x in pub]
     for each in pub_list:
