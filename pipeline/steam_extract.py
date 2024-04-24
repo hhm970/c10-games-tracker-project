@@ -132,7 +132,7 @@ def get_each_game_details(game_url: str) -> list:
 
 def get_everything(all_web_containers: BeautifulSoup) -> list[list]:
     """Function to combine all the details of from the search results page
-      returns a list of lists"""
+      returns a list of lists."""
 
     final_list = []
 
