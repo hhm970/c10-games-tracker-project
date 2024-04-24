@@ -3,6 +3,7 @@
 from os import environ as ENV
 from datetime import datetime, date
 from time import sleep
+
 from dotenv import load_dotenv
 import requests as req
 from bs4 import BeautifulSoup
