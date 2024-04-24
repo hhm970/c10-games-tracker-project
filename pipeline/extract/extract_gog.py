@@ -102,6 +102,13 @@ def get_title(game_soup_small) -> str:
         'div', class_='product-tile__title')['title']
 
 
+def get_description(game_soup) -> str:
+    '''Returns a string description about the game.'''
+    description_soup = game_soup.find(
+        'div', class_='description')
+    return description_soup.text.strip()
+
+
 if __name__ == "__main__":
 
     load_dotenv()
@@ -109,14 +116,17 @@ if __name__ == "__main__":
     response_all_games = req.get(ENV["SCRAPING_URL"], timeout=5)
     soup = BeautifulSoup(response_all_games.text, features="html.parser")
     soup = soup.findAll('product-tile', class_='ng-star-inserted')
-    for game in soup[:10]:
+    for game in soup[:20]:
         address = game.find(
             'a', class_='product-tile product-tile--grid')['href']
         response = req.get(address, timeout=5)
         game_data = BeautifulSoup(response.text, features="html.parser")
         game_json = get_json(game_data)
         link = get_detail_links(game_data)
-        print([get_title(game), get_price(game_json), get_developer(link),
-               get_publisher(link), get_release_date(game_json),
-               get_rating(game_json), 2, get_platform_ids(get_platforms(game_data))])
+        print([get_title(game), get_description(game_data), get_price(game_json),
+               get_developer(link), get_publisher(
+                   link), get_release_date(game_json),
+               get_rating(game_json), 2, get_tags(game_data),
+               get_platform_ids(get_platforms(game_data))])
+
         sleep(1)
