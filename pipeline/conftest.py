@@ -2,7 +2,7 @@ import pytest
 
 
 @pytest.fixture
-def epic_game_data_ideal_post_response():
+def epic_game_post_response():
     return {
         "data": {
             "Catalog": {
@@ -11,7 +11,7 @@ def epic_game_data_ideal_post_response():
                         {
                             "title": "Vengeance of Mr. Peppermint",
                             "releaseDate": "2024-04-24T16:00:00.000Z",
-                            "description": "Long ago, they killed his sister. Now, he will kill them. Join a hard-boiled detective as he murders his way through the criminal underworld to find and punish those responsible for his sister's death...before his mind unravels and his vengeance completely destroys him.",
+                            "description": "Long ago, they killed his sister. Now, he will kill them.",
                             "publisherDisplayName": "Freedom Games",
                             "developerDisplayName": "Hack The Publisher",
                             "currentPrice": 1999,
@@ -67,7 +67,7 @@ def epic_game_data_game_obj():
     return {
         "title": "Vengeance of Mr. Peppermint",
         "releaseDate": "2024-04-24T16:00:00.000Z",
-        "description": "Long ago, they killed his sister. Now, he will kill them. Join a hard-boiled detective as he murders his way through the criminal underworld to find and punish those responsible for his sister's death...before his mind unravels and his vengeance completely destroys him.",
+        "description": "Long ago, they killed his sister. Now, he will kill them.",
         "publisherDisplayName": "Freedom Games",
         "developerDisplayName": "Hack The Publisher",
         "currentPrice": 1999,
