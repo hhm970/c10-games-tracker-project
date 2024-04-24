@@ -33,7 +33,7 @@ def get_rating(game_soup: BeautifulSoup) -> float:
 
 
 def get_platforms(game_soup: BeautifulSoup) -> list:
-    """Function to get the platforms a game is available on from its URL"""
+    """Function to get the platforms a game is available on from its URL."""
 
     if game_soup.findAll(
             'div', class_="sysreq_tab"):
