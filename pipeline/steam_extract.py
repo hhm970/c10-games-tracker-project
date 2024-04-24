@@ -1,9 +1,11 @@
+"""Script to scrape relevant data from the epic games website"""
+
 from os import environ as ENV
+from datetime import datetime, date
+from time import sleep
 from dotenv import load_dotenv
 import requests as req
 from bs4 import BeautifulSoup
-from datetime import date
-from time import sleep
 
 
 def get_rating(game_soup: BeautifulSoup) -> float:
@@ -18,6 +20,7 @@ def get_rating(game_soup: BeautifulSoup) -> float:
         if positive:
             p_num = int(positive.find(
                 'span', class_='user_reviews_count').text.strip('()'))
+
         else:
             return 0.00
         if negative:
@@ -44,36 +47,57 @@ def get_platforms(game_soup: BeautifulSoup) -> list:
         platforms = game_soup.findAll(
             'div', class_="sysreq_contents")
         platform_list = [platform.find(
-            'ul', class_='bb_ul').text for platform in platforms if platform.find('ul', class_='bb_ul')][0]
+            'ul', class_='bb_ul').text for platform in platforms if platform.find(
+                'ul', class_='bb_ul')][0]
         if "Windows" in platform_list:
             return "Windows"
         if "mac" in platform_list:
             return "macOS"
         if "Linux" in platform_list:
             return "Linux"
-        else:
-            return "Windows"
+
+        return "Windows"
 
 
 def get_tags(game_soup: BeautifulSoup) -> list:
-
+    """Function to get the tags of a game from its URL"""
     return [i.text.strip()
             for i in game_soup.find_all('a', class_='app_tag')]
 
 
 def get_developer(game_soup: BeautifulSoup) -> str:
-
+    """Function to get the developing company of a game from its URL"""
     return game_soup.find('div', class_='dev_row').text.split('\n')[-2]
 
 
-def get_name_price_date(container: BeautifulSoup) -> list:
+def get_publisher(game_soup: BeautifulSoup) -> str:
+    """Function to get the publisher of a game from its URL"""
+    pub = game_soup.find_all('div', class_='dev_row')
+    pub_list = [x.text.split('\n') for x in pub]
+    for each in pub_list:
+        if 'Publisher:' in each:
+            return each[-2]
+    return None
 
+
+def get_name_price_date(container: BeautifulSoup) -> list:
+    """Function that returns a list containing the:
+      title, price and date of a game from its from the search page"""
     title = container.find('span', {'class': 'title'}).text
     price = container.find('div', {'class': "discount_final_price"}).text
+    if price == "Free":
+        float_price = 0.00
+    else:
+        float_price = float(price[1:])
     release_date = container.find(
         'div', {'class': "col search_released responsive_secondrow"}).text
 
-    return [title, price, release_date.strip()]
+    return [title, float_price, release_date.strip()]
+
+
+def get_description(game_soup: BeautifulSoup) -> str:
+    """Function to get the description of a game from its URL"""
+    return game_soup.find('div', id='game_area_description').text.strip()
 
 
 def get_platform_ids(platform: list) -> list:
@@ -90,8 +114,9 @@ def get_platform_ids(platform: list) -> list:
 
 
 def get_each_game_details(game_url: str) -> list:
-
-    game_res = req.get(game_url)
+    """Function to get all the details of a game from its URL
+    returns a list"""
+    game_res = req.get(game_url, timeout=10)
     game_soup = BeautifulSoup(game_res.text, features="html.parser")
 
     game_tags = get_tags(game_soup)
@@ -99,23 +124,33 @@ def get_each_game_details(game_url: str) -> list:
     platform_id_list = get_platform_ids(platform_list)
     rating = get_rating(game_soup)
     developer = get_developer(game_soup)
-    publisher = 'x'
+    publisher = get_publisher(game_soup)
+    description = get_description(game_soup)
 
-    return [developer, publisher, date.today(), rating, 1, game_tags, platform_id_list]
+    return [description, developer, publisher, date.today(), rating, 1, game_tags, platform_id_list]
 
 
-def get_everything(soup: BeautifulSoup) -> list:
+def get_everything(all_web_containers: BeautifulSoup) -> list[list]:
+    """Function to combine all the details of from the search results page
+      returns a list of lists"""
 
     final_list = []
 
-    for container in all_containers:
+    for container in all_web_containers:
 
         name_price_date_list = get_name_price_date(container)
+        game_date = datetime.strptime(
+            name_price_date_list[-1], "%d %b, %Y").date()
+        name_price_date_list.pop(-1)
+        if game_date != date.today():
+            continue
         game_url = container['href']
         try:
             detail_list = get_each_game_details(game_url)
-            print([name_price_date_list, detail_list])
-            final_list.append([name_price_date_list, detail_list])
+            description = detail_list.pop(0)
+            name_price_date_list.append(name_price_date_list[1])
+            name_price_date_list[1] = description
+            final_list.append(name_price_date_list + detail_list)
             sleep(1)
         except IndexError:
             continue
@@ -127,7 +162,7 @@ if __name__ == "__main__":
 
     load_dotenv()
 
-    res = req.get(ENV["BASE_URL"])
+    res = req.get(ENV["BASE_URL"], timeout=10)
     soup = BeautifulSoup(res.text, features="html.parser")
 
     all_containers = soup.find_all(
