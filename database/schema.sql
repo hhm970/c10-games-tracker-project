@@ -55,12 +55,15 @@ CREATE TABLE subscriber_tag_subscription (
 CREATE TABLE game (
     game_id INT GENERATED ALWAYS AS IDENTITY,
     name VARCHAR(100) NOT NULL,
+    description TEXT,
     price FLOAT NOT NULL,
     developer VARCHAR(40) NOT NULL,
-    publisher VARCHAR(40) NOT NULL,
+    publisher VARCHAR(40),
     release_date DATE NOT NULL,
     rating SMALLINT,
-    PRIMARY KEY (game_id)
+    website_id INT NOT NULL,
+    PRIMARY KEY (game_id),
+    FOREIGN KEY(website_id) REFERENCES website(website_id)
 );
 
 CREATE TABLE platform_assignment (
