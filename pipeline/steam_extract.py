@@ -66,7 +66,7 @@ def get_tags(game_soup: BeautifulSoup) -> list:
 
 
 def get_developer(game_soup: BeautifulSoup) -> str:
-    """Function to get the developing company of a game from its URL"""
+    """Function to get the developing company of a game from its URL."""
     return game_soup.find('div', class_='dev_row').text.split('\n')[-2]
 
 
