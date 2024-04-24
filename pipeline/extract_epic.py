@@ -80,7 +80,7 @@ def get_price(game_obj:dict) -> float:
 
 def get_release_date(game_obj:dict):
     """Returns release date from game json object."""
-    return datetime.fromisoformat(game_obj['releaseDate'][0:-5])
+    return datetime.fromisoformat(game_obj['releaseDate'][:-5])
 
 
 def get_platform_ids(game_tags:list[str]) -> list[int]:
