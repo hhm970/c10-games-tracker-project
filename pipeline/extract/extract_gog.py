@@ -3,11 +3,14 @@
 from os import environ as ENV
 import json
 from datetime import datetime
+from time import sleep
 
 from dotenv import load_dotenv
 import requests as req
 from bs4 import BeautifulSoup
-from time import sleep
+
+
+PLATFORM_TITLE = 'window.productcardData.cardProductSystemRequirements'
 
 
 def get_platforms(game_soup) -> list:
@@ -16,19 +19,18 @@ def get_platforms(game_soup) -> list:
         'script'))
 
     filtered_script = [
-        t.text.strip() for t in scripts if 'window.productcardData.cardProductSystemRequirements' in str(t)][1]
+        t.text.strip() for t in scripts if PLATFORM_TITLE in str(t)][0]
     script_dict = [l.split(' = ')
                    for l in filtered_script.split(';')]
     script_dict = [l for l in script_dict if len(l) == 2]
     script_dict = {l[0].strip(): l[1] for l in script_dict}
-    return list(json.loads(
-        script_dict['window.productcardData.cardProductSystemRequirements']).keys())
+    return list(json.loads(script_dict[PLATFORM_TITLE]).keys())
 
 
 def get_soup(web_address: str):
     '''Returns a soup object for a game given the web address.'''
-    response = req.get(web_address)
-    return BeautifulSoup(response.text, features="html.parser")
+    res = req.get(web_address, timeout=5)
+    return BeautifulSoup(res.text, features="html.parser")
 
 
 def get_detail_links(game_soup) -> list:
@@ -63,22 +65,22 @@ def get_tags(game_soup) -> list:
     return [t.text for t in tags]
 
 
-def get_price(json: dict) -> float:
+def get_price(game_dict: dict) -> float:
     '''Returns the current price of the game as a float.'''
-    return float(json['offers']['price'])
+    return float(game_dict['offers']['price'])
 
 
-def get_rating(json: dict) -> float:
+def get_rating(game_dict: dict) -> float:
     '''Returns the average rating for a game as a float,
     out of 5.'''
-    if 'aggregateRating' not in json.keys():
+    if 'aggregateRating' not in game_dict.keys():
         return None
-    return float(json['aggregateRating']['ratingValue'])
+    return float(game_dict['aggregateRating']['ratingValue'])
 
 
-def get_release_date(json: dict) -> datetime:
+def get_release_date(game_dict: dict) -> datetime:
     '''Returns a datetime object of the release day.'''
-    return datetime.strptime(json['releaseDate'][:-6], '%Y-%m-%dT%H:%M:%S')
+    return datetime.strptime(game_dict['releaseDate'][:-6], '%Y-%m-%dT%H:%M:%S')
 
 
 def get_platform_ids(platform_str: str) -> list:
@@ -104,18 +106,17 @@ if __name__ == "__main__":
 
     load_dotenv()
 
-    res = req.get(ENV["SCRAPING_URL"])
-    soup = BeautifulSoup(res.text, features="html.parser")
+    response_all_games = req.get(ENV["SCRAPING_URL"], timeout=5)
+    soup = BeautifulSoup(response_all_games.text, features="html.parser")
     soup = soup.findAll('product-tile', class_='ng-star-inserted')
-    for game in soup[10:20]:
+    for game in soup[:10]:
         address = game.find(
             'a', class_='product-tile product-tile--grid')['href']
-        response = req.get(address)
-        game_soup = BeautifulSoup(response.text, features="html.parser")
-        game_json = get_json(game_soup)
-        link = get_detail_links(game_soup)
-        website_id = 2
-        print([get_title(game), get_price(game_json), get_developer(link), get_publisher(link), get_release_date(
-            game_json), get_rating(game_json), 2, get_platform_ids(get_platforms(game_soup))])
-        scrape_from_game_page(address)
+        response = req.get(address, timeout=5)
+        game_data = BeautifulSoup(response.text, features="html.parser")
+        game_json = get_json(game_data)
+        link = get_detail_links(game_data)
+        print([get_title(game), get_price(game_json), get_developer(link),
+               get_publisher(link), get_release_date(game_json),
+               get_rating(game_json), 2, get_platform_ids(get_platforms(game_data))])
         sleep(1)
