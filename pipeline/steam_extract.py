@@ -130,7 +130,7 @@ def get_each_game_details(game_url: str) -> list:
     return [description, developer, publisher, date.today(), rating, 1, game_tags, platform_id_list]
 
 
-def get_everything(all_web_containers: BeautifulSoup) -> list[list]:
+def grab_all_games_details(all_web_containers: BeautifulSoup) -> list[list]:
     """Function to combine all the details of from the search results page
       returns a list of lists."""
 
@@ -167,4 +167,4 @@ if __name__ == "__main__":
     all_containers = soup.find_all(
         'a', class_="search_result_row")
 
-    final_game_list = get_everything(all_containers)
+    final_game_list = grab_all_games_details(all_containers)
