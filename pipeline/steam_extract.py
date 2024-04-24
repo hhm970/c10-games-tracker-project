@@ -50,13 +50,13 @@ def get_platforms(game_soup: BeautifulSoup) -> list:
             'ul', class_='bb_ul').text for platform in platforms if platform.find(
                 'ul', class_='bb_ul')][0]
         if "Windows" in platform_list:
-            return "Windows"
+            return ["Windows"]
         if "mac" in platform_list:
-            return "macOS"
+            return ["macOS"]
         if "Linux" in platform_list:
-            return "Linux"
+            return ["Linux"]
 
-        return "Windows"
+        return ["Windows"]
 
 
 def get_tags(game_soup: BeautifulSoup) -> list:
