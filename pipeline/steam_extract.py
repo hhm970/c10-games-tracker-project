@@ -1,4 +1,4 @@
-"""Script to scrape relevant data from the epic games website"""
+"""Script to scrape relevant data from the epic games website."""
 
 from os import environ as ENV
 from datetime import datetime, date
