@@ -91,3 +91,6 @@ VALUES ('Annalise', 'Verzijl', 'trainee.annalise.verzijl@sigmalabs.co.uk');
 INSERT INTO website (website_name)
 VALUES ('Steam'),('GOG'),('Epic');
 
+INSERT INTO platform (platform_name)
+VALUES ('Windows'),('macOS'),('Linux');
+
