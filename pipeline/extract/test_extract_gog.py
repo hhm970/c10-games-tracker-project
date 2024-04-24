@@ -55,3 +55,8 @@ def test_get_platform_ids():
     assert get_platform_ids(['windows']) == [1]
     assert get_platform_ids(['osx', 'linux']) == [2, 3]
     assert not get_platform_ids(['wind'])
+
+
+def test(requests_mock, pytest_fixture):
+
+    requests_mock.
