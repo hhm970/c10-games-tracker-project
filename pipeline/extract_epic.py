@@ -1,12 +1,13 @@
 """Extracting game details from EPIC games"""
 
+import requests as req
+from dotenv import load_dotenv
 from os import environ
 from datetime import datetime, timedelta
+<< << << < HEAD
 
-from dotenv import load_dotenv
-
-from dotenv import load_dotenv
-import requests as req
+== == == =
+>>>>>> > 2b1928a(attempt-2-fix-merge-conflict)
 
 
 def get_games_data(config) -> list[dict]:
