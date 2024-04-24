@@ -105,12 +105,11 @@ def get_platform_ids(platform: list) -> list:
     '''Returns a list of platform IDs given a
     string of playable platforms.'''
     id_list = []
-    if 'Windows' in platform:
-        id_list.append(1)
-    if 'macOS' in platform:
-        id_list.append(2)
-    if 'Linux' in platform:
-        id_list.append(3)
+    platform_id_translations = {'Windows': 1, 'macOS': 2, 'Linux': 3}
+    for tag in platform:
+        platform_id = platform_id_translations.get(tag, None)
+        if platform_id is not None:
+            id_list.append(platform_id)
     return id_list
 
 
@@ -143,28 +142,29 @@ def get_everything(all_web_containers: BeautifulSoup) -> list[list]:
         game_date = datetime.strptime(
             name_price_date_list[-1], "%d %b, %Y").date()
         name_price_date_list.pop(-1)
-        if game_date != date.today():
-            continue
+        if game_date < date.today():
+            break
         game_url = container['href']
-        try:
-            detail_list = get_each_game_details(game_url)
-            description = detail_list.pop(0)
-            name_price_date_list.append(name_price_date_list[1])
-            name_price_date_list[1] = description
-            final_list.append(name_price_date_list + detail_list)
-            sleep(1)
-        except IndexError:
-            continue
+
+        detail_list = get_each_game_details(game_url)
+        description = detail_list.pop(0)
+        name_price_date_list.append(name_price_date_list[1])
+        name_price_date_list[1] = description
+        print(name_price_date_list + detail_list)
+        final_list.append(name_price_date_list + detail_list)
+        sleep(1)
 
     return final_list
 
 
 if __name__ == "__main__":
 
-    """load_dotenv()
+    load_dotenv()
 
     res = req.get(ENV["BASE_URL"], timeout=10)
     soup = BeautifulSoup(res.text, features="html.parser")
 
     all_containers = soup.find_all(
-        'a', class_="search_result_row")"""
+        'a', class_="search_result_row")
+
+    final_game_list = get_everything(all_containers)
