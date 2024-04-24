@@ -1,15 +1,16 @@
-"""Script to scrape relevant data from the epic games website"""
+"""Script to scrape relevant data from the epic games website."""
 
 from os import environ as ENV
 from datetime import datetime, date
 from time import sleep
+
 from dotenv import load_dotenv
 import requests as req
 from bs4 import BeautifulSoup
 
 
 def get_rating(game_soup: BeautifulSoup) -> float:
-    """Function to get the rating percentage of a game from its URL"""
+    """Function to get the rating percentage of a game from its URL."""
 
     rating = game_soup.find('div', class_="review_ctn")
     if "There are no reviews for this product" in rating:
@@ -33,7 +34,7 @@ def get_rating(game_soup: BeautifulSoup) -> float:
 
 
 def get_platforms(game_soup: BeautifulSoup) -> list:
-    """Function to get the platforms a game is available on from its URL"""
+    """Function to get the platforms a game is available on from its URL."""
 
     if game_soup.findAll(
             'div', class_="sysreq_tab"):
@@ -60,18 +61,18 @@ def get_platforms(game_soup: BeautifulSoup) -> list:
 
 
 def get_tags(game_soup: BeautifulSoup) -> list:
-    """Function to get the tags of a game from its URL"""
+    """Function to get the tags of a game from its URL."""
     return [i.text.strip()
             for i in game_soup.find_all('a', class_='app_tag')]
 
 
 def get_developer(game_soup: BeautifulSoup) -> str:
-    """Function to get the developing company of a game from its URL"""
+    """Function to get the developing company of a game from its URL."""
     return game_soup.find('div', class_='dev_row').text.split('\n')[-2]
 
 
 def get_publisher(game_soup: BeautifulSoup) -> str:
-    """Function to get the publisher of a game from its URL"""
+    """Function to get the publisher of a game from its URL."""
     pub = game_soup.find_all('div', class_='dev_row')
     pub_list = [x.text.split('\n') for x in pub]
     for each in pub_list:
@@ -82,7 +83,7 @@ def get_publisher(game_soup: BeautifulSoup) -> str:
 
 def get_name_price_date(container: BeautifulSoup) -> list:
     """Function that returns a list containing the:
-      title, price and date of a game from its from the search page"""
+      title, price and date of a game from its from the search page."""
     title = container.find('span', {'class': 'title'}).text
     price = container.find('div', {'class': "discount_final_price"}).text
     if price == "Free":
@@ -96,7 +97,7 @@ def get_name_price_date(container: BeautifulSoup) -> list:
 
 
 def get_description(game_soup: BeautifulSoup) -> str:
-    """Function to get the description of a game from its URL"""
+    """Function to get the description of a game from its URL."""
     return game_soup.find('div', id='game_area_description').text.strip()
 
 
@@ -115,7 +116,7 @@ def get_platform_ids(platform: list) -> list:
 
 def get_each_game_details(game_url: str) -> list:
     """Function to get all the details of a game from its URL
-    returns a list"""
+    returns a list."""
     game_res = req.get(game_url, timeout=10)
     game_soup = BeautifulSoup(game_res.text, features="html.parser")
 
@@ -132,7 +133,7 @@ def get_each_game_details(game_url: str) -> list:
 
 def get_everything(all_web_containers: BeautifulSoup) -> list[list]:
     """Function to combine all the details of from the search results page
-      returns a list of lists"""
+      returns a list of lists."""
 
     final_list = []
 
