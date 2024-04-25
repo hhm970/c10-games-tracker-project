@@ -1,4 +1,4 @@
-"""conftest file for test_extract_steam"""
+"""Conftest file for test_extract_steam."""
 import pytest
 
 from bs4 import BeautifulSoup
