@@ -27,13 +27,13 @@ def test_get_ratings_negative(steam_rating_soup_negative_only):
 # platform_id tests
 
 def test_get_platform_id_good_input():
-    """Test the get_platform function with all good inputs"""
+    """Test the get_platform function with all good inputs."""
     list_p = ["Windows", "macOS", "Linux"]
     assert get_platform_ids(list_p) == [1, 2, 3]
 
 
 def test_get_platform_id_bad_input():
-    """Test the get_platform function with all good inputs"""
+    """Test the get_platform function with all good inputs."""
     list_b = ["Widow", "bigmac", "Lemur"]
     assert get_platform_ids(list_b) == []
 
@@ -41,12 +41,12 @@ def test_get_platform_id_bad_input():
 
 
 def test_get_tags(steam_tags_good):
-    """Test the get_tags function with all good inputs"""
+    """Test the get_tags function with all good inputs."""
     assert get_tags(steam_tags_good) == ["Horror", "Atmospheric"]
 
 
 def test_get_tags_no_tags(steam_tags_none):
-    """Test the get_tags function with no tags"""
+    """Test the get_tags function with no tags."""
     assert get_tags(steam_tags_none) == []
 
 # get_developer tests
