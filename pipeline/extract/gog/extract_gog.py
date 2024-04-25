@@ -8,6 +8,7 @@ from time import sleep
 from dotenv import load_dotenv
 import requests as req
 from bs4 import BeautifulSoup
+from bs4.element import Tag
 
 
 PLATFORM_TITLE = 'window.productcardData.cardProductSystemRequirements'
@@ -40,22 +41,28 @@ def get_detail_links(game_soup: BeautifulSoup) -> list:
         'a', class_='details__link')
 
 
-def get_json(game_soup: BeautifulSoup) -> dict:
+def get_game_data_json(game_soup: BeautifulSoup) -> dict:
     '''Returns a JSON object about a given game soup.'''
     return json.loads(game_soup.find(
         'script', type='application/ld+json').text)
 
 
-def get_developer(links: list) -> str:
+def get_developer(links: list[BeautifulSoup]) -> str:
     '''Returns a string of the developer's name,
     given a game soup.'''
-    return [t.text for t in links if 'games?developers=' in t['href']][0]
+    developers = [t.text for t in links if 'games?developers=' in t['href']]
+    if len(developers) > 0:
+        return developers[0]
+    return None
 
 
-def get_publisher(links: list) -> str:
+def get_publisher(links: list[BeautifulSoup]) -> str:
     '''Returns a string of the publisher's name,
     given a game soup.'''
-    return [t.text for t in links if 'games?publishers=' in t['href']][0]
+    publishers = [t.text for t in links if 'games?publishers=' in t['href']]
+    if len(publishers) > 0:
+        return publishers[0]
+    return None
 
 
 def get_tags(game_soup: BeautifulSoup) -> list:
@@ -67,7 +74,10 @@ def get_tags(game_soup: BeautifulSoup) -> list:
 
 def get_price(game_dict: dict) -> float:
     '''Returns the current price of the game as a float.'''
-    return float(game_dict['offers']['price'])
+    try:
+        return float(game_dict['offers']['price'])
+    except:
+        return 0
 
 
 def get_rating(game_dict: dict) -> float:
@@ -83,9 +93,9 @@ def get_release_date(game_dict: dict) -> datetime:
     return datetime.strptime(game_dict['releaseDate'][:-6], '%Y-%m-%dT%H:%M:%S')
 
 
-def get_platform_ids(platform_str: str) -> list:
+def get_platform_ids(platform_str: list) -> list:
     '''Returns a list of platform IDs given a
-    string of playable platforms.'''
+    list of playable platforms.'''
     id_list = []
     if 'windows' in platform_str:
         id_list.append(1)
@@ -117,7 +127,7 @@ def get_game_details(game: BeautifulSoup) -> list:
         'a', class_='product-tile product-tile--grid')['href']
     response = req.get(address, timeout=5)
     game_data = BeautifulSoup(response.text, features="html.parser")
-    game_json = get_json(game_data)
+    game_json = get_game_data_json(game_data)
     release_date = get_release_date(game_json)
 
     link = get_detail_links(game_data)
@@ -137,6 +147,7 @@ def get_games_from_page(soup: BeautifulSoup) -> list:
         game_data = get_game_details(game)
         release_date = game_data[5]
         if release_date > yesterday:
+            game_data[5] = str(game_data[5])
             recently_released.append(game_data)
             sleep(1)
         else:
@@ -172,6 +183,13 @@ def search_pages_last_day() -> list:
             game_data_list = game_data_list.append(game_data)
 
     return game_data_list
+
+
+def handler(event: dict = None, context=None) -> list[list]:
+    """Collects the required data for each game and then returns a
+    list of lists of this data."""
+
+    return search_pages_last_day()
 
 
 if __name__ == "__main__":
