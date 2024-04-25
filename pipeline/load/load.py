@@ -75,16 +75,18 @@ def input_game_tags_into_db(game_data: list[list], conn: connection) -> None:
             game_tags = game[-2]
 
             for tag in game_tags:
+                tag_formatted = tag.title()
                 cur.execute("""SELECT tag_id FROM tag
-                            WHERE SIMILARITY(%s, tag_name) > 0.8""", (tag,))
+                            WHERE SIMILARITY(%s, tag_name) > 0.8""",
+                            (tag_formatted,))
                 tag_id_match = cur.fetchone()
 
                 if tag_id_match is None:
                     cur.execute("""INSERT INTO tag (tag_name)
-                                VALUES %s""", (tag,))
+                                VALUES %s""", (tag_formatted,))
 
                     cur.execute("""SELECT tag_id FROM tag
-                                WHERE tag_name = %s""", (tag,))
+                                WHERE tag_name = %s""", (tag_formatted,))
 
                     tag_id_match = cur.fetchone()
 
