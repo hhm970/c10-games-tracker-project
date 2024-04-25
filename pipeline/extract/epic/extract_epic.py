@@ -86,7 +86,7 @@ def get_price(game_obj: dict) -> float:
 
 def get_release_date(game_obj: dict):
     """Returns release date from game json object."""
-    return datetime.fromisoformat(game_obj['releaseDate'][:-5])
+    return str(datetime.fromisoformat(game_obj['releaseDate'][:-5]))
 
 
 def get_platform_ids(game_tags: list[str]) -> list[int]:
@@ -143,6 +143,10 @@ def epic_extract_process(config):
     return []
 
 
-if __name__ == "__main__":
-    load_dotenv()
+def handler(event: dict = None, context: dict = None) -> list:
+    """
+    Handler function for epic extraction.
+    """
     games = epic_extract_process(environ)
+
+    return games
