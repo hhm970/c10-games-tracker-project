@@ -10,7 +10,7 @@ def test_get_ratings(steam_rating_soup):
 
 
 def test_get_ratings_no_reviews(steam_no_rating_soup):
-    '''Tests the get_ratings function with no input/reviews'''
+    '''Tests the get_ratings function with no input/reviews.'''
     assert get_rating(steam_no_rating_soup) == 0.00
 
 
