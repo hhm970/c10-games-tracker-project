@@ -1,0 +1,1 @@
+docker run --env-file .env -p 9000:8080 steam_extract
