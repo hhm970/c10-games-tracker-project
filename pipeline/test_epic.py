@@ -26,7 +26,7 @@ def test_correct_game_details_pulled(epic_game_data_game_obj):
                       19.99, 'Hack The Publisher', 'Freedom Games', datetime.datetime(
                           2024, 4, 24, 16, 0), None, 3,
                       ['Action', 'Action-Adventure', 'Single Player',
-                       'Windows', 'Indie', 'Mac OS'], [1, 2]]
+                       'Indie'], [1, 2]]
 
 
 def test_no_new_games(requests_mock, epic_empty_post_request):
@@ -53,4 +53,4 @@ def test_no_one_new_games(requests_mock, epic_game_post_response):
                       19.99, 'Hack The Publisher', 'Freedom Games', datetime.datetime(
                           2024, 4, 24, 16, 0),
                        None, 3, ['Action', 'Action-Adventure',
-                                 'Single Player', 'Windows', 'Indie', 'Mac OS'], [1, 2]]]
+                                 'Single Player', 'Indie'], [1, 2]]]
