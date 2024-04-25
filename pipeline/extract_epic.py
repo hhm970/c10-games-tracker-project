@@ -100,16 +100,27 @@ def get_platform_ids(game_tags: list[str]) -> list[int]:
     return platform_ids
 
 
+def remove_platforms_from_tags(game_tags: list[str]) -> list[str]:
+    """Removes platform(s) from game tags list."""
+    platforms = ['Windows', 'Mac OS']
+
+    for platform in platforms:
+        if platform in game_tags:
+            game_tags.remove(platform)
+    return game_tags
+
+
 def get_game_details(game_obj: dict) -> list:
     """Returns list of relevant details from game json object."""
     title = get_game_title(game_obj)
     description = get_game_description(game_obj)
-    tags = get_tags(game_obj)
+    tags_with_platform = get_tags(game_obj)
+    platform_ids = get_platform_ids(tags_with_platform)
+    tags = remove_platforms_from_tags(tags_with_platform)
     developer = get_developer(game_obj)
     publisher = get_publisher(game_obj)
     price = get_price(game_obj)
     release_date = get_release_date(game_obj)
-    platform_ids = get_platform_ids(tags)
     return [title, description, price, developer, publisher,
             release_date, None, 3, tags, platform_ids]
 
@@ -122,8 +133,16 @@ def get_all_games_details(games_obj: dict) -> list:
     return games_details
 
 
-if __name__ == "__main__":
-    load_dotenv()
-    games = get_games_data(environ)
+def epic_extract_process(config):
+    """Extract details from all new games originating from epic games
+    in the last 24 hours."""
+    games = get_games_data(config)
     if len(games) > 0:
         games_details = get_all_games_details(games)
+        return games_details
+    return []
+
+
+if __name__ == "__main__":
+    load_dotenv()
+    games = epic_extract_process(environ)
