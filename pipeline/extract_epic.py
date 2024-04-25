@@ -122,8 +122,16 @@ def get_all_games_details(games_obj: dict) -> list:
     return games_details
 
 
-if __name__ == "__main__":
-    load_dotenv()
-    games = get_games_data(environ)
+def epic_extract_process(config):
+    """Extract details from all new games originating from epic games
+    in the last 24 hours."""
+    games = get_games_data(config)
     if len(games) > 0:
         games_details = get_all_games_details(games)
+        return games_details
+    return []
+
+
+if __name__ == "__main__":
+    load_dotenv()
+    epic_extract_process(environ)
