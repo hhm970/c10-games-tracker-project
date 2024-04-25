@@ -18,7 +18,7 @@ def test_pull_data_from_graphql(requests_mock, epic_game_post_response):
 
 
 def test_correct_game_details_pulled(epic_game_data_game_obj):
-    """tests successful extracting of data from json object."""
+    """Tests successful extracting of data from json object."""
     result = get_game_details(epic_game_data_game_obj)
     print(result)
     assert result == ['Vengeance of Mr. Peppermint',
