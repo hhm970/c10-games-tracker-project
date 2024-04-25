@@ -1,4 +1,4 @@
-"""Test file for steam_extract.py"""
+"""Test file for steam_extract.py."""
 
 from steam_extract import get_rating, get_platform_ids, get_tags, get_developer, get_publisher, get_name_price_date
 
