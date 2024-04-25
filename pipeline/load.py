@@ -3,7 +3,8 @@ into our cloud-based database. Each embedded list should have values in the
 following order,
 
 name: str; description: str; price: float; developer: str; publisher: str; 
-release_date: datetime, rating: float, website_id: int, tags: list, platform: list 
+release_date: datetime; rating: float; website_id: int; tags: list[str]; 
+platform: list[int]. 
 """
 from os import environ as ENV
 from dotenv import load_dotenv
