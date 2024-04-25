@@ -10,7 +10,7 @@ from os import environ as ENV
 from dotenv import load_dotenv
 
 from psycopg2 import connect
-from psycopg2.extras import RealDictCursor, execute_values
+from psycopg2.extras import RealDictCursor
 from psycopg2.extensions import connection
 
 
