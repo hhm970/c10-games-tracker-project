@@ -5,7 +5,7 @@ from extract_epic import get_games_data, get_game_details, epic_extract_process
 
 
 def test_pull_data_from_graphql(requests_mock, epic_game_post_response):
-    """tests successful post request"""
+    """Tests successful post request."""
 
     config = {
         'BASE_URL': 'http://www.epic/test/graphql.com'
