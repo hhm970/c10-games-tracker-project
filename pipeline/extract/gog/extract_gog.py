@@ -184,5 +184,12 @@ def search_pages_last_day() -> list:
     return game_data_list
 
 
+def handler(event: dict = None, context=None) -> list[list]:
+    """Collects the required data for each game and then returns a
+    list of lists of this data."""
+
+    return search_pages_last_day()
+
+
 if __name__ == "__main__":
     new_games = search_pages_last_day()
