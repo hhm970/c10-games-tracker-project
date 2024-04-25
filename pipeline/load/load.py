@@ -48,7 +48,7 @@ def input_game_plat_into_db(game_data: list[list], conn: connection) -> None:
     with conn.cursor() as cur:
         for game in game_data:
             cur.execute("""SELECT game_id FROM game
-                        WHERE name = %s""", (game_data[0],))
+                        WHERE name = %s""", (game[0],))
 
             game_id = cur.fetchone()
             game_plat_list = game[-1]
