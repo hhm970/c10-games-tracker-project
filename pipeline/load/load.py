@@ -115,7 +115,6 @@ def handler(event=None, context=None) -> None:
     if not event_data:
         return None
 
-    load_dotenv()
 
     conn = get_db_connection(ENV)
 
