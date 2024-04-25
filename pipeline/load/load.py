@@ -106,23 +106,22 @@ def input_game_tags_into_db(game_data: list[list], conn: connection) -> None:
     conn.commit()
 
 
-def handler(event=None, context=None) -> None:
+def handler(event: list[list[list]] = None, context=None) -> None:
     """Takes in an event (ie. the combined game data) and context, and
     loads the game data into the database."""
 
-    event_data = event["game_data"]
-
-    if not event_data:
-        return None
-
     conn = get_db_connection(ENV)
 
-    game_data = format_release_date_dt(event_data)
+    for game_data in event:
 
-    input_game_into_db(game_data, conn)
+        if len(game_data) > 0:
 
-    input_game_plat_into_db(game_data, conn)
+            formatted_game_data = format_release_date_dt(game_data)
 
-    input_game_tags_into_db(game_data, conn)
+            input_game_into_db(formatted_game_data, conn)
+
+            input_game_plat_into_db(formatted_game_data, conn)
+
+            input_game_tags_into_db(formatted_game_data, conn)
 
     conn.close()
