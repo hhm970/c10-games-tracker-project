@@ -96,6 +96,26 @@ def input_game_tags_into_db(game_data: list[list], conn: connection) -> None:
     conn.commit()
 
 
+def handler(event=None, context=None) -> None:
+    """Takes in an event (ie. the combined game data) and context, and
+    loads the game data into the database."""
+
+    game_data = event["game_data"]
+
+    if not game_data:
+        return None
+
+    load_dotenv()
+
+    conn = get_db_connection(ENV)
+
+    input_game_into_db(game_data, conn)
+
+    input_game_plat_into_db(game_data, conn)
+
+    input_game_tags_into_db(game_data, conn)
+
+
 if __name__ == "__main__":
 
     load_dotenv()
