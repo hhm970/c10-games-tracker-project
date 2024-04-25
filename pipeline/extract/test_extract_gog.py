@@ -2,8 +2,11 @@
 
 from datetime import datetime
 
-from extract_gog import (get_price, get_rating,
-                         get_release_date, get_platform_ids)
+from pytest import raises
+
+from extract_gog import (get_price, get_rating, get_developer,
+                         get_release_date, get_platform_ids, get_publisher,
+                         get_tags, get_title, get_description)
 
 
 # get_price
@@ -57,6 +60,58 @@ def test_get_platform_ids():
     assert not get_platform_ids(['wind'])
 
 
-def test(requests_mock, pytest_fixture):
+# get_publisher
 
-    requests_mock.
+def test_get_publisher_extract_correct_publisher(gog_fake_links):
+    '''Tests get_publisher on a standard input.'''
+    assert get_publisher(gog_fake_links) == 'publisher1'
+
+
+def test_get_publisher_extract_bad_input(gog_fake_links_bad):
+    '''Tests get_publisher on a bad input.'''
+    assert get_publisher(gog_fake_links_bad) is None
+
+
+# get_developer
+
+def test_get_developer_extract_correct_developer(gog_fake_links):
+    '''Tests get_developer on a standard input.'''
+    assert get_developer(gog_fake_links) == 'dev'
+
+
+def test_get_developer_extract_bad_input(gog_fake_links_bad):
+    '''Tests get_developer on a bad input.'''
+    assert get_developer(gog_fake_links_bad) is None
+
+
+# get_tags
+
+def test_get_tags_good_input(gog_tags):
+    '''Tests get_tags on a standard input.'''
+    assert get_tags(gog_tags) == ['tag7', 'tag72']
+
+
+def test_get_tags_bad_input(gog_tags_bad):
+    '''Tests get_tags on a bad input.'''
+    assert get_tags(gog_tags_bad) == []
+
+
+# get_title
+
+def test_get_title_good_input(gog_title):
+    '''Tests get_title on a standard input.'''
+    assert get_title(gog_title) == 'goodtitle'
+
+
+def test_get_title_bad_input(gog_tags_bad):
+    '''Tests get_title on a bad input.'''
+    with raises(TypeError):
+        get_title(gog_tags_bad)
+
+
+# get_title
+
+def test_get_description_good_input(gog_description):
+    '''Tests get_description on a standard input.'''
+    assert get_description(
+        gog_description) == 'a very nice really thorough description'
