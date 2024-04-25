@@ -72,5 +72,4 @@ if __name__ == "__main__":
     with st.sidebar:
         st.title("Navigation Station :rocket:")
         st.write("---")
-        st.page_link("http://localhost:8501/",
                      label="Subscribe to Notifications", icon="🔔")
