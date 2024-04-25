@@ -53,12 +53,12 @@ def test_get_tags_no_tags(steam_tags_none):
 
 
 def test_developer(steam_developer_good):
-    """Test the get_developer function with a good inputs"""
+    """Test the get_developer function with a good inputs."""
     assert get_developer(steam_developer_good) == "SCLITIFY IT "
 
 
 def test_developer_missing(steam_developer_none):
-    """Test the get_developer function with a good inputs"""
+    """Test the get_developer function with a good inputs."""
     assert get_developer(steam_developer_none) is None
 
 
@@ -66,18 +66,18 @@ def test_developer_missing(steam_developer_none):
 
 
 def test_publisher(steam_publisher_good):
-    """Test the get_developer function with a good inputs"""
+    """Test the get_developer function with a good inputs."""
     assert get_publisher(steam_publisher_good) == "Inoa Forever"
 
 
 def test_publisher_missing(steam_developer_none):
-    """Test the get_developer function with a no input"""
+    """Test the get_developer function with a no input."""
     assert get_developer(steam_developer_none) is None
 
 
 # name_price tests
 
 def test_get_name_price_date(search_result):
-    """Test the get_name_price_date function is working"""
+    """Test the get_name_price_date function is working."""
     assert get_name_price_date(search_result) == [
         'Culling of Normality', 0.0, '24 Apr, 2024']
