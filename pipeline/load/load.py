@@ -3,12 +3,13 @@ into our cloud-based database. Each embedded list should have values in the
 following order,
 
 name: str; description: str; price: float; developer: str; publisher: str; 
-release_date: datetime; rating: float; website_id: int; tags: list[str]; 
+release_date: str; rating: float; website_id: int; tags: list[str]; 
 platform: list[int]. 
 """
+from datetime import datetime
 from os import environ as ENV
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 from psycopg2 import connect
 from psycopg2.extras import RealDictCursor
 from psycopg2.extensions import connection
@@ -25,6 +26,15 @@ def get_db_connection(config) -> connection:
         port=config.get("DB_PORT", 5432),
         cursor_factory=RealDictCursor
     )
+
+
+def format_release_date_dt(game_data: list[list]) -> list[list]:
+    """Given our game data, we format the release date as a datetime object."""
+    for game in game_data:
+        release_date = game[5]
+        game[5] = datetime.strptime(release_date, "%Y-%m-%d %H:%M:%S")
+
+    return game_data
 
 
 def input_game_into_db(game_data: list[list], conn: connection) -> None:
@@ -100,14 +110,16 @@ def handler(event=None, context=None) -> None:
     """Takes in an event (ie. the combined game data) and context, and
     loads the game data into the database."""
 
-    game_data = event["game_data"]
+    event_data = event["game_data"]
 
-    if not game_data:
+    if not event_data:
         return None
 
     load_dotenv()
 
     conn = get_db_connection(ENV)
+
+    game_data = format_release_date_dt(event_data)
 
     input_game_into_db(game_data, conn)
 
