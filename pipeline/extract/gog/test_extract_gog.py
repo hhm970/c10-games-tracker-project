@@ -4,9 +4,9 @@ from datetime import datetime
 
 from pytest import raises
 
-from pipeline.extract.gog.extract_gog import (get_price, get_rating, get_developer,
-                                              get_release_date, get_platform_ids, get_publisher,
-                                              get_tags, get_title, get_description)
+from extract_gog import (get_price, get_rating, get_developer,
+                         get_release_date, get_platform_ids, get_publisher,
+                         get_tags, get_title, get_description)
 
 
 # get_price

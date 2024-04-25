@@ -1,7 +1,7 @@
 """This file contains tests for the extract_epic.py functions."""
 import datetime
 
-from pipeline.extract.epic.extract_epic import get_games_data, get_game_details, epic_extract_process
+from extract_epic import get_games_data, get_game_details, epic_extract_process
 
 
 def test_pull_data_from_graphql(requests_mock, epic_game_post_response):
