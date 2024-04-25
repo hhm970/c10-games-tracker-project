@@ -1,4 +1,5 @@
-"""Given some input game data as a list[list] object, we load this data 
+"""
+Given some input game data as a list[list] object, we load this data 
 into our cloud-based database. Each embedded list should have values in the 
 following order,
 
@@ -9,7 +10,6 @@ platform: list[int].
 from datetime import datetime
 from os import environ as ENV
 
-from dotenv import load_dotenv
 from psycopg2 import connect
 from psycopg2.extras import RealDictCursor
 from psycopg2.extensions import connection
@@ -115,8 +115,6 @@ def handler(event=None, context=None) -> None:
     if not event_data:
         return None
 
-    load_dotenv()
-
     conn = get_db_connection(ENV)
 
     game_data = format_release_date_dt(event_data)
@@ -127,9 +125,4 @@ def handler(event=None, context=None) -> None:
 
     input_game_tags_into_db(game_data, conn)
 
-
-if __name__ == "__main__":
-
-    load_dotenv()
-
-    conn = get_db_connection(ENV)
+    conn.close()
