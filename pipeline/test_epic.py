@@ -41,7 +41,7 @@ def test_no_new_games(requests_mock, epic_empty_post_request):
 
 
 def test_no_one_new_games(requests_mock, epic_game_post_response):
-    """Tests error handling of grabbing data"""
+    """Tests error handling of grabbing data."""
     config = {
         'BASE_URL': 'http://www.epic/test/graphql.com'
     }
