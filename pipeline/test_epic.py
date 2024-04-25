@@ -1,5 +1,6 @@
 """This file contains tests for the extract_epic.py functions."""
 import datetime
+
 from extract_epic import get_games_data, get_game_details, epic_extract_process
 
 
