@@ -12,8 +12,7 @@ TAG_ARNS = {'Action': 'arn:aws:sns:eu-west-2:129033205317:c10-games-action-tag',
             'Horror': 'arn:aws:sns:eu-west-2:129033205317:c10-games-horror-tag'}
 
 
-
-def verify_email(email_address: str, config) -> None:
+def verify_email(email_address: str, config):
     '''Checks if an email is already verified,
     if not it is verified.'''
     ses = client(
@@ -73,5 +72,3 @@ if __name__ == "__main__":
     with st.sidebar:
         st.title("Navigation Station :rocket:")
         st.write("---")
-
-

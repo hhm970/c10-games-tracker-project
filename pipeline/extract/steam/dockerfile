@@ -1,0 +1,11 @@
+FROM public.ecr.aws/lambda/python:latest
+
+WORKDIR ${LAMBDA_TASK_ROOT}
+
+COPY requirements.txt .
+
+RUN pip install -r requirements.txt
+
+COPY steam_extract.py .
+
+CMD ["steam_extract.handler"]
