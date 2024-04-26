@@ -1,11 +1,11 @@
 """
-Given some input game data as a list[list] object, we load this data 
-into our cloud-based database. Each embedded list should have values in the 
+Given some input game data as a list[list] object, we load this data
+into our cloud-based database. Each embedded list should have values in the
 following order,
 
-name: str; description: str; price: float; developer: str; publisher: str; 
-release_date: str; rating: float; website_id: int; tags: list[str]; 
-platform: list[int]. 
+name: str; description: str; price: float; developer: str; publisher: str;
+release_date: str; rating: int; website_id: int; tags: list[str];
+platform: list[int].
 """
 from datetime import datetime
 from os import environ as ENV
@@ -20,10 +20,10 @@ def get_db_connection(config) -> connection:
 
     return connect(
         dbname=config["DB_NAME"],
-        user=config.get("DB_USER"),
-        password=config.get("DB_PASSWORD"),
-        host=config.get("DB_HOST"),
-        port=config.get("DB_PORT", 5432),
+        user=config["DB_USER"],
+        password=config["DB_PASSWORD"],
+        host=config["DB_HOST"],
+        port=config["DB_PORT"],
         cursor_factory=RealDictCursor
     )
 
@@ -45,7 +45,7 @@ def input_game_into_db(game_data: list[list], conn: connection) -> None:
             cur.execute(
                 """INSERT INTO game (name, description, price, developer, publisher, 
                 release_date, rating, website_id)
-                VALUES %s""", game[:-2])
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""", (game[:-2]))
 
         cur.close()
     conn.commit()
@@ -60,13 +60,13 @@ def input_game_plat_into_db(game_data: list[list], conn: connection) -> None:
             cur.execute("""SELECT game_id FROM game
                         WHERE name = %s""", (game[0],))
 
-            game_id = cur.fetchone()
+            game_id = cur.fetchone()['game_id']
             game_plat_list = game[-1]
 
             for plat in game_plat_list:
                 cur.execute(
                     """INSERT INTO platform_assignment (platform_id, game_id)
-                    VALUES %s""", (plat, game_id))
+                VALUES (%s, %s)""", (plat, game_id))
         cur.close()
     conn.commit()
 
@@ -81,27 +81,30 @@ def input_game_tags_into_db(game_data: list[list], conn: connection) -> None:
             cur.execute("""SELECT game_id FROM game
                         WHERE name = %s""", (game[0],))
 
-            game_id = cur.fetchone()
+            game_id = cur.fetchone()['game_id']
             game_tags = game[-2]
+            if len(game_tags) > 0:
 
-            for tag in game_tags:
-                tag_formatted = tag.title()
-                cur.execute("""SELECT tag_id FROM tag
-                            WHERE SIMILARITY(%s, tag_name) > 0.8""",
-                            (tag_formatted,))
-                tag_id_match = cur.fetchone()
-
-                if tag_id_match is None:
-                    cur.execute("""INSERT INTO tag (tag_name)
-                                VALUES %s""", (tag_formatted,))
-
+                for tag in game_tags:
+                    tag_formatted = tag.title()
                     cur.execute("""SELECT tag_id FROM tag
-                                WHERE tag_name = %s""", (tag_formatted,))
-
+                                WHERE SIMILARITY(%s, tag_name) > 0.8""",
+                                (tag_formatted,))
                     tag_id_match = cur.fetchone()
 
-                cur.execute("""INSERT INTO game_tag_matching
-                            VALUES %s""", (game_id, tag_id_match))
+                    if tag_id_match is None:
+                        cur.execute("""INSERT INTO tag (tag_name)
+                                    VALUES (%s)""", (tag_formatted,))
+
+                        cur.execute("""SELECT tag_id FROM tag
+                                    WHERE tag_name = %s""", (tag_formatted,))
+
+                        tag_id_match = cur.fetchone()
+
+                    tag_id = tag_id_match['tag_id']
+
+                    cur.execute("""INSERT INTO game_tag_matching (game_id, tag_id)
+                                VALUES (%s, %s)""", (game_id, tag_id))
         cur.close()
     conn.commit()
 
