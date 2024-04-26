@@ -2,10 +2,10 @@
 
 
 DROP TABLE website CASCADE;
+DROP TABLE publisher CASCADE;
+DROP TABLE developer CASCADE;
 DROP TABLE platform CASCADE;
-DROP TABLE subscriber CASCADE;
 DROP TABLE tag CASCADE;
-DROP TABLE subscriber_tag_subscription CASCADE;
 DROP TABLE game CASCADE;
 DROP TABLE platform_assignment CASCADE;
 DROP TABLE game_tag_matching CASCADE;
@@ -20,19 +20,25 @@ CREATE TABLE website (
 );
 
 
+CREATE TABLE publisher (
+    publisher_id INT GENERATED ALWAYS AS IDENTITY,
+    publisher_name VARCHAR(100) UNIQUE NOT NULL,
+    PRIMARY KEY (publisher_id)
+);
+
+
+CREATE TABLE developer (
+    developer_id INT GENERATED ALWAYS AS IDENTITY,
+    developer_name VARCHAR(100) UNIQUE NOT NULL,
+    PRIMARY KEY (developer_id)
+);
+
+
 
 CREATE TABLE platform (
     platform_id INT GENERATED ALWAYS AS IDENTITY,
     platform_name VARCHAR(30) UNIQUE NOT NULL,
     PRIMARY KEY (platform_id)
-);
-
-CREATE TABLE subscriber (
-    subscriber_id INT GENERATED ALWAYS AS IDENTITY,
-    first_name VARCHAR(15) NOT NULL,
-    last_name VARCHAR(15) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    PRIMARY KEY (subscriber_id)
 );
 
 
@@ -43,27 +49,21 @@ CREATE TABLE tag (
 );
 
 
-CREATE TABLE subscriber_tag_subscription (
-    subscription_id INT GENERATED ALWAYS AS IDENTITY,
-    subscriber_id INT NOT NULL,
-    tag_id INT NOT NULL,
-    PRIMARY KEY (subscription_id),
-    FOREIGN KEY(subscriber_id) REFERENCES subscriber(subscriber_id),
-    FOREIGN KEY(tag_id) REFERENCES tag(tag_id)
-);
 
 CREATE TABLE game (
     game_id INT GENERATED ALWAYS AS IDENTITY,
     name VARCHAR(100) NOT NULL,
     description TEXT,
     price FLOAT NOT NULL,
-    developer VARCHAR(40),
-    publisher VARCHAR(40),
+    developer_id INT,
+    publisher_id INT,
     release_date DATE NOT NULL,
-    rating SMALLINT,
+    rating FLOAT,
     website_id INT NOT NULL,
     PRIMARY KEY (game_id),
-    FOREIGN KEY(website_id) REFERENCES website(website_id)
+    FOREIGN KEY(website_id) REFERENCES website(website_id),
+    FOREIGN KEY(developer_id) REFERENCES developer(developer_id),
+    FOREIGN KEY(publisher_id) REFERENCES publisher(publisher_id)
 );
 
 CREATE TABLE platform_assignment (
@@ -85,8 +85,6 @@ CREATE TABLE game_tag_matching (
 );
 
 
-INSERT INTO subscriber (first_name, last_name, email)
-VALUES ('Annalise', 'Verzijl', 'trainee.annalise.verzijl@sigmalabs.co.uk');
 
 INSERT INTO website (website_name)
 VALUES ('Steam'),('GOG'),('Epic');
