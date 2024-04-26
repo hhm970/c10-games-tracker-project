@@ -50,34 +50,33 @@ def get_game_id_from_inputted_game(inputted_game: list,
     return game_id
 
 
-def get_dev_id(inputted_game: list[list], cursor: connection.cursor) -> int:
+def get_dev_id(input_game: list, cursor: connection.cursor) -> int:
     """Given a game, returns the corresponding developer_id entry if its developer 
     name is in the developer table, and None otherwise."""
 
     cursor.execute("""SELECT developer_id FROM developer
-                        WHERE developer_name = %s""", (inputted_game[3],))
+                        WHERE developer_name = %s""", (input_game[3],))
 
     developer_id = cursor.fetchone()['developer_id']
 
     return developer_id
 
 
-def input_game_dev_get_dev_id(game_data: list[list], conn: connection) -> int:
+def input_game_dev_get_dev_id(input_game: list, conn: connection) -> int:
     """For each game in our input data, we check if its associated developer is in the
     developer table. If not, we input it into the developer table.
     Returns the developer_id entry from the given developer name."""
 
     with conn.cursor() as cur:
-        for game in game_data:
 
-            developer_id = get_dev_id(game, cur)
+        developer_id = get_dev_id(input_game, cur)
 
-            if developer_id is None:
+        if developer_id is None:
 
-                cur.execute("""INSERT INTO developer (developer_name)
-                        VALUES %s""", (game[3],))
+            cur.execute("""INSERT INTO developer (developer_name)
+                    VALUES %s""", (input_game[3],))
 
-                developer_id = get_dev_id(game, cur)
+            developer_id = get_dev_id(input_game, cur)
 
         cur.close()
 
@@ -86,34 +85,33 @@ def input_game_dev_get_dev_id(game_data: list[list], conn: connection) -> int:
     return developer_id
 
 
-def get_pub_id(inputted_game: list, cursor: connection.cursor) -> int:
+def get_pub_id(input_game: list, cursor: connection.cursor) -> int:
     """Given a game with a publisher entry, returns the corresponding publisher_id entry 
     if its publisher name is in the publisher table, and None otherwise."""
 
     cursor.execute("""SELECT publisher_id FROM publisher
-                        WHERE publisher_name = %s""", (inputted_game[4],))
+                        WHERE publisher_name = %s""", (input_game[4],))
 
     publisher_id = cursor.fetchone()['publisher_id']
 
     return publisher_id
 
 
-def input_game_pub_get_pub_id(game_data: list[list], conn: connection) -> int:
+def input_game_pub_get_pub_id(input_game: list, conn: connection) -> int:
     """For each game in our input data, we check if its associated publisher is in the
     publisher table. If not, we input it into the publisher table.
     Returns the publisher_id entry from the given publisher name."""
 
     with conn.cursor() as cur:
-        for game in game_data:
 
-            publisher_id = get_pub_id(game, cur)
+        publisher_id = get_pub_id(input_game, cur)
 
-            if publisher_id is None:
+        if publisher_id is None:
 
-                cur.execute("""INSERT INTO publisher (publisher_name)
-                        VALUES %s""", (game[4],))
+            cur.execute("""INSERT INTO publisher (publisher_name)
+                    VALUES %s""", (input_game[4],))
 
-                publisher_id = get_pub_id(game, cur)
+            publisher_id = get_pub_id(input_game, cur)
 
         cur.close()
 
@@ -131,9 +129,9 @@ def input_game_into_db(game_data: list[list], conn: connection) -> None:
         for game in game_data:
 
             if game[3] is not None:
-                game[3] = input_game_dev_get_dev_id(game_data, conn)
+                game[3] = input_game_dev_get_dev_id(game, conn)
             if game[4] is not None:
-                game[4] = input_game_pub_get_pub_id(game_data, conn)
+                game[4] = input_game_pub_get_pub_id(game, conn)
 
             cur.execute(
                 """INSERT INTO game (name, description, price, developer, publisher, 
