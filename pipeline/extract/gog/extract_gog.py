@@ -82,10 +82,10 @@ def get_price(game_dict: dict) -> float:
 
 def get_rating(game_dict: dict) -> float:
     '''Returns the average rating for a game as a float,
-    out of 5.'''
+    out of 100.'''
     if 'aggregateRating' not in game_dict.keys():
         return None
-    return float(game_dict['aggregateRating']['ratingValue'])
+    return round(float(game_dict['aggregateRating']['ratingValue']) * 20, 2)
 
 
 def get_release_date(game_dict: dict) -> datetime:
