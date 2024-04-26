@@ -21,9 +21,9 @@ def get_rating(game_soup: BeautifulSoup) -> float:
         if positive:
             p_num = int(positive.find(
                 'span', class_='user_reviews_count').text.strip('()'))
-
         else:
             return 0.00
+
         if negative:
             n_num = int(negative.find(
                 'span', class_='user_reviews_count').text.strip('()'))
@@ -33,6 +33,23 @@ def get_rating(game_soup: BeautifulSoup) -> float:
         return round((p_num/(p_num+n_num)) * 100, 2)
 
 
+def get_single_platform(game_soup: BeautifulSoup) -> list:
+    """Function to get the platforms a game is available on from its URL."""
+    platforms = game_soup.findAll(
+        'div', class_="sysreq_contents")
+    platform_list = [platform.find(
+        'ul', class_='bb_ul').text for platform in platforms if platform.find(
+            'ul', class_='bb_ul')][0]
+    if "Windows" in platform_list:
+        return ["Windows"]
+    if "mac" in platform_list:
+        return ["macOS"]
+    if "Linux" in platform_list:
+        return ["Linux"]
+
+    return ["Windows"]
+
+
 def get_platforms(game_soup: BeautifulSoup) -> list:
     """Function to get the platforms a game is available on from its URL."""
 
@@ -40,24 +57,13 @@ def get_platforms(game_soup: BeautifulSoup) -> list:
             'div', class_="sysreq_tab"):
         platforms = [i.text.strip() for i in game_soup.findAll(
             'div', class_="sysreq_tab")]
+
         for i in range(len(platforms)):
             if "Linux" in platforms[i]:
                 platforms[i] = "Linux"
         return platforms
     else:
-        platforms = game_soup.findAll(
-            'div', class_="sysreq_contents")
-        platform_list = [platform.find(
-            'ul', class_='bb_ul').text for platform in platforms if platform.find(
-                'ul', class_='bb_ul')][0]
-        if "Windows" in platform_list:
-            return ["Windows"]
-        if "mac" in platform_list:
-            return ["macOS"]
-        if "Linux" in platform_list:
-            return ["Linux"]
-
-        return ["Windows"]
+        return get_single_platform(game_soup)
 
 
 def get_tags(game_soup: BeautifulSoup) -> list:
@@ -68,7 +74,9 @@ def get_tags(game_soup: BeautifulSoup) -> list:
 
 def get_developer(game_soup: BeautifulSoup) -> str:
     """Function to get the developing company of a game from its URL."""
-    return game_soup.find('div', class_='dev_row').text.split('\n')[-2]
+    if game_soup.find('div', class_='dev_row'):
+        return game_soup.find('div', class_='dev_row').text.split('\n')[-2]
+    return None
 
 
 def get_publisher(game_soup: BeautifulSoup) -> str:
@@ -77,7 +85,7 @@ def get_publisher(game_soup: BeautifulSoup) -> str:
     pub_list = [x.text.split('\n') for x in pub]
     for each in pub_list:
         if 'Publisher:' in each:
-            return each[-2]
+            return each[-2].strip()
     return None
 
 
@@ -127,7 +135,7 @@ def get_each_game_details(game_url: str) -> list:
     publisher = get_publisher(game_soup)
     description = get_description(game_soup)
 
-    return [description, developer, publisher, date.today(), rating, 1, game_tags, platform_id_list]
+    return [description, developer, publisher, str(date.today()), rating, 1, game_tags, platform_id_list]
 
 
 def grab_all_games_details(all_web_containers: BeautifulSoup) -> list[list]:
@@ -150,21 +158,23 @@ def grab_all_games_details(all_web_containers: BeautifulSoup) -> list[list]:
         description = detail_list.pop(0)
         name_price_date_list.append(name_price_date_list[1])
         name_price_date_list[1] = description
-        print(name_price_date_list + detail_list)
         final_list.append(name_price_date_list + detail_list)
         sleep(1)
 
     return final_list
 
 
-if __name__ == "__main__":
-
-    load_dotenv()
-
+def handler(event: dict = None, context=None) -> list[list]:
+    """Collects the required data for each game and then returns a
+    list of lists of this data."""
     res = req.get(ENV["BASE_URL"], timeout=10)
     soup = BeautifulSoup(res.text, features="html.parser")
 
     all_containers = soup.find_all(
         'a', class_="search_result_row")
 
-    final_game_list = grab_all_games_details(all_containers)
+    return grab_all_games_details(all_containers)
+
+
+if __name__ == "__main__":
+    pass
