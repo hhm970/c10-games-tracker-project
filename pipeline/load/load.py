@@ -51,6 +51,18 @@ def input_game_into_db(game_data: list[list], conn: connection) -> None:
     conn.commit()
 
 
+def input_game_dev_into_db(game_data: list[list], conn: connection) -> None:
+    """For each game in our input data, we input the values for the developer into the
+    developer table."""
+    pass
+
+
+def input_game_pub_into_db(game_data: list[list], conn: connection) -> None:
+    """For each game in our input data, we input the values for the publisher into the
+    publisher table."""
+    pass
+
+
 def input_game_plat_into_db(game_data: list[list], conn: connection) -> None:
     """For each game in our input data, we input all of its supported platforms
     into the platform_assignment table."""
