@@ -167,9 +167,11 @@ def grab_all_games_details(all_web_containers: BeautifulSoup) -> list[list]:
 def handler(event: dict = None, context=None) -> list[list]:
     """Collects the required data for each game and then returns a
     list of lists of this data."""
-    res = req.get(ENV["BASE_URL"], timeout=10)
+    cookies = {
+        "timezoneOffset": "3600,0"
+    }
+    res = req.get(ENV["BASE_URL"], timeout=10, cookies=cookies)
     soup = BeautifulSoup(res.text, features="html.parser")
-
     all_containers = soup.find_all(
         'a', class_="search_result_row")
 
