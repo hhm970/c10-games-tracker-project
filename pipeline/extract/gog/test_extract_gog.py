@@ -28,7 +28,7 @@ def test_get_price_bad_input():
 def test_get_rating():
     '''Tests the get_rating function with standard inputs.'''
     test_json = {'aggregateRating': {'ratingValue': 3.5}}
-    assert get_rating(test_json) == 3.5
+    assert get_rating(test_json) == 70
 
 
 def test_get_rating_no_rating():
