@@ -10,25 +10,23 @@ TAG_ARNS = {'Action': 'arn:aws:sns:eu-west-2:129033205317:c10-games-action-tag',
             'Indie': 'arn:aws:sns:eu-west-2:129033205317:c10-games-indie-tag',
             'Horror': 'arn:aws:sns:eu-west-2:129033205317:c10-games-horror-tag'}
 
+STRING_1 = 'Hey there!\n\nJust to let you know there are new games available to play in the '
+STRING_2 = ' tag.\n\nThe new games are:\n\n'
+STRING_3 = '''\nWe really think you\'ll enjoy these, so give them a go!\n\n
+Speak to you soon,\n\nThe GameScraper Team 👾'''
+
 
 def send_sns(topic: str, games: list, config):
     '''Sends a SNS message to subscribers of a given topic
     about newly released games.'''
 
+    message = STRING_1+topic+STRING_2+games+STRING_3
+
     sns = client(
         "sns", aws_access_key_id=config["AWS_KEY"], aws_secret_access_key=config["AWS_SECRET"])
     sns.publish(
         TargetArn=TAG_ARNS[topic],
-        Message=f'''Hey there!
-
-Just to let you know there are new games available to play in the {topic} tag.
-
-Here are the games: 
-
-{games}
-Speak to you soon,
-
-The GameScraper Team 👾''',
+        Message=message,
         Subject=f'New games in {topic}!'
     )
     print(f'sent {topic} email')
