@@ -1,0 +1,670 @@
+[
+  [
+    "Letters & Legends",
+    "Embark on an epic linguistic adventure in Letters & Legends, where words, wits, and wisdom are your greatest weapons! Sharpen your tongue and show your enemies who the true wordsmith is!",
+    3.99,
+    "Bow & Arrow Games",
+    "Bow & Arrow Games",
+    "2024-04-25 23:00:00",
+    null,
+    3,
+    [
+      "Casual",
+      "Puzzle",
+      "Cloud Saves",
+      "Achievements",
+      "Single Player",
+      "Controller Support",
+      "Indie"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Monster Coming",
+    "“Monster Coming”is a survivor roguelite game. Dark cracks appear in the sky, and a tide of beasts emerges from them to attack humans. You stand up as one of the braves!",
+    2.49,
+    "ongmaker",
+    "FutureGameStudio,Y.D Studio",
+    "2024-04-25 22:00:00",
+    null,
+    3,
+    [
+      "Action",
+      "Cloud Saves",
+      "Achievements",
+      "Single Player",
+      "Rogue-Lite",
+      "Indie"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Space Rocks!",
+    "Game is tribute to the classic Atari 1979 arcade game in which player tries to survive through waves of various obstacles and enemies. How long can you survive?",
+    4.99,
+    "VooDoo Gaming Studio",
+    "VooDoo Gaming Studio",
+    "2024-04-25 22:00:00",
+    null,
+    3,
+    [
+      "Action",
+      "Shooter",
+      "Single Player",
+      "Retro"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Expansion 1 for Replikant subscribers",
+    "Expand your Replikant experience with over 20 new environments, including Sci-Fi, sports stadiums, and music stages, plus new avatar outfits and music video templates. Free for subscribers, download optional.",
+    0,
+    "Replikant",
+    "Replikant",
+    "2024-04-25 17:00:00",
+    null,
+    3,
+    [
+      "Simulation",
+      "Single Player"
+    ],
+    []
+  ],
+  [
+    "LISA: The Definitive Edition",
+    "Explore Olathe and unmask its twisted secrets with LISA: The Definitive Edition, including the original narrative-driven RPG LISA: The Painful and its sequel LISA: The Joyful.",
+    0,
+    "Dingaling Productions",
+    "Serenity Forge",
+    "2024-04-25 15:00:00",
+    null,
+    3,
+    [
+      "RPG",
+      "Single Player",
+      "Adventure",
+      "Controller Support",
+      "Indie"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Smelogs Playground",
+    "Smelogs Playground is a Real-Time Strategy game with charming aesthetics and a simple but effective gameplay mechanism. Take over the playful and rocky Smelogs to compete against each other for fun and honor!",
+    0,
+    "Nifty Productions",
+    "Nifty Productions",
+    "2024-04-25 15:00:00",
+    null,
+    3,
+    [
+      "RTS",
+      "Action",
+      "Online Multiplayer",
+      "Co-op",
+      "Competitive",
+      "Achievements",
+      "Cross Platform",
+      "Single Player",
+      "Strategy",
+      "EARLY ACCESS"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Fallout 4: 1000 Creation Credits",
+    "Get 1000 Creation Credits to be used in Fallout 4. Browse the selection in-game by category and use your Credits to purchase content. Creations are compatible with the main game and official add-ons.",
+    9.99,
+    "Bethesda Game Studios",
+    "Bethesda Softworks",
+    "2024-04-25 14:00:00",
+    null,
+    3,
+    [
+      "Achievements"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Fallout 4: Nuka-World",
+    "Take a trip to Nuka-World, a vast amusement park originally dedicated to the refreshing taste of Nuka-Cola. Now a lawless city of Raiders, it's up to you to bring justice (or mayhem) to the Wasteland in this add-on for Fallout 4.",
+    9.99,
+    "Bethesda Game Studios",
+    "Bethesda Softworks",
+    "2024-04-25 14:00:00",
+    null,
+    3,
+    [],
+    [
+      1
+    ]
+  ],
+  [
+    "Fallout 4: 2700 Creation Credits",
+    "Get 2700 Creation Credits to be used in Fallout 4. Browse the selection in-game by category and use your Credits to purchase content. Creations are compatible with the main game and official add-ons.",
+    24.99,
+    "Bethesda Game Studios",
+    "Bethesda Softworks",
+    "2024-04-25 14:00:00",
+    null,
+    3,
+    [
+      "Achievements"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Fallout 4: Wasteland Workshop",
+    "With the Wasteland Workshop add-on for Fallout 4, design and set cages to capture live creatures – be they scrappy Raiders or vicious Deathclaws! \n\nTame your Wasteland wildlife, face them off in battle or even set 'em loose onto your settlement!",
+    4.99,
+    "Bethesda Game Studios",
+    "Bethesda Softworks",
+    "2024-04-25 14:00:00",
+    null,
+    3,
+    [],
+    [
+      1
+    ]
+  ],
+  [
+    "Fallout 4: Contraptions Workshop",
+    "With Fallout 4: Contraptions Workshop, use conveyer belts, scaffolding kits, track kits, elevators, logic gates and much more to construct complex gadgets to improve your Wasteland settlements!",
+    4.99,
+    "Bethesda Game Studios",
+    "Bethesda Softworks",
+    "2024-04-25 14:00:00",
+    null,
+    3,
+    [
+      "Achievements"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Fallout 4: Far Harbor",
+    "Travel off the coast of Maine to Far Harbor, where higher levels of radiation have created a more feral world. Will you bring peace to the island amidsts a growing conflict and if so, at what cost? ",
+    14.99,
+    "Bethesda Game Studios",
+    "Bethesda Softworks",
+    "2024-04-25 14:00:00",
+    null,
+    3,
+    [
+      "Achievements"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Fallout 4: Automatron",
+    "The mysterious Mechanist has unleashed a horde of evil robots into the Commonwealth - hunt these automated enemies down and harvest their parts to build and modify your own custom robot companions! ",
+    9.99,
+    "Bethesda Game Studios",
+    "Bethesda Softworks",
+    "2024-04-25 14:00:00",
+    null,
+    3,
+    [
+      "Achievements"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Fallout 4: High Resolution Texture Pack",
+    "Experience the wasteland like you've never seen it before with the Fallout 4 High Resolution Texture Pack! From the blasted buildings of Lexington to the shores of Boston Harbor and beyond, every location is enhanced with ultra-deluxe detail.",
+    0,
+    "Bethesda Game Studios",
+    "Bethesda Softworks",
+    "2024-04-25 14:00:00",
+    null,
+    3,
+    [],
+    [
+      1
+    ]
+  ],
+  [
+    "Fallout 4: 500 Creation Credits",
+    "Get 500 Creation Credits to be used in Fallout 4. Browse the selection in-game by category and use your Credits to purchase content. Creations are compatible with the main game and official add-ons.",
+    4.99,
+    "Bethesda Game Studios",
+    "Bethesda Softworks",
+    "2024-04-25 14:00:00",
+    null,
+    3,
+    [
+      "Achievements"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Fallout 4",
+    "As the sole survivor of Vault 111, do whatever you want in a massive open world Commonwealth with hundreds of locations, characters and quests. Welcome home to Fallout 4, from Bethesda Game Studios, the award-winning creators of The Elder Scrolls V: Skyrim.",
+    19.99,
+    "Bethesda Game Studios",
+    "Bethesda Softworks",
+    "2024-04-25 14:00:00",
+    null,
+    3,
+    [
+      "Cloud Saves",
+      "RPG",
+      "Achievements",
+      "Open World"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Fallout 4: 5500 Creation Credits",
+    "Get 5500 Creation Credits to be used in Fallout 4. Browse the selection in-game by category and use your Credits to purchase content. Creations are compatible with the main game and official add-ons.",
+    49.99,
+    "Bethesda Game Studios",
+    "Bethesda Softworks",
+    "2024-04-25 14:00:00",
+    null,
+    3,
+    [
+      "Achievements"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Fallout 4: Vault-Tec Workshop",
+    "Build a brighter future underground with the all-new Vault-Tec Workshop! Create a massive Vault and attract new Dwellers using pre-War industrial kits (complete with retro-nostalgic furniture, lighting and art) with this add-on for Fallout 4! ",
+    4.99,
+    "Bethesda Game Studios",
+    "Bethesda Softworks",
+    "2024-04-25 14:00:00",
+    null,
+    3,
+    [],
+    [
+      1
+    ]
+  ],
+  [
+    "Fallout 4: Game of the Year Edition",
+    "Fallout 4: Game of the Year Edition includes Bethesda Game Studio's critically acclaimed Fallout 4 plus all six official add-ons: Automatron, Wasteland Workshop, Far Harbor, Contraptions Workshop, Vault-Tec Workshop and Nuka-World!",
+    39.99,
+    "Bethesda Game Studios",
+    "Bethesda Softworks",
+    "2024-04-25 14:00:00",
+    null,
+    3,
+    [
+      "Cloud Saves",
+      "RPG",
+      "Achievements",
+      "Open World"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Fallout 4: Season Pass",
+    "Fallout 4: Season Pass features all six official add-ons for Fallout 4 in one complete value collection! Includes: Automatron, Wasteland Workshop, Far Harbor, Contraptions Workshop, Vault-Tec Workshop and Nuka-World.",
+    34.99,
+    "Bethesda Game Studios",
+    "Bethesda Softworks",
+    "2024-04-25 14:00:00",
+    null,
+    3,
+    [],
+    [
+      1
+    ]
+  ],
+  [
+    "Ultimate Heroes Pack – FOR HONOR",
+    "Unlock additional heroes with the Ultimate Heroes Pack! \nThis pack includes six additional heroes with unique playstyles.",
+    29.99,
+    "Ubisoft",
+    "Ubisoft",
+    "2024-04-25 13:00:00",
+    null,
+    3,
+    [],
+    [
+      1
+    ]
+  ],
+  [
+    "Gold Heroes Pack – FOR HONOR",
+    "Unlock additional heroes with the Gold Heroes Pack! \nThis pack includes six additional heroes with unique playstyles.",
+    29.99,
+    "Ubisoft",
+    "Ubisoft",
+    "2024-04-25 13:00:00",
+    null,
+    3,
+    [],
+    [
+      1
+    ]
+  ],
+  [
+    "Ezio Auditore – Peacekeeper Hero Skin – FOR HONOR",
+    "Embody Ezio Auditore, the iconic Assassin from Renaissance Italy, in the world of For Honor.",
+    11.99,
+    "Ubisoft",
+    "Ubisoft",
+    "2024-04-25 13:00:00",
+    null,
+    3,
+    [],
+    [
+      1
+    ]
+  ],
+  [
+    "Tales of Monkey Island: Complete Season",
+    "This game follows the fate of the most Mighty Pirate™ in the business, Guybrush Threepwood, as he continues his fight with the evil pirate LeChuck and attempts to reverse the effects of a poisonous outbreak he has unwittingly unleashed upon the Caribbean.",
+    14.99,
+    "Telltale",
+    "Telltale",
+    "2024-04-25 11:00:00",
+    null,
+    3,
+    [
+      "Puzzle",
+      "Comedy",
+      "Adventure",
+      "Telltale Publisher Sale"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Wallace & Gromit’s Grand Adventures",
+    "Enter the colorful world of West Wallaby Street in a series of four cracking adventures brought to you by Aardman Animations, the creators of the Wallace & Gromit animated films, and award-winning Telltale Games.",
+    14.99,
+    "Telltale",
+    "Telltale",
+    "2024-04-25 11:00:00",
+    null,
+    3,
+    [
+      "Casual",
+      "Single Player",
+      "Adventure",
+      "Telltale Publisher Sale"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Hector: Badge of Carnage - Full Series",
+    "Hector is the flawed, misanthropic Detective Inspector with the Clappers Wreake Police Service. Violent, drunken, callous, vulgar, sarcastic, bloody minded - on a good day. His philosophy: everyone is guilty.",
+    14.99,
+    "Telltale",
+    "Telltale",
+    "2024-04-25 11:00:00",
+    null,
+    3,
+    [
+      "Casual",
+      "Achievements",
+      "Single Player",
+      "Telltale Publisher Sale"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Puzzle Agent",
+    "Created with indie comic artist Graham Annable's unique narrative and visual sensibilities, delivered with the distinctive Telltale storytelling style, Puzzle Agent is sure to challenge, thrill and engage in more ways than you can shake a cryptogram at!",
+    4.99,
+    "Telltale",
+    "Telltale",
+    "2024-04-25 11:00:00",
+    null,
+    3,
+    [
+      "Casual",
+      "Puzzle",
+      "Cloud Saves",
+      "Single Player",
+      "Adventure",
+      "Telltale Publisher Sale"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Single-picture map collection of materials1",
+    "This collection of assets is based on the same worldview as the RPG Maker Unite game templates, which enables you to expand the world of your game with the matching style!",
+    24.99,
+    "GREEN FIELDS CO.,LTD / Gotcha Gotcha Games",
+    "Gotcha Gotcha Games",
+    "2024-04-25 06:00:00",
+    null,
+    3,
+    [
+      "RPG",
+      "Single Player"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "RPG Maker Unite Default Character Facial Expression Assets3",
+    "This is the third collection of basic character expressions included in RPG Maker Unite's game templates. It includes 7 different expressions for each of the 24 characters.",
+    9.99,
+    "GREEN FIELDS CO.,LTD / Gotcha Gotcha Games",
+    "Gotcha Gotcha Games",
+    "2024-04-25 06:00:00",
+    null,
+    3,
+    [
+      "RPG",
+      "Single Player"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Animation Battler Material Collection Travel Companion Set 2",
+    "This pack is a collection of animated battler assets featuring four RPG Maker Unite characters.",
+    16.99,
+    "Vibrato / Gotcha Gotcha Games",
+    "Gotcha Gotcha Games",
+    "2024-04-25 06:00:00",
+    null,
+    3,
+    [
+      "RPG",
+      "Single Player"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Single-picture map collection of materials2",
+    "This collection of assets is based on the same worldview as the RPG Maker Unite game templates, which enables you to expand the world of your game with the matching style!",
+    24.99,
+    "GREEN FIELDS CO.,LTD / Gotcha Gotcha Games",
+    "Gotcha Gotcha Games",
+    "2024-04-25 06:00:00",
+    null,
+    3,
+    [
+      "RPG",
+      "Single Player"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Animation Battler Material Collection Travel Companion Set 3",
+    "This pack is a collection of animated battler assets featuring four RPG Maker Unite characters.",
+    16.99,
+    "Vibrato / Gotcha Gotcha Games",
+    "Gotcha Gotcha Games",
+    "2024-04-25 06:00:00",
+    null,
+    3,
+    [
+      "RPG",
+      "Single Player"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Single-picture map collection of materials4",
+    "This collection of assets is based on the same worldview as the RPG Maker Unite game templates, which enables you to expand the world of your game with the matching style!",
+    24.99,
+    "GREEN FIELDS CO.,LTD / Gotcha Gotcha Games",
+    "Gotcha Gotcha Games",
+    "2024-04-25 06:00:00",
+    null,
+    3,
+    [
+      "RPG",
+      "Single Player"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Animation Battler Material Collection Travel Companion Set 1",
+    "This pack is a collection of animated battler assets featuring four RPG Maker Unite characters.",
+    16.99,
+    "Vibrato / Gotcha Gotcha Games",
+    "Gotcha Gotcha Games",
+    "2024-04-25 06:00:00",
+    null,
+    3,
+    [
+      "RPG",
+      "Single Player"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "RPG Maker Unite Default Character Facial Expression Assets2",
+    "This is the second collection of basic character expressions included in RPG Maker Unite's game templates. It includes 7 different expressions for each of the 23 characters.",
+    9.99,
+    "GREEN FIELDS CO.,LTD / Gotcha Gotcha Games",
+    "Gotcha Gotcha Games",
+    "2024-04-25 06:00:00",
+    null,
+    3,
+    [
+      "RPG",
+      "Single Player"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Unite DLC Bundle",
+    "RPG Maker Unite Official DLC bundle set with a great value!\n\nAs a bundle discount, the price is approximately 15% off.",
+    44.99,
+    "Gotcha Gotcha Games",
+    "Gotcha Gotcha Games",
+    "2024-04-25 06:00:00",
+    null,
+    3,
+    [
+      "RPG",
+      "Single Player"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "RPG Maker Unite Default Character Facial Expression Assets1",
+    "This is the first collection of basic character expressions included in RPG Maker Unite's game templates. It includes 7 different expressions for each of the 23 characters.",
+    9.99,
+    "GREEN FIELDS CO.,LTD / Gotcha Gotcha Games",
+    "Gotcha Gotcha Games",
+    "2024-04-25 06:00:00",
+    null,
+    3,
+    [
+      "RPG",
+      "Single Player"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Single-picture map collection of materials3",
+    "This collection of assets is based on the same worldview as the RPG Maker Unite game templates, which enables you to expand the world of your game with the matching style!",
+    24.99,
+    "GREEN FIELDS CO.,LTD / Gotcha Gotcha Games",
+    "Gotcha Gotcha Games",
+    "2024-04-25 06:00:00",
+    null,
+    3,
+    [
+      "RPG",
+      "Single Player"
+    ],
+    [
+      1
+    ]
+  ],
+  [
+    "Cube Step",
+    "Cube Step is a game all about stepping on a set of cubes in the middle of an ocean and seeing how long you can survive. There are different obstacles that get in the way of surviving like wave breakers, and ways to make the challenge easier like slowing down time.",
+    3.99,
+    "Caelan Reid",
+    "Iterated Dream",
+    "2024-04-25 05:00:00",
+    null,
+    3,
+    [
+      "Action-Adventure",
+      "Single Player",
+      "First Person",
+      "Indie"
+    ],
+    [
+      1
+    ]
+  ]
+]
