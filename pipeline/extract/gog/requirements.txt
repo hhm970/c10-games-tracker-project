@@ -7,4 +7,3 @@ requests
 requests-mock
 pandas
 psycopg2-binary
-

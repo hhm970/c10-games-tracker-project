@@ -147,6 +147,7 @@ def get_games_from_page(soup: BeautifulSoup) -> list:
         game_data = get_game_details(game)
         release_date = game_data[5]
         if release_date > yesterday:
+            game_data[5] = str(game_data[5])
             recently_released.append(game_data)
             sleep(1)
         else:
@@ -182,6 +183,13 @@ def search_pages_last_day() -> list:
             game_data_list = game_data_list.append(game_data)
 
     return game_data_list
+
+
+def handler(event: dict = None, context=None) -> list[list]:
+    """Collects the required data for each game and then returns a
+    list of lists of this data."""
+
+    return search_pages_last_day()
 
 
 if __name__ == "__main__":
