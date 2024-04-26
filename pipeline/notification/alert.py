@@ -11,7 +11,7 @@ TAG_ARNS = {'Action': 'arn:aws:sns:eu-west-2:129033205317:c10-games-action-tag',
             'Horror': 'arn:aws:sns:eu-west-2:129033205317:c10-games-horror-tag'}
 
 
-def send_sns(topic: str, games: list, config):
+def send_sns(topic: str, games: list, config) -> None:
     '''Sends a SNS message to subscribers of a given topic
     about newly released games.'''
 
