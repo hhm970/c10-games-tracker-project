@@ -16,7 +16,7 @@ STRING_3 = '''\nWe really think you\'ll enjoy these, so give them a go!\n\n
 Speak to you soon,\n\nThe GameScraper Team 👾'''
 
 
-def send_sns(topic: str, games: list, config):
+def send_sns(topic: str, games: list, config) -> None:
     '''Sends a SNS message to subscribers of a given topic
     about newly released games.'''
 
