@@ -38,7 +38,8 @@ def format_release_date_dt(game_data: list[list]) -> list[list]:
     return game_data
 
 
-def get_game_id_from_inputted_game(inputted_game: list, cursor: connection.cursor) -> int:
+def get_game_id_from_inputted_game(inputted_game: list,
+                                   cursor: connection.cursor) -> int:
     """Given a game that has already been inputted into the database, return its
     game_id entry in the database."""
     cursor.execute("""SELECT game_id FROM game
@@ -49,7 +50,7 @@ def get_game_id_from_inputted_game(inputted_game: list, cursor: connection.curso
     return game_id
 
 
-def get_dev_id(inputted_game: str, cursor: connection.cursor) -> int | None:
+def get_dev_id(inputted_game: list[list], cursor: connection.cursor) -> int:
     """Given a game, returns the corresponding developer_id entry if its developer 
     name is in the developer table, and None otherwise."""
 
@@ -85,7 +86,7 @@ def input_game_dev_get_dev_id(game_data: list[list], conn: connection) -> int:
     return developer_id
 
 
-def get_pub_id(inputted_game: str, cursor: connection.cursor) -> int | None:
+def get_pub_id(inputted_game: list, cursor: connection.cursor) -> int:
     """Given a game with a publisher entry, returns the corresponding publisher_id entry 
     if its publisher name is in the publisher table, and None otherwise."""
 
@@ -221,3 +222,43 @@ def handler(event: list[list[list]] = None, context=None) -> None:
 
 
 if __name__ == "__main__":
+
+    event = [
+        [
+            [
+                "Weed Shop 3",
+                "BUILD YOUR VIRTUAL WEED EMPIRE: Grow the hottest strains & crossbreed new ones, roll your own Blunts, sell Bongs, hire Growers, make Solventless Concentrates, handle Rival Dealers, befriend Influencers, smoke Dabs, ride a Dolphin, and More! WELCOME TO WEED SHOP 3!",
+                19.99,
+                "Weed Games",
+                "Weed Games",
+                "2024-04-24 20:57:11",
+                1.0,
+                3,
+                [
+                    "Simulation",
+                    "Cloud Saves",
+                    "Achievements",
+                    "Single Player",
+                    "First Person",
+                    "Indie"
+                ],
+                [
+                    1
+                ]
+            ],
+            [
+                "Aarakocra Glitch Orkira Skin & Feat Pack",
+                "This Idle Champions Skin & Feat pack contains a Champion unlock, 7 Gold Champion Chests, and an exclusive skin & feat for that Champion! Take your game to the next level!",
+                11.99,
+                "Codename Entertainment",
+                "Codename Entertainment",
+                "2024-04-24 19:00:00",
+                3.0,
+                3,
+                [],
+                [
+                    1
+                ]
+            ]]]
+
+    handler(event)
