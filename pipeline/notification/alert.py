@@ -13,7 +13,7 @@ TAG_ARNS = {'Action': 'arn:aws:sns:eu-west-2:129033205317:c10-games-action-tag',
 STRING_1 = 'Hey there!\n\nJust to let you know there are new games available to play in the '
 STRING_2 = ' tag.\n\nThe new games are:\n\n'
 STRING_3 = '''\nWe really think you\'ll enjoy these, so give them a go!\n\n
-Speak to you soon,\n\nThe GameScraper Team 👾'''
+Speak to you soon,\n\nThe GameScraper Team 🚀'''
 
 
 def send_sns(topic: str, games: list, config) -> None:
@@ -47,7 +47,7 @@ def format_games_into_string(games: list) -> str:
     in our email.'''
     str_output = ''
     for game in games:
-        str_output += game[0] + '\n' + game[1] + '\n\n'
+        str_output += '👾 ' + game[0] + '\n' + game[1] + '\n\n'
     return str_output
 
 
