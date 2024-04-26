@@ -28,7 +28,7 @@ Here are the games:
 {games}
 Speak to you soon,
 
-The GameScraper Team 🚀''',
+The GameScraper Team 👾''',
         Subject=f'New games in {topic}!'
     )
     print(f'sent {topic} email')
