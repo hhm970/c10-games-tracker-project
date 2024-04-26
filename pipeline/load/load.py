@@ -11,7 +11,7 @@ from datetime import datetime
 from os import environ as ENV
 
 from psycopg2 import connect
-from psycopg2.extras import RealDictCursor
+from psycopg2.extras import RealDictCursor, RealDictRow
 from psycopg2.extensions import connection
 
 
@@ -39,9 +39,9 @@ def format_release_date_dt(game_data: list[list]) -> list[list]:
 
 
 def get_game_id_from_inputted_game(inputted_game: list,
-                                   cursor: connection.cursor) -> int:
+                                   cursor: connection.cursor) -> RealDictRow:
     """Given a game that has already been inputted into the database, return its
-    game_id entry in the database."""
+    matched game_id entry in the database."""
     cursor.execute("""SELECT game_id FROM game
                         WHERE name = %s""", (inputted_game[0],))
 
@@ -50,16 +50,16 @@ def get_game_id_from_inputted_game(inputted_game: list,
     return game_id
 
 
-def get_dev_id(input_game: list, cursor: connection.cursor) -> int:
+def get_dev_id(input_game: list, cursor: connection.cursor) -> RealDictRow:
     """Given a game, returns the corresponding developer_id entry if its developer 
     name is in the developer table, and None otherwise."""
 
     cursor.execute("""SELECT developer_id FROM developer
                         WHERE developer_name = %s""", (input_game[3],))
 
-    developer_id = cursor.fetchone()['developer_id']
+    developer_id_match = cursor.fetchone()
 
-    return developer_id
+    return developer_id_match
 
 
 def input_game_dev_get_dev_id(input_game: list, conn: connection) -> int:
@@ -69,32 +69,32 @@ def input_game_dev_get_dev_id(input_game: list, conn: connection) -> int:
 
     with conn.cursor() as cur:
 
-        developer_id = get_dev_id(input_game, cur)
+        developer_id_match = get_dev_id(input_game, cur)
 
-        if developer_id is None:
+        if developer_id_match is None:
 
             cur.execute("""INSERT INTO developer (developer_name)
-                    VALUES %s""", (input_game[3],))
+                    VALUES (%s)""", (input_game[3],))
 
-            developer_id = get_dev_id(input_game, cur)
+            developer_id_match = get_dev_id(input_game, cur)
 
         cur.close()
 
     conn.commit()
 
-    return developer_id
+    return developer_id_match['developer_id']
 
 
-def get_pub_id(input_game: list, cursor: connection.cursor) -> int:
+def get_pub_id(input_game: list, cursor: connection.cursor) -> RealDictRow:
     """Given a game with a publisher entry, returns the corresponding publisher_id entry 
     if its publisher name is in the publisher table, and None otherwise."""
 
     cursor.execute("""SELECT publisher_id FROM publisher
                         WHERE publisher_name = %s""", (input_game[4],))
 
-    publisher_id = cursor.fetchone()['publisher_id']
+    publisher_id_match = cursor.fetchone()
 
-    return publisher_id
+    return publisher_id_match
 
 
 def input_game_pub_get_pub_id(input_game: list, conn: connection) -> int:
@@ -104,20 +104,20 @@ def input_game_pub_get_pub_id(input_game: list, conn: connection) -> int:
 
     with conn.cursor() as cur:
 
-        publisher_id = get_pub_id(input_game, cur)
+        publisher_id_match = get_pub_id(input_game, cur)
 
-        if publisher_id is None:
+        if publisher_id_match is None:
 
             cur.execute("""INSERT INTO publisher (publisher_name)
-                    VALUES %s""", (input_game[4],))
+                    VALUES (%s)""", (input_game[4],))
 
-            publisher_id = get_pub_id(input_game, cur)
+            publisher_id_match = get_pub_id(input_game, cur)
 
         cur.close()
 
     conn.commit()
 
-    return publisher_id
+    return publisher_id_match['publisher_id']
 
 
 def input_game_into_db(game_data: list[list], conn: connection) -> None:
@@ -134,8 +134,8 @@ def input_game_into_db(game_data: list[list], conn: connection) -> None:
                 game[4] = input_game_pub_get_pub_id(game, conn)
 
             cur.execute(
-                """INSERT INTO game (name, description, price, developer, publisher, 
-                release_date, rating, website_id)
+                """INSERT INTO game (name, description, price, developer_id, 
+                publisher_id, release_date, rating, website_id)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""", (game[:8]))
 
         cur.close()
@@ -217,46 +217,3 @@ def handler(event: list[list[list]] = None, context=None) -> None:
             input_game_tags_into_db(formatted_game_data, conn)
 
     conn.close()
-
-
-if __name__ == "__main__":
-
-    event = [
-        [
-            [
-                "Weed Shop 3",
-                "BUILD YOUR VIRTUAL WEED EMPIRE: Grow the hottest strains & crossbreed new ones, roll your own Blunts, sell Bongs, hire Growers, make Solventless Concentrates, handle Rival Dealers, befriend Influencers, smoke Dabs, ride a Dolphin, and More! WELCOME TO WEED SHOP 3!",
-                19.99,
-                "Weed Games",
-                "Weed Games",
-                "2024-04-24 20:57:11",
-                1.0,
-                3,
-                [
-                    "Simulation",
-                    "Cloud Saves",
-                    "Achievements",
-                    "Single Player",
-                    "First Person",
-                    "Indie"
-                ],
-                [
-                    1
-                ]
-            ],
-            [
-                "Aarakocra Glitch Orkira Skin & Feat Pack",
-                "This Idle Champions Skin & Feat pack contains a Champion unlock, 7 Gold Champion Chests, and an exclusive skin & feat for that Champion! Take your game to the next level!",
-                11.99,
-                "Codename Entertainment",
-                "Codename Entertainment",
-                "2024-04-24 19:00:00",
-                3.0,
-                3,
-                [],
-                [
-                    1
-                ]
-            ]]]
-
-    handler(event)

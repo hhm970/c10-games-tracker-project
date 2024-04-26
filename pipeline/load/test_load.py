@@ -29,9 +29,11 @@ def test_input_game_dev_get_dev_id(mock_connection, test_game_data):
 
     mock_execute = mock_cursor.execute
 
-    input_game_dev_get_dev_id(test_game_data, mock_connection)
+    for game in test_game_data:
 
-    mock_execute.assert_called()
+        input_game_dev_get_dev_id(game, mock_connection)
+
+        mock_execute.assert_called()
 
 
 @patch("load.get_db_connection")
@@ -45,9 +47,11 @@ def test_input_game_pub_get_pub_id(mock_connection, test_game_data):
 
     mock_execute = mock_cursor.execute
 
-    input_game_pub_get_pub_id(test_game_data, mock_connection)
+    for game in test_game_data:
 
-    mock_execute.assert_called()
+        input_game_pub_get_pub_id(game, mock_connection)
+
+        mock_execute.assert_called()
 
 
 @patch("load.get_db_connection")
