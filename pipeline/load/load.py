@@ -172,7 +172,7 @@ def input_game_tags_into_db(game_data: list[list], conn: connection) -> None:
                 for tag in game_tags:
                     tag_formatted = tag.title()
                     cur.execute("""SELECT tag_id FROM tag
-                                WHERE SIMILARITY(%s, tag_name) > 0.8""",
+                                WHERE SIMILARITY(%s, tag_name) > 0.9""",
                                 (tag_formatted,))
                     tag_id_match = cur.fetchone()
 
