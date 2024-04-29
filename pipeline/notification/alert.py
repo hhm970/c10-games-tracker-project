@@ -8,7 +8,15 @@ from boto3 import client
 TAG_ARNS = {'Action': 'arn:aws:sns:eu-west-2:129033205317:c10-games-action-tag',
             'Adventure': 'arn:aws:sns:eu-west-2:129033205317:c10-games-adventure-tag',
             'Indie': 'arn:aws:sns:eu-west-2:129033205317:c10-games-indie-tag',
-            'Horror': 'arn:aws:sns:eu-west-2:129033205317:c10-games-horror-tag'}
+            "Casual": 'arn:aws:sns:eu-west-2:129033205317:c10-games-casual-tag',
+            "RPG": 'arn:aws:sns:eu-west-2:129033205317:c10-games-rpg-tag',
+            "Simulation": 'arn:aws:sns:eu-west-2:129033205317:c10-games-simulation-tag',
+            "Fantasy": 'arn:aws:sns:eu-west-2:129033205317:c10-games-fantasy-tag',
+            "City Builder": 'arn:aws:sns:eu-west-2:129033205317:c10-games-city-builder-tag',
+            "Puzzle": '	arn:aws:sns:eu-west-2:129033205317:c10-games-puzzle-tag',
+            "Sports": 'arn:aws:sns:eu-west-2:129033205317:c10-games-sports-tag',
+            "Singleplayer": 'arn:aws:sns:eu-west-2:129033205317:c10-games-singleplayer-tag',
+            "Multiplayer": 'arn:aws:sns:eu-west-2:129033205317:c10-games-multiplayer-tag'}
 
 STRING_1 = 'Hey there!\n\nJust to let you know there are new games available to play in the '
 STRING_2 = ' tag.\n\nThe new games are:\n\n'
