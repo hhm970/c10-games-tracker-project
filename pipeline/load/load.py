@@ -138,7 +138,7 @@ def input_game_into_db(game_data: list[list], conn: connection) -> None:
                 publisher_id, release_date, rating, website_id)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""", (game[:8]))
 
-        cur.close()
+       
     conn.commit()
 
 
