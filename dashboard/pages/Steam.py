@@ -17,3 +17,9 @@ if __name__ == "__main__":
     with st.sidebar:
         st.title("Navigation Station :rocket:")
         st.write("---")
+        st.page_link("Home.py")
+        st.page_link("pages/Epic.py")
+        st.page_link("pages/GOG.py")
+        st.page_link("pages/Steam.py")
+        st.page_link("pages/Daily_Notifications.py")
+        st.page_link("pages/Weekly_Newsletter.py")
