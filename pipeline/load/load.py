@@ -113,7 +113,7 @@ def input_game_pub_get_pub_id(input_game: list, conn: connection) -> int:
 
             publisher_id_match = get_pub_id(input_game, cur)
 
-        cur.close()
+      
 
     conn.commit()
 
