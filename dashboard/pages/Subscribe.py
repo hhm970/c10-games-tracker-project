@@ -8,8 +8,16 @@ from boto3 import client
 
 TAG_ARNS = {'Action': 'arn:aws:sns:eu-west-2:129033205317:c10-games-action-tag',
             'Adventure': 'arn:aws:sns:eu-west-2:129033205317:c10-games-adventure-tag',
+            "Casual": 'arn:aws:sns:eu-west-2:129033205317:c10-games-casual-tag',
+            "City Builder": 'arn:aws:sns:eu-west-2:129033205317:c10-games-city-builder-tag',
+            "Fantasy": 'arn:aws:sns:eu-west-2:129033205317:c10-games-fantasy-tag',
             'Indie': 'arn:aws:sns:eu-west-2:129033205317:c10-games-indie-tag',
-            'Horror': 'arn:aws:sns:eu-west-2:129033205317:c10-games-horror-tag'}
+            "Puzzle": 'arn:aws:sns:eu-west-2:129033205317:c10-games-puzzle-tag',
+            "RPG": 'arn:aws:sns:eu-west-2:129033205317:c10-games-rpg-tag',
+            "Simulation": 'arn:aws:sns:eu-west-2:129033205317:c10-games-simulation-tag',
+            "Sports": 'arn:aws:sns:eu-west-2:129033205317:c10-games-sports-tag',
+            "Singleplayer": 'arn:aws:sns:eu-west-2:129033205317:c10-games-singleplayer-tag',
+            "Multiplayer": 'arn:aws:sns:eu-west-2:129033205317:c10-games-multiplayer-tag'}
 
 
 def verify_email(email_address: str, config):
@@ -44,7 +52,7 @@ if __name__ == "__main__":
 
     load_dotenv()
 
-    tags = ['Action', 'Adventure', 'Indie', 'Horror']
+    tags = list(TAG_ARNS.keys())
 
     st.title("New Release Notifications")
     st.write("---")
