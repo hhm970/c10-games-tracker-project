@@ -16,3 +16,5 @@ __pycache__
 .coverage
 
 .DS_Store
+weekly_report/diagrams
+Weekly_Report.pdf
