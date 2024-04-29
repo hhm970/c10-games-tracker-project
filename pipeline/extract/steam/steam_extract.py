@@ -170,7 +170,7 @@ def handler(event: dict = None, context=None) -> list[list]:
     cookies = {
         "timezoneOffset": "3600,0"
     }
-    res = req.get(ENV["BASE_URL"], timeout=10, cookies=cookies)
+    res = req.get(ENV["STEAM_BASE_URL"], timeout=10, cookies=cookies)
     soup = BeautifulSoup(res.text, features="html.parser")
     all_containers = soup.find_all(
         'a', class_="search_result_row")
