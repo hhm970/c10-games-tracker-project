@@ -94,3 +94,29 @@ resource "aws_lambda_function" "c10-games-terraform-pipeline-epic" {
     }
     timeout = 180
 }
+
+
+#ALERT
+data "aws_ecr_repository" "lambda-ecr-repo-alert" {
+  name = "c10-games-daily-alert"
+}
+
+
+data "aws_ecr_image" "lambda-image-alert" {
+  repository_name = data.aws_ecr_repository.lambda-ecr-repo-alert.name
+  image_tag       = "latest"
+}
+
+resource "aws_lambda_function" "c10-games-terraform-alert" {
+    role = aws_iam_role.lambda-role.arn
+    function_name = "c10-games-terraform-alert"
+    package_type = "Image"
+    image_uri = data.aws_ecr_image.lambda-image-epic.image_uri
+    environment {
+        variables = {
+        AWS_KEY = var.AWS_KEY,
+        AWS_SECRET = var.AWS_SECRET
+        }
+    }
+    timeout = 10
+}
