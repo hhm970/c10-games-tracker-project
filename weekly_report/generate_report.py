@@ -11,199 +11,486 @@ import altair as alt
 import pandas as pd
 
 
-def get_db_connection(config) -> connection:
-    """Returns a connection to the database."""
+class Stats_Retriever():
+    def __init__(self, config=None, website_id=(1, 2, 3)) -> None:
+        self.conn = self.get_db_connection(config)
+        self.website_id = website_id
 
-    return connect(
-        dbname=config["DB_NAME"],
-        user=config["DB_USER"],
-        password=config["DB_PASSWORD"],
-        host=config["DB_HOST"],
-        port=config["DB_PORT"],
-        cursor_factory=RealDictCursor
-    )
+    def get_db_connection(self, config) -> connection:
+        """Returns a connection to the database."""
 
-
-def num_games_unique_released(conn):
-    """Returns the number of unique games released."""
-    with conn.cursor() as cur:
-        cur.execute("""SELECT count(distinct name)
-                    FROM game
-                     WHERE release_date >= CURRENT_DATE - INTERVAL '7 days'
-                    AND release_date <= CURRENT_DATE;
-                    """)
-        num_games = cur.fetchone()['count']
-        return num_games
-
-
-def total_num_games_released(conn):
-    with conn.cursor() as cur:
-        cur.execute("""SELECT count(name)
-                    FROM game
-                     WHERE release_date >= CURRENT_DATE - INTERVAL '7 days'
-                    AND release_date <= CURRENT_DATE
-                    """)
-        num_games = cur.fetchone()['count']
-        return num_games
-
-
-def num_games_over_week(conn):
-    with conn.cursor() as cur:
-        cur.execute("""SELECT count(name), release_date
-                        FROM game
-                        WHERE release_date >= CURRENT_DATE - INTERVAL '7 days'
-                        AND release_date <= CURRENT_DATE GROUP BY release_date;
-                        """)
-        games = cur.fetchall()
-        games = pd.DataFrame(games)
-        games['release_date'] = games['release_date'].astype(str)
-
-        chart = alt.Chart(games, title='Number of game releases per day').mark_bar(size=10).encode(
-            x='release_date',
-            y='count',
-        ).properties(
-            width=200,
-            height=150
-        ).configure_mark(
-            opacity=0.5,
-            color='blue'
+        return connect(
+            dbname=config["DB_NAME"],
+            user=config["DB_USER"],
+            password=config["DB_PASSWORD"],
+            host=config["DB_HOST"],
+            port=config["DB_PORT"],
+            cursor_factory=RealDictCursor
         )
-        chart.save('chart.png')
+
+    def num_games_unique_released(self):
+        """Returns the number of unique games released."""
+        with self.conn.cursor() as cur:
+            cur.execute("""SELECT count(distinct g.name)
+                            FROM game AS g
+                            WHERE release_date >= CURRENT_DATE - INTERVAL '7 days'
+                            AND release_date <= CURRENT_DATE AND g.website_id IN %s;""", (self.website_id,))
+
+            num_games = cur.fetchone()['count']
+            return num_games
+
+    def total_num_games_released(self):
+        with self.conn.cursor() as cur:
+            cur.execute("""SELECT count(name)
+                        FROM game AS g
+                        WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
+                        AND g.release_date <= CURRENT_DATE AND g.website_id IN %s
+                        """, (self.website_id,))
+            num_games = cur.fetchone()['count']
+            return num_games
+
+    def num_games_over_week(self):
+        with self.conn.cursor() as cur:
+            cur.execute("""SELECT count(g.name), g.release_date
+                            FROM game AS g
+                            WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
+                            AND g.release_date <= CURRENT_DATE AND g.website_id IN %s GROUP BY g.release_date;
+                            """, (self.website_id,))
+            games = cur.fetchall()
+            games = pd.DataFrame(games)
+            games['release_date'] = games['release_date'].astype(str)
+
+            chart = alt.Chart(games, title='Number of game releases per day').mark_bar(size=10).encode(
+                x='release_date',
+                y='count',
+            ).properties(
+                width=200,
+                height=150
+            ).configure_mark(
+                opacity=0.5,
+                color='blue'
+            )
+            if len(self.website_id) == 3:
+                chart.save('diagrams/chart_sum.png')
+            elif len(self.website_id) == 2:
+                chart.save(
+                    f'diagrams/chart_{self.website_id[0]}_{self.website_id[1]}.png')
+            else:
+                chart.save(
+                    f'diagrams/chart_{self.website_id[0]}.png')
+
+    def average_price(self):
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """SELECT ROUND(AVG(CAST(g.price AS numeric)), 2)
+                AS avg_price FROM game AS g
+                WHERE
+                g.release_date >= CURRENT_DATE - INTERVAL '7 days'
+                AND g.release_date <= CURRENT_DATE AND g.website_id IN %s;""", (self.website_id,))
+            avg_price = cur.fetchone()['avg_price']
+            return avg_price
+
+    def num_games_per_website(self):
+        with self.conn.cursor() as cur:
+            cur.execute("""SELECT w.website_name, count(*) AS num_games
+                         FROM game as g
+                         LEFT JOIN website AS w
+                        ON (g.website_id = w.website_id)
+                         WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
+                         AND g.release_date <= CURRENT_DATE 
+                        AND g.website_id IN %s GROUP BY w.website_name ;""", (self.website_id,))
+            games = cur.fetchall()
+            games = pd.DataFrame(games)
+            pie_chart = alt.Chart(games, title='Website-game ratio').mark_arc().encode(
+                theta="num_games",
+                color=alt.Color('website_name', scale=alt.Scale(scheme='set2'))
+            )
+            if len(self.website_id) == 3:
+                pie_chart.save('diagrams/pie_chart_sum.png')
+            elif len(self.website_id) == 2:
+                pie_chart.save(
+                    f'diagrams/pie_chart_{self.website_id[0]}_{self.website_id[1]}.png')
+            else:
+                pie_chart.save(
+                    f'diagrams/pie_chart_{self.website_id[0]}.png')
+
+    def top_five_tags(self):
+        with self.conn.cursor() as cur:
+            cur.execute("""SELECT t.tag_name, count(*) from tag AS t INNER JOIN game_tag_matching AS gt ON(t.tag_id=gt.tag_id) WHERE gt.game_id IN
+                        (SELECT game_id from game AS g WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
+                        AND g.release_date <= CURRENT_DATE AND g.website_id IN %s) GROUP BY t.tag_name ORDER BY count(*) DESC LIMIT 5;
+                        """, (self.website_id,))
+            tags = cur.fetchall()
+            tag_list = []
+            for x in range(len(tags)):
+                tag_list.append(tags[x]['tag_name'])
+            return tag_list
+
+    def tag_game_ratio(self):
+        with self.conn.cursor() as cur:
+            cur.execute("""SELECT t.tag_name, count(*) from tag AS t INNER JOIN game_tag_matching AS gt ON(t.tag_id=gt.tag_id) WHERE gt.game_id IN
+                        (SELECT game_id from game AS g WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
+                        AND g.release_date <= CURRENT_DATE AND g.website_id IN %s) GROUP BY t.tag_name ORDER BY count(*) DESC LIMIT 5;
+                        """, (self.website_id,))
+            tags = cur.fetchall()
+            tags = pd.DataFrame(tags)
+            pie_chart = alt.Chart(tags, title='Tag-game ratio').mark_arc().encode(
+                theta="count",
+                color=alt.Color('tag_name', scale=alt.Scale(scheme='set2'))
+            )
+            if len(self.website_id) == 3:
+                pie_chart.save('diagrams/tags_pie_chart_sum.png')
+            elif len(self.website_id) == 2:
+                pie_chart.save(
+                    f'diagrams/tags_pie_chart_{self.website_id[0]}_{self.website_id[1]}.png')
+            else:
+                pie_chart.save(
+                    f'diagrams/tags_pie_chart_{self.website_id[0]}.png')
+
+    def top_platform(self):
+        with self.conn.cursor() as cur:
+            cur.execute("""SELECT p.platform_name, count(*) from platform AS p
+                         INNER JOIN platform_assignment AS pa ON(p.platform_id=pa.platform_id) WHERE pa.game_id IN
+                        (SELECT game_id from game AS g WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
+                        AND g.release_date <= CURRENT_DATE AND g.website_id IN %s)
+                        GROUP BY p.platform_name ORDER BY count(*) DESC LIMIT 1;
+                        """, (self.website_id,))
+            platform = cur.fetchone()['platform_name']
+            return platform
+
+    def average_rating(self):
+        with self.conn.cursor() as cur:
+            cur.execute("""SELECT ROUND(AVG(CAST(rating AS numeric)), 2)
+                AS avg_rating
+                        FROM game AS g
+                        WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
+                        AND g.release_date <= CURRENT_DATE AND g.website_id IN %s;""", (self.website_id,))
+            rating = cur.fetchone()['avg_rating']
+            return rating
+
+    def top_three_publishers(self):
+        with self.conn.cursor() as cur:
+            cur.execute("""SELECT p.publisher_name, count(*) AS num_games FROM game as g 
+                        LEFT JOIN publisher AS p ON (g.publisher_id = p.publisher_id) 
+                        WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
+                        AND g.release_date <= CURRENT_DATE AND g.website_id IN %s
+                        GROUP BY p.publisher_name ORDER BY count(*) DESC LIMIT 3;""", (self.website_id,))
+            publishers = cur.fetchall()
+            publisher_list = []
+            for x in range(len(publishers)):
+                publisher_list.append(publishers[x]['publisher_name'])
+            return publisher_list
+
+    def top_three_developers(self):
+        with self.conn.cursor() as cur:
+            cur.execute("""SELECT d.developer_name, count(*) AS num_games FROM game as g
+                         LEFT JOIN developer AS d
+                         ON (g.developer_id = d.developer_id)
+                         WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
+                         AND g.release_date <= CURRENT_DATE
+                        AND g.website_id IN %s
+                        GROUP BY d.developer_name ORDER BY count(*) DESC LIMIT 3;""", (self.website_id,))
+            developers = cur.fetchall()
+            developer_list = []
+            for x in range(len(developers)):
+                developer_list.append(developers[x]['developer_name'])
+            return developer_list
+
+    def get_website_names(self):
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """SELECT w.website_name FROM website AS w WHERE w.website_id IN %s""", (self.website_id,))
+            websites = cur.fetchall()
+            website_list = []
+            for x in range(len(websites)):
+                website_list.append(websites[x]['website_name'])
+            return website_list
 
 
-def average_price(conn):
-    with conn.cursor() as cur:
-        cur.execute(
-            """SELECT ROUND(AVG(CAST(price AS numeric)), 2)
-            AS avg_price FROM game
-            WHERE
-            release_date >= CURRENT_DATE - INTERVAL '7 days'
-            AND release_date <= CURRENT_DATE;""")
-        avg_price = cur.fetchone()['avg_price']
-        return avg_price
+def generate_pdf(config):
+    sum = Stats_Retriever(config)
+    steam = Stats_Retriever(config, (1,))
+    gog = Stats_Retriever(config, (2,))
+    epic = Stats_Retriever(config, (3,))
 
+    sum.tag_game_ratio()
+    sum.num_games_per_website()
+    sum.num_games_over_week()
 
-def num_games_per_website(conn):
-    with conn.cursor() as cur:
-        cur.execute("""SELECT w.website_name, count(*) AS num_games FROM game as g LEFT JOIN website AS w ON (g.website_id = w.website_id) WHERE release_date >= CURRENT_DATE - INTERVAL '7 days' AND release_date <= CURRENT_DATE GROUP BY w.website_name;""")
-        games = cur.fetchall()
-        games = pd.DataFrame(games)
-        pie_chart = alt.Chart(games, title='Website-game ratio').mark_arc().encode(
-            theta="num_games",
-            color=alt.Color('website_name', scale=alt.Scale(scheme='set2'))
-        )
-        pie_chart.save('pie-chart.png')
-
-
-def top_five_tags(conn):
-    with conn.cursor() as cur:
-        cur.execute("""SELECT t.tag_name, count(*) from tag AS t INNER JOIN game_tag_matching AS gt ON(t.tag_id=gt.tag_id) WHERE gt.game_id IN
-                    (SELECT game_id from game WHERE release_date >= CURRENT_DATE - INTERVAL '7 days'
-                     AND release_date <= CURRENT_DATE) GROUP BY t.tag_name ORDER BY count(*) DESC LIMIT 5;
-                    """)
-        tags = cur.fetchall()
-        tag_list = []
-        for x in range(len(tags)):
-            tag_list.append(tags[x]['tag_name'])
-        return tag_list
-
-
-def tag_game_ratio(conn):
-    with conn.cursor() as cur:
-        cur.execute("""SELECT t.tag_name, count(*) from tag AS t INNER JOIN game_tag_matching AS gt ON(t.tag_id=gt.tag_id) WHERE gt.game_id IN
-                    (SELECT game_id from game WHERE release_date >= CURRENT_DATE - INTERVAL '7 days'
-                     AND release_date <= CURRENT_DATE) GROUP BY t.tag_name ORDER BY count(*) DESC LIMIT 5;
-                    """)
-        tags = cur.fetchall()
-        tags = pd.DataFrame(tags)
-        pie_chart = alt.Chart(tags, title='Tag-game ratio').mark_arc().encode(
-            theta="count",
-            color=alt.Color('tag_name', scale=alt.Scale(scheme='set2'))
-        )
-        pie_chart.save('tags_pie-chart.png')
-
-
-def top_platform(conn):
-    with conn.cursor() as cur:
-        cur.execute("""SELECT p.platform_name, count(*) from platform AS p INNER JOIN platform_assignment AS pa ON(p.platform_id=pa.platform_id) WHERE pa.game_id IN
-                    (SELECT game_id from game WHERE release_date >= CURRENT_DATE - INTERVAL '7 days'
-                     AND release_date <= CURRENT_DATE) GROUP BY p.platform_name ORDER BY count(*) DESC LIMIT 1;
-                    """)
-        platform = cur.fetchone()['platform_name']
-        return platform
-
-
-def average_rating(conn):
-    with conn.cursor() as cur:
-        cur.execute("""SELECT ROUND(AVG(CAST(rating AS numeric)), 2)
-            AS avg_rating
-                    FROM game
-                     WHERE release_date >= CURRENT_DATE - INTERVAL '7 days'
-                    AND release_date <= CURRENT_DATE;""")
-        rating = cur.fetchone()['avg_rating']
-        return rating
-
-
-def generate_pdf(num_unique_games, avg_price, total_games_released, tags, platform, rating):
     pdfmetrics.registerFont(TTFont('jersey_15', 'Jersey15-Regular.ttf'))
     c = canvas.Canvas('Weekly_Report.pdf', pagesize=letter)
     c.setFont('jersey_15', 30)
     c.setFillColorRGB(0.6, 0.09, 10.8)
     c.drawString(100, 750, 'GameScraper Weekly Report')
-    c.drawImage('game_scraper_logo.png', x=430, y=735, width=50, height=50)
+    c.drawImage('game_scraper_logo.png',
+                x=430, y=735, width=50, height=50)
 
     c.setFont('jersey_15', 20)
     c.setFillColorRGB(0.6, 0.50, 30.0)
     c.drawString(50, 680, 'Number of Games released:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 660, f'{total_games_released}')
+    c.drawString(50, 660, f'{sum.total_num_games_released()}')
 
     c.setFillColorRGB(0.6, 0.50, 30.0)
     c.drawString(50, 640, 'Number of Unique Games released:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 620, f'{num_unique_games}')
+    c.drawString(50, 620, f'{sum.num_games_unique_released()}')
 
     c.setFillColorRGB(0.6, 0.50, 30.0)
     c.drawString(50, 600, 'Average Price:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 580, f'£ {avg_price}')
+    c.drawString(50, 580, f'£ {sum.average_price()}')
 
     c.setFillColorRGB(0.6, 0.50, 30.0)
     c.drawString(50, 560, 'Top 5 Tags:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
     x = 540
-    for tag in tags:
+    for tag in sum.top_five_tags():
         c.drawString(50, x, f'- {tag}')
         x -= 20
 
     c.setFillColorRGB(0.6, 0.50, 30.0)
     c.drawString(50, 420, 'Top Platform:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 400, f'{platform}')
+    c.drawString(50, 400, f'{sum.top_platform()}')
 
     c.setFillColorRGB(0.6, 0.50, 30.0)
     c.drawString(50, 380, 'Average Rating:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 360, f'{rating}%')
+    c.drawString(50, 360, f'{sum.average_rating()}%')
 
-    c.drawImage('tags_pie-chart.png', x=20, y=155, width=280, height=180)
-    c.drawImage('chart.png', x=350, y=450)
-    c.drawImage('pie-chart.png', x=320, y=220, width=280, height=180)
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+
+    c.drawImage(f'diagrams/tags_pie_chart_sum.png',
+                x=20, y=155, width=280, height=180)
+    c.drawString(270, 200, 'Top 3 developers:')
+    x = 180
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    for developer in sum.top_three_developers():
+        c.drawString(270, x, f'- {developer}')
+        x -= 20
+    x = 100
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 120, 'Top 3 publishers:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    for publisher in sum.top_three_publishers():
+        c.drawString(50, x, f'- {publisher}')
+        x -= 20
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(270, 100, 'Sources:')
+    x = 80
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    for source in sum.get_website_names():
+        c.drawString(270, x, f'- {source}')
+        x -= 20
+
+    c.drawImage(f'diagrams/chart_sum.png', x=350, y=450)
+    c.drawImage(f'diagrams/pie_chart_sum.png',
+                x=320, y=230, width=280, height=180)
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    c.drawString(300, 20, f'{c.getPageNumber()}')
+
+    # Steam
     c.showPage()
+    steam.tag_game_ratio()
+    steam.num_games_over_week()
+    c.setFont('jersey_15', 30)
+    c.setFillColorRGB(0.6, 0.09, 10.8)
+    c.drawString(100, 750, 'GameScraper Weekly Report - Steam')
+    c.drawImage('game_scraper_logo.png',
+                x=520, y=735, width=50, height=50)
+
+    c.setFont('jersey_15', 20)
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 680, 'Number of Games released:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    c.drawString(50, 660, f'{steam.total_num_games_released()}')
+
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 640, 'Number of Unique Games released:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    c.drawString(50, 620, f'{steam.num_games_unique_released()}')
+
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 600, 'Average Price:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    c.drawString(50, 580, f'£ {steam.average_price()}')
+
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 560, 'Top 5 Tags:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    x = 540
+    for tag in steam.top_five_tags():
+        c.drawString(50, x, f'- {tag}')
+        x -= 20
+
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 420, 'Top Platform:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    c.drawString(50, 400, f'{steam.top_platform()}')
+
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 380, 'Average Rating:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    c.drawString(50, 360, f'{steam.average_rating()}%')
+
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+
+    c.drawImage(f'diagrams/tags_pie_chart_1.png',
+                x=300, y=240, width=280, height=180)
+    x = 300
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 320, 'Top 3 publishers:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    for publisher in steam.top_three_publishers():
+        c.drawString(50, x, f'- {publisher}')
+        x -= 20
+    c.drawImage(f'diagrams/chart_1.png', x=350, y=450)
+    x = 160
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 200, 'Top 3 developers:')
+    x = 180
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    for developer in steam.top_three_developers():
+        c.drawString(50, x, f'- {developer}')
+        x -= 20
+    c.setFillColorRGB(0.6, 0.70, 30.0)
+    c.drawString(300, 20, f'{c.getPageNumber()}')
+
+    # GOG
+    c.showPage()
+    gog.tag_game_ratio()
+    gog.num_games_over_week()
+    c.setFont('jersey_15', 30)
+    c.setFillColorRGB(0.6, 0.09, 10.8)
+    c.drawString(100, 750, 'GameScraper Weekly Report - GOG')
+    c.drawImage('game_scraper_logo.png', x=520, y=735, width=50, height=50)
+
+    c.setFont('jersey_15', 20)
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 680, 'Number of Games released:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    c.drawString(50, 660, f'{gog.total_num_games_released()}')
+
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 640, 'Number of Unique Games released:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    c.drawString(50, 620, f'{gog.num_games_unique_released()}')
+
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 600, 'Average Price:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    c.drawString(50, 580, f'£ {gog.average_price()}')
+
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 560, 'Top 5 Tags:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    x = 540
+    for tag in gog.top_five_tags():
+        c.drawString(50, x, f'- {tag}')
+        x -= 20
+
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 420, 'Top Platform:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    c.drawString(50, 400, f'{gog.top_platform()}')
+
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 380, 'Average Rating:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    c.drawString(50, 360, f'{gog.average_rating()}%')
+
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+
+    c.drawImage(f'diagrams/tags_pie_chart_2.png',
+                x=300, y=240, width=280, height=180)
+    x = 300
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 320, 'Top 3 publishers:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    for publisher in gog.top_three_publishers():
+        c.drawString(50, x, f'- {publisher}')
+        x -= 20
+    c.drawImage(f'diagrams/chart_2.png', x=350, y=450)
+    x = 160
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 200, 'Top 3 developers:')
+    x = 180
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    for developer in gog.top_three_developers():
+        c.drawString(50, x, f'- {developer}')
+        x -= 20
+    c.setFillColorRGB(0.6, 0.70, 30.0)
+    c.drawString(300, 20, f'{c.getPageNumber()}')
+    # EPIC
+    c.showPage()
+    epic.tag_game_ratio()
+    epic.num_games_over_week()
+    c.setFont('jersey_15', 30)
+    c.setFillColorRGB(0.6, 0.09, 10.8)
+    c.drawString(100, 750, 'GameScraper Weekly Report - Epic')
+    c.drawImage('game_scraper_logo.png',
+                x=520, y=735, width=50, height=50)
+
+    c.setFont('jersey_15', 20)
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 680, 'Number of Games released:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    c.drawString(50, 660, f'{epic.total_num_games_released()}')
+
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 640, 'Number of Unique Games released:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    c.drawString(50, 620, f'{epic.num_games_unique_released()}')
+
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 600, 'Average Price:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    c.drawString(50, 580, f'£ {epic.average_price()}')
+
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 560, 'Top 5 Tags:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    x = 540
+    for tag in epic.top_five_tags():
+        c.drawString(50, x, f'- {tag}')
+        x -= 20
+
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 420, 'Top Platform:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    c.drawString(50, 400, f'{epic.top_platform()}')
+
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 380, 'Average Rating:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    c.drawString(50, 360, f'{epic.average_rating()}%')
+
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+
+    c.drawImage(f'diagrams/tags_pie_chart_3.png',
+                x=300, y=240, width=280, height=180)
+    x = 300
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 320, 'Top 3 publishers:')
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    for publisher in epic.top_three_publishers():
+        c.drawString(50, x, f'- {publisher}')
+        x -= 20
+    c.drawImage(f'diagrams/chart_3.png', x=350, y=450)
+    x = 160
+    c.setFillColorRGB(0.6, 0.50, 30.0)
+    c.drawString(50, 200, 'Top 3 developers:')
+    x = 180
+    c.setFillColorRGB(0.6, 0.70, 35.0)
+    for developer in epic.top_three_developers():
+        c.drawString(50, x, f'- {developer}')
+        x -= 20
+    c.setFillColorRGB(0.6, 0.70, 30.0)
+    c.drawString(300, 20, f'{c.getPageNumber()}')
     c.save()
 
 
 if __name__ == "__main__":
     load_dotenv()
-    conn = get_db_connection(os.environ)
-    total_games_released = total_num_games_released(conn)
-    num_unique_games = num_games_unique_released(conn)
-    avg_price = average_price(conn)
-    num_games_over_week(conn)
-    num_games_per_website(conn)
-    tags = top_five_tags(conn)
-    platform = top_platform(conn)
-    rating = average_rating(conn)
-    tag_game_ratio(conn)
-    generate_pdf(num_unique_games, avg_price,
-                 total_games_released, tags, platform, rating)
+    generate_pdf(os.environ)
