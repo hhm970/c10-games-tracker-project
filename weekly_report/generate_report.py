@@ -13,11 +13,11 @@ import altair as alt
 import pandas as pd
 
 
-class Stats_Retriever():
+class StatsRetriever():
     """This class is responsible for the functionality which allows the user
     to retrieve useful stats about the games database. """
 
-    def __init__(self, config=None, website_id=(1, 2, 3)) -> None:
+    def __init__(self, config=None, website_id: tuple = (1, 2, 3)) -> None:
         """Initialises DB connection and website IDs. """
         self.conn = self.get_db_connection(config)
         self.website_ids = website_id
@@ -45,7 +45,7 @@ class Stats_Retriever():
             num_games = cur.fetchone()['count']
             return num_games
 
-    def total_num_games_released(self):
+    def total_num_games_released(self) -> int:
         """Returns the total number of games released this week (including duplicates)."""
         with self.conn.cursor() as cur:
             cur.execute("""SELECT count(name)
@@ -87,7 +87,7 @@ class Stats_Retriever():
                 chart.save(
                     f'diagrams/chart_{self.website_ids[0]}.png')
 
-    def average_price(self):
+    def average_price(self) -> int:
         """Returns the average price of the games from the week."""
         with self.conn.cursor() as cur:
             cur.execute(
@@ -124,7 +124,7 @@ class Stats_Retriever():
                 pie_chart.save(
                     f'diagrams/pie_chart_{self.website_ids[0]}.png')
 
-    def top_five_tags(self):
+    def top_five_tags(self) -> list[str]:
         """Returns the top five tags of this weeks games."""
         with self.conn.cursor() as cur:
             cur.execute("""SELECT t.tag_name, count(*) from tag AS t INNER JOIN game_tag_matching AS gt ON(t.tag_id=gt.tag_id) WHERE gt.game_id IN
@@ -159,7 +159,7 @@ class Stats_Retriever():
                 pie_chart.save(
                     f'diagrams/tags_pie_chart_{self.website_ids[0]}.png')
 
-    def top_platform(self):
+    def top_platform(self) -> str:
         """Returns the top platform name."""
         with self.conn.cursor() as cur:
             cur.execute("""SELECT p.platform_name, count(*) from platform AS p
@@ -171,7 +171,7 @@ class Stats_Retriever():
             platform = cur.fetchone()['platform_name']
             return platform
 
-    def average_rating(self):
+    def average_rating(self) -> float | None:
         """Returns the average rating of this weeks games."""
         with self.conn.cursor() as cur:
             cur.execute("""SELECT ROUND(AVG(CAST(rating AS numeric)), 2)
@@ -182,7 +182,7 @@ class Stats_Retriever():
             rating = cur.fetchone()['avg_rating']
             return rating
 
-    def top_three_publishers(self):
+    def top_three_publishers(self) -> list[str]:
         """Returns the top three game publishers of this week."""
         with self.conn.cursor() as cur:
             cur.execute("""SELECT p.publisher_name, count(*) AS num_games FROM game as g 
@@ -196,7 +196,7 @@ class Stats_Retriever():
                 publisher_list.append(publishers[x]['publisher_name'])
             return publisher_list
 
-    def top_three_developers(self):
+    def top_three_developers(self) -> list[str]:
         """Returns the top three game developers of this week."""
         with self.conn.cursor() as cur:
             cur.execute("""SELECT d.developer_name, count(*) AS num_games FROM game as g
@@ -212,7 +212,7 @@ class Stats_Retriever():
                 developer_list.append(developers[x]['developer_name'])
             return developer_list
 
-    def get_website_names(self):
+    def get_website_names(self) -> list[str]:
         """Returns a list of source website used."""
         with self.conn.cursor() as cur:
             cur.execute(
@@ -226,10 +226,10 @@ class Stats_Retriever():
 
 def generate_pdf(config):
     """Creates a summary report of all and individual gaming websites."""
-    sum = Stats_Retriever(config)
-    steam = Stats_Retriever(config, (1,))
-    gog = Stats_Retriever(config, (2,))
-    epic = Stats_Retriever(config, (3,))
+    sum = StatsRetriever(config)
+    steam = StatsRetriever(config, (1,))
+    gog = StatsRetriever(config, (2,))
+    epic = StatsRetriever(config, (3,))
 
     sum.tag_game_ratio()
     sum.num_games_per_website()
@@ -307,193 +307,83 @@ def generate_pdf(config):
                 x=320, y=230, width=280, height=180)
     c.setFillColorRGB(0.6, 0.70, 35.0)
     c.drawString(300, 20, f'{c.getPageNumber()}')
-
+    c.showPage()
+    # Individual reports
     # Steam
+    individual_summary(c, steam, 1, "Steam")
     c.showPage()
-    steam.tag_game_ratio()
-    steam.num_games_over_week()
-    c.setFont('jersey_15', 30)
-    c.setFillColorRGB(0.6, 0.09, 10.8)
-    c.drawString(100, 750, 'GameScraper Weekly Report - Steam')
-    c.drawImage('game_scraper_logo.png',
-                x=520, y=735, width=50, height=50)
-
-    c.setFont('jersey_15', 20)
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 680, 'Number of Games released:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 660, f'{steam.total_num_games_released()}')
-
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 640, 'Average Price:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 620, f'£ {steam.average_price()}')
-
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 580, 'Top 5 Tags:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    x = 560
-    for tag in steam.top_five_tags():
-        c.drawString(50, x, f'- {tag}')
-        x -= 20
-
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 440, 'Top Platform:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 420, f'{steam.top_platform()}')
-
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 380, 'Average Rating:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 360, f'{steam.average_rating()}%')
-
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-
-    c.drawImage(f'diagrams/tags_pie_chart_1.png',
-                x=300, y=240, width=280, height=180)
-    x = 300
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 320, 'Top 3 Publishers:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    for publisher in steam.top_three_publishers():
-        c.drawString(50, x, f'- {publisher}')
-        x -= 20
-    c.drawImage(f'diagrams/chart_1.png', x=350, y=450)
-    x = 160
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 200, 'Top 3 Developers:')
-    x = 180
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    for developer in steam.top_three_developers():
-        c.drawString(50, x, f'- {developer}')
-        x -= 20
-    c.setFillColorRGB(0.6, 0.70, 30.0)
-    c.drawString(300, 20, f'{c.getPageNumber()}')
-
     # GOG
+    individual_summary(c, gog, 2, "GOG")
     c.showPage()
-    gog.tag_game_ratio()
-    gog.num_games_over_week()
-    c.setFont('jersey_15', 30)
-    c.setFillColorRGB(0.6, 0.09, 10.8)
-    c.drawString(100, 750, 'GameScraper Weekly Report - GOG')
-    c.drawImage('game_scraper_logo.png',
-                x=520, y=735, width=50, height=50)
-
-    c.setFont('jersey_15', 20)
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 680, 'Number of Games released:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 660, f'{gog.total_num_games_released()}')
-
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 640, 'Average Price:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 620, f'£ {gog.average_price()}')
-
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 580, 'Top 5 Tags:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    x = 560
-    for tag in gog.top_five_tags():
-        c.drawString(50, x, f'- {tag}')
-        x -= 20
-
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 440, 'Top Platform:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 420, f'{gog.top_platform()}')
-
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 380, 'Average Rating:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 360, f'{gog.average_rating()}%')
-
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-
-    c.drawImage(f'diagrams/tags_pie_chart_2.png',
-                x=300, y=240, width=280, height=180)
-    x = 300
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 320, 'Top 3 Publishers:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    for publisher in gog.top_three_publishers():
-        c.drawString(50, x, f'- {publisher}')
-        x -= 20
-    c.drawImage(f'diagrams/chart_2.png', x=350, y=450)
-    x = 160
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 200, 'Top 3 Developers:')
-    x = 180
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    for developer in gog.top_three_developers():
-        c.drawString(50, x, f'- {developer}')
-        x -= 20
-    c.setFillColorRGB(0.6, 0.70, 30.0)
-    c.drawString(300, 20, f'{c.getPageNumber()}')
-
     # EPIC
-    c.showPage()
-    epic.tag_game_ratio()
-    epic.num_games_over_week()
-    c.setFont('jersey_15', 30)
-    c.setFillColorRGB(0.6, 0.09, 10.8)
-    c.drawString(100, 750, 'GameScraper Weekly Report - Epic')
-    c.drawImage('game_scraper_logo.png',
-                x=520, y=735, width=50, height=50)
-
-    c.setFont('jersey_15', 20)
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 680, 'Number of Games released:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 660, f'{epic.total_num_games_released()}')
-
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 640, 'Average Price:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 620, f'£ {epic.average_price()}')
-
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 580, 'Top 5 Tags:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    x = 560
-    for tag in epic.top_five_tags():
-        c.drawString(50, x, f'- {tag}')
-        x -= 20
-
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 440, 'Top Platform:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 420, f'{epic.top_platform()}')
-
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 380, 'Average Rating:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 360, f'{epic.average_rating()}')
-
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-
-    c.drawImage(f'diagrams/tags_pie_chart_3.png',
-                x=300, y=240, width=280, height=180)
-    x = 300
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 320, 'Top 3 Publishers:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    for publisher in epic.top_three_publishers():
-        c.drawString(50, x, f'- {publisher}')
-        x -= 20
-    c.drawImage(f'diagrams/chart_3.png', x=350, y=450)
-    x = 160
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 200, 'Top 3 Developers:')
-    x = 180
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    for developer in epic.top_three_developers():
-        c.drawString(50, x, f'- {developer}')
-        x -= 20
-    c.setFillColorRGB(0.6, 0.70, 30.0)
-    c.drawString(300, 20, f'{c.getPageNumber()}')
+    individual_summary(c, epic, 3, "Epic")
     c.save()
+
+
+def individual_summary(canvas_obj, website_stats_retriever: StatsRetriever, website_id: int, name: str):
+    """Creates individual report text for a website source."""
+    website_stats_retriever.tag_game_ratio()
+    website_stats_retriever.num_games_over_week()
+    canvas_obj.setFont('jersey_15', 30)
+    canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+    canvas_obj.drawString(100, 750, f'GameScraper Weekly Report - {name}')
+    canvas_obj.drawImage('game_scraper_logo.png',
+                         x=520, y=735, width=50, height=50)
+
+    canvas_obj.setFont('jersey_15', 20)
+    canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+    canvas_obj.drawString(50, 680, 'Number of Games released:')
+    canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+    canvas_obj.drawString(
+        50, 660, f'{website_stats_retriever.total_num_games_released()}')
+
+    canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+    canvas_obj.drawString(50, 640, 'Average Price:')
+    canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+    canvas_obj.drawString(
+        50, 620, f'£ {website_stats_retriever.average_price()}')
+
+    canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+    canvas_obj.drawString(50, 580, 'Top 5 Tags:')
+    canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+    x = 560
+    for tag in website_stats_retriever.top_five_tags():
+        canvas_obj.drawString(50, x, f'- {tag}')
+        x -= 20
+
+    canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+    canvas_obj.drawString(50, 440, 'Top Platform:')
+    canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+    canvas_obj.drawString(50, 420, f'{website_stats_retriever.top_platform()}')
+
+    canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+    canvas_obj.drawString(50, 380, 'Average Rating:')
+    canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+    canvas_obj.drawString(
+        50, 360, f'{website_stats_retriever.average_rating()}')
+
+    canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+
+    canvas_obj.drawImage(f'diagrams/tags_pie_chart_{website_id}.png',
+                         x=300, y=240, width=280, height=180)
+    x = 300
+    canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+    canvas_obj.drawString(50, 320, 'Top 3 Publishers:')
+    canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+    for publisher in website_stats_retriever.top_three_publishers():
+        canvas_obj.drawString(50, x, f'- {publisher}')
+        x -= 20
+    canvas_obj.drawImage(f'diagrams/chart_{website_id}.png', x=350, y=450)
+    x = 160
+    canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+    canvas_obj.drawString(50, 200, 'Top 3 Developers:')
+    x = 180
+    canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+    for developer in website_stats_retriever.top_three_developers():
+        canvas_obj.drawString(50, x, f'- {developer}')
+        x -= 20
+    canvas_obj.setFillColorRGB(0.6, 0.70, 30.0)
+    canvas_obj.drawString(300, 20, f'{canvas_obj.getPageNumber()}')
 
 
 if __name__ == "__main__":
