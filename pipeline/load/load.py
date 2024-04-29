@@ -43,17 +43,6 @@ def format_release_date_dt(game_data: list[list]) -> list[list]:
     return game_data
 
 
-def filter_out_sexual_content_tag(game_data: list[list]) -> list[list]:
-    """Given our game data, we remove games with the tag 'sexual-content'."""
-
-    for game in game_data:
-        game_tags = game[-2]
-        if 'sexual-content' in game_tags:
-            game_data.remove(game)
-
-    return game_data
-
-
 def get_game_id_from_inputted_game(inputted_game: list,
                                    cursor: connection.cursor) -> RealDictRow:
     """Given a game that has already been inputted into the database, return its
@@ -224,9 +213,7 @@ def handler(event: list[list[list]] = None, context=None) -> None:
 
         if len(game_data) > 0:
 
-            sfw_game_data = filter_out_sexual_content_tag(game_data)
-
-            formatted_game_data = format_release_date_dt(sfw_game_data)
+            formatted_game_data = format_release_date_dt(game_data)
 
             input_game_into_db(formatted_game_data, conn)
 
