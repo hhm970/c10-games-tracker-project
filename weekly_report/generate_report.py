@@ -15,7 +15,7 @@ import pandas as pd
 
 class StatsRetriever():
     """This class is responsible for the functionality which allows the user
-    to retrieve useful stats about the games database. """
+    to retrieve useful stats about the games database."""
 
     def __init__(self, config=None, website_id: tuple = (1, 2, 3)) -> None:
         """Initialises DB connection and website IDs. """
