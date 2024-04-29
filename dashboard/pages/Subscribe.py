@@ -16,7 +16,7 @@ def verify_email(email_address: str, config):
     '''Checks if an email is already verified,
     if not it is verified.'''
     ses = client(
-        "ses", aws_access_key_id=config["AWS_KEY"], aws_secret_access_key=config["AWS_SECRET"])
+        "ses", aws_access_key_id=config["AWS_KEY"], aws_secret_access_key=config["AWS_SECRET"], region_name=config['AWS_REGION'])
 
     if email_address not in ses.list_identities(IdentityType='EmailAddress')["Identities"]:
         res = ses.verify_email_identity(EmailAddress=email_address)
@@ -27,7 +27,7 @@ def verify_email(email_address: str, config):
 def subscribe_to_topic(email_address: str, config, topic_name: str):
     '''Subscribes a given email to a given topic.'''
     sns = client(
-        "sns", aws_access_key_id=config["AWS_KEY"], aws_secret_access_key=config["AWS_SECRET"])
+        "sns", aws_access_key_id=config["AWS_KEY"], aws_secret_access_key=config["AWS_SECRET"], region_name=config['AWS_REGION'])
 
     result = sns.subscribe(
         TopicArn=TAG_ARNS[topic_name],
@@ -72,3 +72,8 @@ if __name__ == "__main__":
     with st.sidebar:
         st.title("Navigation Station :rocket:")
         st.write("---")
+        st.page_link("Home.py")
+        st.page_link("pages/Epic.py")
+        st.page_link("pages/GOG.py")
+        st.page_link("pages/Steam.py")
+        st.page_link("pages/Subscribe.py")
