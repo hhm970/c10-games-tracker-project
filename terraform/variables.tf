@@ -31,3 +31,15 @@ variable "REGION" {
     type = string
     default = "eu-west-2"
 }
+
+variable "GOG_BASE_URL" {
+    type = string
+}
+
+variable "EPIC_BASE_URL" {
+    type = string
+}
+
+variable "STEAM_BASE_URL" {
+    type = string
+}
