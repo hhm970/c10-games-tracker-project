@@ -43,6 +43,17 @@ def format_release_date_dt(game_data: list[list]) -> list[list]:
     return game_data
 
 
+def filter_out_sexual_content_tag(game_data: list[list]) -> list[list]:
+    """Given our game data, we remove games with the tag 'sexual-content'."""
+
+    for game in game_data:
+        game_tags = game[-2]
+        if 'sexual-content' in game_tags:
+            game_data.remove(game)
+
+    return game_data
+
+
 def get_game_id_from_inputted_game(inputted_game: list,
                                    cursor: connection.cursor) -> RealDictRow:
     """Given a game that has already been inputted into the database, return its
@@ -162,8 +173,8 @@ def input_game_plat_into_db(game_data: list[list], conn: connection) -> None:
 
 
 def input_game_tags_into_db(game_data: list[list], conn: connection) -> None:
-    """For each game, we iterate through its tags. We use the PostgreSQL extension
-    pg_tgm to measure similarity of the tags with existing entries in the tag table,
+    """For each game, we iterate through its tags. Where there are variations of tag names
+    different to each website, we refer to the constant variable TAG_EXCEPTIONS,
     appending the tag iterand into the table if no similar entries are detected."""
 
     with conn.cursor() as cur:
@@ -213,7 +224,9 @@ def handler(event: list[list[list]] = None, context=None) -> None:
 
         if len(game_data) > 0:
 
-            formatted_game_data = format_release_date_dt(game_data)
+            sfw_game_data = filter_out_sexual_content_tag(game_data)
+
+            formatted_game_data = format_release_date_dt(sfw_game_data)
 
             input_game_into_db(formatted_game_data, conn)
 
