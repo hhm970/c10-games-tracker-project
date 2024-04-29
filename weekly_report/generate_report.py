@@ -16,7 +16,7 @@ class Stats_Retriever():
     to retrieve useful stats about the games database. """
 
     def __init__(self, config=None, website_id=(1, 2, 3)) -> None:
-        """Initialises DB connection and website ids """
+        """Initialises DB connection and website IDs. """
         self.conn = self.get_db_connection(config)
         self.website_ids = website_id
 
