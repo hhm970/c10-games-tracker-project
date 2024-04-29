@@ -111,7 +111,7 @@ resource "aws_lambda_function" "c10-games-terraform-alert" {
     role = aws_iam_role.lambda-role.arn
     function_name = "c10-games-terraform-alert"
     package_type = "Image"
-    image_uri = data.aws_ecr_image.lambda-image-epic.image_uri
+    image_uri = data.aws_ecr_image.lambda-image-alert.image_uri
     environment {
         variables = {
         AWS_KEY = var.AWS_KEY,
@@ -119,4 +119,32 @@ resource "aws_lambda_function" "c10-games-terraform-alert" {
         }
     }
     timeout = 10
+}
+
+#LOAD
+data "aws_ecr_repository" "lambda-ecr-repo-load" {
+  name = "c10-games-db-load"
+}
+
+
+data "aws_ecr_image" "lambda-image-load" {
+  repository_name = data.aws_ecr_repository.lambda-ecr-repo-load.name
+  image_tag       = "latest"
+}
+
+resource "aws_lambda_function" "c10-games-terraform-load" {
+    role = aws_iam_role.lambda-role.arn
+    function_name = "c10-games-terraform-load"
+    package_type = "Image"
+    image_uri = data.aws_ecr_image.lambda-image-load.image_uri
+    environment {
+        variables = {
+        DB_HOST = var.DB_HOST,
+        DB_PASSWORD = var.DB_PASSWORD,
+        DB_PORT = var.DB_PORT,
+        DB_USER = var.DB_USER,
+        DB_NAME = var.DB_NAME
+        }
+    }
+    timeout = 120
 }
