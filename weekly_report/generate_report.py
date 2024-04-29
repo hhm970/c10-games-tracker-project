@@ -11,6 +11,10 @@ from psycopg2.extras import RealDictCursor
 from psycopg2.extensions import connection
 import altair as alt
 import pandas as pd
+import boto3
+from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
 
 
 class StatsRetriever():
@@ -224,168 +228,227 @@ class StatsRetriever():
             return website_list
 
 
-def generate_pdf(config):
-    """Creates a summary report of all and individual gaming websites."""
-    sum = StatsRetriever(config)
-    steam = StatsRetriever(config, (1,))
-    gog = StatsRetriever(config, (2,))
-    epic = StatsRetriever(config, (3,))
+class ReportMaker():
+    def __init__(self, config) -> None:
+        self.config = config
 
-    sum.tag_game_ratio()
-    sum.num_games_per_website()
-    sum.num_games_over_week()
+    def generate_summary_text(self, canvas_obj, sum):
+        sum.tag_game_ratio()
+        sum.num_games_per_website()
+        sum.num_games_over_week()
 
-    pdfmetrics.registerFont(TTFont('jersey_15', 'Jersey15-Regular.ttf'))
-    c = canvas.Canvas('Weekly_Report.pdf', pagesize=letter)
-    c.setFont('jersey_15', 30)
-    c.setFillColorRGB(0.6, 0.09, 10.8)
-    c.drawString(100, 750, 'GameScraper Weekly Report')
-    c.drawImage('game_scraper_logo.png',
-                x=430, y=735, width=50, height=50)
+        canvas_obj.setFont('jersey_15', 20)
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawString(50, 680, 'Number of Games released:')
+        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        canvas_obj.drawString(50, 660, f'{sum.total_num_games_released()}')
 
-    c.setFont('jersey_15', 20)
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 680, 'Number of Games released:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 660, f'{sum.total_num_games_released()}')
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawString(50, 640, 'Number of Unique Games released:')
+        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        canvas_obj.drawString(50, 620, f'{sum.num_games_unique_released()}')
 
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 640, 'Number of Unique Games released:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 620, f'{sum.num_games_unique_released()}')
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawString(50, 600, 'Average Price:')
+        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        canvas_obj.drawString(50, 580, f'£ {sum.average_price()}')
 
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 600, 'Average Price:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 580, f'£ {sum.average_price()}')
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawString(50, 560, 'Top 5 Tags:')
+        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        x = 540
+        for tag in sum.top_five_tags():
+            canvas_obj.drawString(50, x, f'- {tag}')
+            x -= 20
 
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 560, 'Top 5 Tags:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    x = 540
-    for tag in sum.top_five_tags():
-        c.drawString(50, x, f'- {tag}')
-        x -= 20
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawString(50, 420, 'Top Platform:')
+        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        canvas_obj.drawString(50, 400, f'{sum.top_platform()}')
 
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 420, 'Top Platform:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 400, f'{sum.top_platform()}')
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawString(50, 380, 'Average Rating:')
+        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        canvas_obj.drawString(50, 360, f'{sum.average_rating()}%')
 
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 380, 'Average Rating:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 360, f'{sum.average_rating()}%')
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
 
-    c.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawImage(f'diagrams/tags_pie_chart_sum.png',
+                             x=20, y=155, width=280, height=180)
+        canvas_obj.drawString(270, 200, 'Top 3 Developers:')
+        x = 180
+        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        for developer in sum.top_three_developers():
+            canvas_obj.drawString(270, x, f'- {developer}')
+            x -= 20
+        x = 100
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawString(50, 120, 'Top 3 Publishers:')
+        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        for publisher in sum.top_three_publishers():
+            canvas_obj.drawString(50, x, f'- {publisher}')
+            x -= 20
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawString(270, 100, 'Sources:')
+        x = 80
+        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        for source in sum.get_website_names():
+            canvas_obj.drawString(270, x, f'- {source}')
+            x -= 20
 
-    c.drawImage(f'diagrams/tags_pie_chart_sum.png',
-                x=20, y=155, width=280, height=180)
-    c.drawString(270, 200, 'Top 3 Developers:')
-    x = 180
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    for developer in sum.top_three_developers():
-        c.drawString(270, x, f'- {developer}')
-        x -= 20
-    x = 100
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 120, 'Top 3 Publishers:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    for publisher in sum.top_three_publishers():
-        c.drawString(50, x, f'- {publisher}')
-        x -= 20
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(270, 100, 'Sources:')
-    x = 80
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    for source in sum.get_website_names():
-        c.drawString(270, x, f'- {source}')
-        x -= 20
+        canvas_obj.drawImage(f'diagrams/chart_sum.png', x=350, y=450)
+        canvas_obj.drawImage(f'diagrams/pie_chart_sum.png',
+                             x=320, y=230, width=280, height=180)
+        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        canvas_obj.drawString(300, 20, f'{canvas_obj.getPageNumber()}')
 
-    c.drawImage(f'diagrams/chart_sum.png', x=350, y=450)
-    c.drawImage(f'diagrams/pie_chart_sum.png',
-                x=320, y=230, width=280, height=180)
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(300, 20, f'{c.getPageNumber()}')
-    c.showPage()
-    # Individual reports
-    # Steam
-    individual_summary(c, steam, 1, "Steam")
-    c.showPage()
-    # GOG
-    individual_summary(c, gog, 2, "GOG")
-    c.showPage()
-    # EPIC
-    individual_summary(c, epic, 3, "Epic")
-    c.save()
+    def individual_summary(self, canvas_obj, website_stats_retriever: StatsRetriever, website_id: int, name: str):
+        """Creates individual report text for a website source."""
+        website_stats_retriever.tag_game_ratio()
+        website_stats_retriever.num_games_over_week()
+        canvas_obj.setFont('jersey_15', 30)
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(100, 750, f'GameScraper Weekly Report - {name}')
+        canvas_obj.drawImage('game_scraper_logo.png',
+                             x=520, y=735, width=50, height=50)
+
+        canvas_obj.setFont('jersey_15', 20)
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawString(50, 680, 'Number of Games released:')
+        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        canvas_obj.drawString(
+            50, 660, f'{website_stats_retriever.total_num_games_released()}')
+
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawString(50, 640, 'Average Price:')
+        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        canvas_obj.drawString(
+            50, 620, f'£ {website_stats_retriever.average_price()}')
+
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawString(50, 580, 'Top 5 Tags:')
+        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        x = 560
+        for tag in website_stats_retriever.top_five_tags():
+            canvas_obj.drawString(50, x, f'- {tag}')
+            x -= 20
+
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawString(50, 440, 'Top Platform:')
+        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        canvas_obj.drawString(
+            50, 420, f'{website_stats_retriever.top_platform()}')
+
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawString(50, 380, 'Average Rating:')
+        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        canvas_obj.drawString(
+            50, 360, f'{website_stats_retriever.average_rating()}')
+
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+
+        canvas_obj.drawImage(f'diagrams/tags_pie_chart_{website_id}.png',
+                             x=300, y=240, width=280, height=180)
+        x = 300
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawString(50, 320, 'Top 3 Publishers:')
+        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        for publisher in website_stats_retriever.top_three_publishers():
+            canvas_obj.drawString(50, x, f'- {publisher}')
+            x -= 20
+        canvas_obj.drawImage(f'diagrams/chart_{website_id}.png', x=350, y=450)
+        x = 160
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawString(50, 200, 'Top 3 Developers:')
+        x = 180
+        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        for developer in website_stats_retriever.top_three_developers():
+            canvas_obj.drawString(50, x, f'- {developer}')
+            x -= 20
+        canvas_obj.setFillColorRGB(0.6, 0.70, 30.0)
+        canvas_obj.drawString(300, 20, f'{canvas_obj.getPageNumber()}')
+
+    def generate_report(self):
+        sum = StatsRetriever(self.config)
+        steam = StatsRetriever(self.config, (1,))
+        gog = StatsRetriever(self.config, (2,))
+        epic = StatsRetriever(self.config, (3,))
+        pdfmetrics.registerFont(TTFont('jersey_15', 'Jersey15-Regular.ttf'))
+        c = canvas.Canvas('Weekly_Report.pdf', pagesize=letter)
+        c.setFont('jersey_15', 30)
+        c.setFillColorRGB(0.6, 0.09, 10.8)
+        c.drawString(100, 750, 'GameScraper Weekly Report')
+        c.drawImage('game_scraper_logo.png',
+                    x=430, y=735, width=50, height=50)
+        self.generate_summary_text(c, sum)
+        c.showPage()
+        # Individual reports
+        # Steam
+        self.individual_summary(c, steam, 1, "Steam")
+        c.showPage()
+        # GOG
+        self.individual_summary(c, gog, 2, "GOG")
+        c.showPage()
+        # EPIC
+        self.individual_summary(c, epic, 3, "Epic")
+        c.save()
 
 
-def individual_summary(canvas_obj, website_stats_retriever: StatsRetriever, website_id: int, name: str):
-    """Creates individual report text for a website source."""
-    website_stats_retriever.tag_game_ratio()
-    website_stats_retriever.num_games_over_week()
-    canvas_obj.setFont('jersey_15', 30)
-    canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-    canvas_obj.drawString(100, 750, f'GameScraper Weekly Report - {name}')
-    canvas_obj.drawImage('game_scraper_logo.png',
-                         x=520, y=735, width=50, height=50)
+class Alerter():
+    def __init__(self, config) -> None:
+        self.db_conn = self.connect_db(config)
 
-    canvas_obj.setFont('jersey_15', 20)
-    canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-    canvas_obj.drawString(50, 680, 'Number of Games released:')
-    canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-    canvas_obj.drawString(
-        50, 660, f'{website_stats_retriever.total_num_games_released()}')
+    def connect_db(self, config):
+        """Returns database connection object."""
+        return connect(
+            dbname=config["DB_NAME"],
+            user=config["DB_USER"],
+            password=config["DB_PASSWORD"],
+            host=config["DB_HOST"],
+            port=config["DB_PORT"],
+            cursor_factory=RealDictCursor
+        )
 
-    canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-    canvas_obj.drawString(50, 640, 'Average Price:')
-    canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-    canvas_obj.drawString(
-        50, 620, f'£ {website_stats_retriever.average_price()}')
+    def get_subscription_emails(self) -> list[str]:
+        """Returns a list of subscriber emails from the database."""
+        with self.db_conn.cursor() as cur:
+            cur.execute("""SELECT email FROM subscriber;""")
+            subscribers = cur.fetchall()
+            subscriber_list = []
+            for x in range(len(subscribers)):
+                subscriber_list.append(subscribers[x]['email'])
+            return subscriber_list
 
-    canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-    canvas_obj.drawString(50, 580, 'Top 5 Tags:')
-    canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-    x = 560
-    for tag in website_stats_retriever.top_five_tags():
-        canvas_obj.drawString(50, x, f'- {tag}')
-        x -= 20
+    def send_email(self, subscriber_list: list[str]):
+        """Sends Email containing weekly report to subsribers."""
 
-    canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-    canvas_obj.drawString(50, 440, 'Top Platform:')
-    canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-    canvas_obj.drawString(50, 420, f'{website_stats_retriever.top_platform()}')
+        client = boto3.client("ses",
+                              region_name="eu-west-2",
+                              aws_access_key_id=os.environ["ACCESS_KEY_ID"],
+                              aws_secret_access_key=os.environ["SECRET_ACCESS_KEY"])
+        message = MIMEMultipart()
+        message["Subject"] = "GameScraper Weekly Report"
 
-    canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-    canvas_obj.drawString(50, 380, 'Average Rating:')
-    canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-    canvas_obj.drawString(
-        50, 360, f'{website_stats_retriever.average_rating()}')
+        attachment = MIMEApplication(open('Weekly_Report.pdf', 'rb').read())
+        attachment.add_header('Content-Disposition',
+                              'attachment', filename='report.pdf')
+        message_text = MIMEText('Hi -- here is the weekly GameScraper report!')
+        message.attach(message_text)
+        message.attach(attachment)
 
-    canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-
-    canvas_obj.drawImage(f'diagrams/tags_pie_chart_{website_id}.png',
-                         x=300, y=240, width=280, height=180)
-    x = 300
-    canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-    canvas_obj.drawString(50, 320, 'Top 3 Publishers:')
-    canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-    for publisher in website_stats_retriever.top_three_publishers():
-        canvas_obj.drawString(50, x, f'- {publisher}')
-        x -= 20
-    canvas_obj.drawImage(f'diagrams/chart_{website_id}.png', x=350, y=450)
-    x = 160
-    canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-    canvas_obj.drawString(50, 200, 'Top 3 Developers:')
-    x = 180
-    canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-    for developer in website_stats_retriever.top_three_developers():
-        canvas_obj.drawString(50, x, f'- {developer}')
-        x -= 20
-    canvas_obj.setFillColorRGB(0.6, 0.70, 30.0)
-    canvas_obj.drawString(300, 20, f'{canvas_obj.getPageNumber()}')
+        client.send_raw_email(
+            Source='trainee.setinder.manic@sigmalabs.co.uk',
+            Destinations=subscriber_list,
+            RawMessage={
+                'Data': message.as_string()
+            }
+        )
 
 
 if __name__ == "__main__":
     load_dotenv()
-    generate_pdf(os.environ)
+    r = ReportMaker(os.environ)
+    r.generate_report()
+    a = Alerter(os.environ)
+    subscribers = a.get_subscription_emails()
+    a.send_email(subscribers)
