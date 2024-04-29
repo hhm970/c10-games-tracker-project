@@ -1,5 +1,4 @@
 
-# The permission policy
 data "aws_iam_policy_document" "statemachine-permissions-policy" {
   statement {
     effect = "Allow"
@@ -21,7 +20,6 @@ data "aws_iam_policy_document" "statemachine-permissions-policy" {
   
 }
 
-# The trust policy
 data "aws_iam_policy_document" "statemachine-trust-policy" {
   statement {
     effect = "Allow"
@@ -36,7 +34,6 @@ data "aws_iam_policy_document" "statemachine-trust-policy" {
 }
 
 
-# The role
 
 resource "aws_iam_role" "statemachine-role" {
   name               = "c10-games-terraform-statemachine-role-pipeline"
