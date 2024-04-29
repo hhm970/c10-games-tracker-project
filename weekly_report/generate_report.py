@@ -279,7 +279,7 @@ def generate_pdf(config):
 
     c.drawImage(f'diagrams/tags_pie_chart_sum.png',
                 x=20, y=155, width=280, height=180)
-    c.drawString(270, 200, 'Top 3 developers:')
+    c.drawString(270, 200, 'Top 3 Developers:')
     x = 180
     c.setFillColorRGB(0.6, 0.70, 35.0)
     for developer in sum.top_three_developers():
@@ -287,7 +287,7 @@ def generate_pdf(config):
         x -= 20
     x = 100
     c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 120, 'Top 3 publishers:')
+    c.drawString(50, 120, 'Top 3 Publishers:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
     for publisher in sum.top_three_publishers():
         c.drawString(50, x, f'- {publisher}')
@@ -351,7 +351,7 @@ def generate_pdf(config):
                 x=300, y=240, width=280, height=180)
     x = 300
     c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 320, 'Top 3 publishers:')
+    c.drawString(50, 320, 'Top 3 Publishers:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
     for publisher in steam.top_three_publishers():
         c.drawString(50, x, f'- {publisher}')
@@ -359,7 +359,7 @@ def generate_pdf(config):
     c.drawImage(f'diagrams/chart_1.png', x=350, y=450)
     x = 160
     c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 200, 'Top 3 developers:')
+    c.drawString(50, 200, 'Top 3 Developers:')
     x = 180
     c.setFillColorRGB(0.6, 0.70, 35.0)
     for developer in steam.top_three_developers():
@@ -413,7 +413,7 @@ def generate_pdf(config):
                 x=300, y=240, width=280, height=180)
     x = 300
     c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 320, 'Top 3 publishers:')
+    c.drawString(50, 320, 'Top 3 Publishers:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
     for publisher in gog.top_three_publishers():
         c.drawString(50, x, f'- {publisher}')
@@ -421,7 +421,7 @@ def generate_pdf(config):
     c.drawImage(f'diagrams/chart_2.png', x=350, y=450)
     x = 160
     c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 200, 'Top 3 developers:')
+    c.drawString(50, 200, 'Top 3 Developers:')
     x = 180
     c.setFillColorRGB(0.6, 0.70, 35.0)
     for developer in gog.top_three_developers():
@@ -467,7 +467,7 @@ def generate_pdf(config):
     c.setFillColorRGB(0.6, 0.50, 30.0)
     c.drawString(50, 380, 'Average Rating:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 360, f'{epic.average_rating()}%')
+    c.drawString(50, 360, f'{epic.average_rating()}')
 
     c.setFillColorRGB(0.6, 0.50, 30.0)
 
@@ -475,7 +475,7 @@ def generate_pdf(config):
                 x=300, y=240, width=280, height=180)
     x = 300
     c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 320, 'Top 3 publishers:')
+    c.drawString(50, 320, 'Top 3 Publishers:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
     for publisher in epic.top_three_publishers():
         c.drawString(50, x, f'- {publisher}')
@@ -483,7 +483,7 @@ def generate_pdf(config):
     c.drawImage(f'diagrams/chart_3.png', x=350, y=450)
     x = 160
     c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 200, 'Top 3 developers:')
+    c.drawString(50, 200, 'Top 3 Developers:')
     x = 180
     c.setFillColorRGB(0.6, 0.70, 35.0)
     for developer in epic.top_three_developers():
