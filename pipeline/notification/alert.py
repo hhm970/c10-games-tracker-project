@@ -13,7 +13,7 @@ TAG_ARNS = {'Action': 'arn:aws:sns:eu-west-2:129033205317:c10-games-action-tag',
             "Simulation": 'arn:aws:sns:eu-west-2:129033205317:c10-games-simulation-tag',
             "Fantasy": 'arn:aws:sns:eu-west-2:129033205317:c10-games-fantasy-tag',
             "City Builder": 'arn:aws:sns:eu-west-2:129033205317:c10-games-city-builder-tag',
-            "Puzzle": '	arn:aws:sns:eu-west-2:129033205317:c10-games-puzzle-tag',
+            "Puzzle": 'arn:aws:sns:eu-west-2:129033205317:c10-games-puzzle-tag',
             "Sports": 'arn:aws:sns:eu-west-2:129033205317:c10-games-sports-tag',
             "Singleplayer": 'arn:aws:sns:eu-west-2:129033205317:c10-games-singleplayer-tag',
             "Multiplayer": 'arn:aws:sns:eu-west-2:129033205317:c10-games-multiplayer-tag'}
