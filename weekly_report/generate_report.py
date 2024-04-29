@@ -171,7 +171,7 @@ class StatsRetriever():
             platform = cur.fetchone()['platform_name']
             return platform
 
-    def average_rating(self) -> float | None:
+    def average_rating(self) -> float:
         """Returns the average rating of this weeks games."""
         with self.conn.cursor() as cur:
             cur.execute("""SELECT ROUND(AVG(CAST(rating AS numeric)), 2)
