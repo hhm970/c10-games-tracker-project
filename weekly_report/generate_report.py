@@ -136,7 +136,7 @@ class Stats_Retriever():
             return tag_list
 
     def tag_game_ratio(self):
-        """Returns the proportion of tags in the form of a pie-chart. """
+        """Returns the proportion of tags in the form of a pie-chart."""
         with self.conn.cursor() as cur:
             cur.execute("""SELECT t.tag_name, count(*) from tag AS t INNER JOIN game_tag_matching AS gt ON(t.tag_id=gt.tag_id) WHERE gt.game_id IN
                         (SELECT game_id from game AS g WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
