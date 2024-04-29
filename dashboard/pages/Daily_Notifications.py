@@ -67,7 +67,7 @@ if __name__ == "__main__":
             ticked = st.checkbox(tag)
             if ticked:
                 selected.append(tag)
-        email = st.text_input("Enter Email:")
+        email = st.text_input("Enter email here:")
         submit_button = st.form_submit_button(label='Submit')
 
         if submit_button:
@@ -84,4 +84,5 @@ if __name__ == "__main__":
         st.page_link("pages/Epic.py")
         st.page_link("pages/GOG.py")
         st.page_link("pages/Steam.py")
-        st.page_link("pages/Subscribe.py")
+        st.page_link("pages/Daily_Notifications.py")
+        st.page_link("pages/Weekly_Newsletter.py")
