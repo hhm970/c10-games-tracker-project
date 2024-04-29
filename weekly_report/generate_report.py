@@ -323,27 +323,22 @@ def generate_pdf(config):
     c.drawString(50, 660, f'{steam.total_num_games_released()}')
 
     c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 640, 'Number of Unique Games released:')
+    c.drawString(50, 640, 'Average Price:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 620, f'{steam.num_games_unique_released()}')
+    c.drawString(50, 620, f'£ {steam.average_price()}')
 
     c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 600, 'Average Price:')
+    c.drawString(50, 580, 'Top 5 Tags:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 580, f'£ {steam.average_price()}')
-
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 560, 'Top 5 Tags:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    x = 540
+    x = 560
     for tag in steam.top_five_tags():
         c.drawString(50, x, f'- {tag}')
         x -= 20
 
     c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 420, 'Top Platform:')
+    c.drawString(50, 440, 'Top Platform:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 400, f'{steam.top_platform()}')
+    c.drawString(50, 420, f'{steam.top_platform()}')
 
     c.setFillColorRGB(0.6, 0.50, 30.0)
     c.drawString(50, 380, 'Average Rating:')
@@ -380,7 +375,8 @@ def generate_pdf(config):
     c.setFont('jersey_15', 30)
     c.setFillColorRGB(0.6, 0.09, 10.8)
     c.drawString(100, 750, 'GameScraper Weekly Report - GOG')
-    c.drawImage('game_scraper_logo.png', x=520, y=735, width=50, height=50)
+    c.drawImage('game_scraper_logo.png',
+                x=520, y=735, width=50, height=50)
 
     c.setFont('jersey_15', 20)
     c.setFillColorRGB(0.6, 0.50, 30.0)
@@ -389,27 +385,22 @@ def generate_pdf(config):
     c.drawString(50, 660, f'{gog.total_num_games_released()}')
 
     c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 640, 'Number of Unique Games released:')
+    c.drawString(50, 640, 'Average Price:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 620, f'{gog.num_games_unique_released()}')
+    c.drawString(50, 620, f'£ {gog.average_price()}')
 
     c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 600, 'Average Price:')
+    c.drawString(50, 580, 'Top 5 Tags:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 580, f'£ {gog.average_price()}')
-
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 560, 'Top 5 Tags:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    x = 540
+    x = 560
     for tag in gog.top_five_tags():
         c.drawString(50, x, f'- {tag}')
         x -= 20
 
     c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 420, 'Top Platform:')
+    c.drawString(50, 440, 'Top Platform:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 400, f'{gog.top_platform()}')
+    c.drawString(50, 420, f'{gog.top_platform()}')
 
     c.setFillColorRGB(0.6, 0.50, 30.0)
     c.drawString(50, 380, 'Average Rating:')
@@ -438,6 +429,7 @@ def generate_pdf(config):
         x -= 20
     c.setFillColorRGB(0.6, 0.70, 30.0)
     c.drawString(300, 20, f'{c.getPageNumber()}')
+
     # EPIC
     c.showPage()
     epic.tag_game_ratio()
@@ -455,27 +447,22 @@ def generate_pdf(config):
     c.drawString(50, 660, f'{epic.total_num_games_released()}')
 
     c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 640, 'Number of Unique Games released:')
+    c.drawString(50, 640, 'Average Price:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 620, f'{epic.num_games_unique_released()}')
+    c.drawString(50, 620, f'£ {epic.average_price()}')
 
     c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 600, 'Average Price:')
+    c.drawString(50, 580, 'Top 5 Tags:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 580, f'£ {epic.average_price()}')
-
-    c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 560, 'Top 5 Tags:')
-    c.setFillColorRGB(0.6, 0.70, 35.0)
-    x = 540
+    x = 560
     for tag in epic.top_five_tags():
         c.drawString(50, x, f'- {tag}')
         x -= 20
 
     c.setFillColorRGB(0.6, 0.50, 30.0)
-    c.drawString(50, 420, 'Top Platform:')
+    c.drawString(50, 440, 'Top Platform:')
     c.setFillColorRGB(0.6, 0.70, 35.0)
-    c.drawString(50, 400, f'{epic.top_platform()}')
+    c.drawString(50, 420, f'{epic.top_platform()}')
 
     c.setFillColorRGB(0.6, 0.50, 30.0)
     c.drawString(50, 380, 'Average Rating:')
