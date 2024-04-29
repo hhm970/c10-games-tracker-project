@@ -14,17 +14,17 @@ resource "aws_db_instance" "default" {
 }
 
 resource "aws_security_group" "rds_security_group" {
-
     name = "c10-games-tracker-sg"
     vpc_id = data.aws_vpc.cohort_10_vpc.id
+}
 
-    ingress {
-        cidr_blocks       = ["0.0.0.0/0"]
-        from_port         = 5432
-        protocol          = "tcp"
-        to_port           = 5432
-    }
-
+resource "aws_security_group_rule" "allow-all-ipv4-traffic" {
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 5432
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.rds_security_group.id
 }
 
 data "aws_db_subnet_group" "public_subnet_group" {
