@@ -78,8 +78,6 @@ def input_game_dev_get_dev_id(input_game: list, conn: connection) -> int:
 
             developer_id_match = get_dev_id(input_game, cur)
 
-        cur.close()
-
     conn.commit()
 
     return developer_id_match['developer_id']
@@ -113,8 +111,6 @@ def input_game_pub_get_pub_id(input_game: list, conn: connection) -> int:
 
             publisher_id_match = get_pub_id(input_game, cur)
 
-        cur.close()
-
     conn.commit()
 
     return publisher_id_match['publisher_id']
@@ -138,7 +134,6 @@ def input_game_into_db(game_data: list[list], conn: connection) -> None:
                 publisher_id, release_date, rating, website_id)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""", (game[:8]))
 
-        cur.close()
     conn.commit()
 
 
@@ -157,7 +152,7 @@ def input_game_plat_into_db(game_data: list[list], conn: connection) -> None:
                 cur.execute(
                     """INSERT INTO platform_assignment (platform_id, game_id)
                 VALUES (%s, %s)""", (plat, game_id))
-        cur.close()
+
     conn.commit()
 
 
@@ -194,7 +189,7 @@ def input_game_tags_into_db(game_data: list[list], conn: connection) -> None:
 
                     cur.execute("""INSERT INTO game_tag_matching (game_id, tag_id)
                                 VALUES (%s, %s)""", (game_id, tag_id))
-        cur.close()
+
     conn.commit()
 
 
