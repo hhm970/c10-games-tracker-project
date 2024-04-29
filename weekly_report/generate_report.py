@@ -1,7 +1,7 @@
 import os
+from dotenv import load_dotenv
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-from dotenv import load_dotenv
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from psycopg2 import connect
@@ -12,9 +12,13 @@ import pandas as pd
 
 
 class Stats_Retriever():
+    """This class is responsible for the functionality which allows the user
+    to retrieve useful stats about the games database. """
+
     def __init__(self, config=None, website_id=(1, 2, 3)) -> None:
+        """Initialises DB connection and website ids """
         self.conn = self.get_db_connection(config)
-        self.website_id = website_id
+        self.website_ids = website_id
 
     def get_db_connection(self, config) -> connection:
         """Returns a connection to the database."""
@@ -34,28 +38,30 @@ class Stats_Retriever():
             cur.execute("""SELECT count(distinct g.name)
                             FROM game AS g
                             WHERE release_date >= CURRENT_DATE - INTERVAL '7 days'
-                            AND release_date <= CURRENT_DATE AND g.website_id IN %s;""", (self.website_id,))
+                            AND release_date <= CURRENT_DATE AND g.website_id IN %s;""", (self.website_ids,))
 
             num_games = cur.fetchone()['count']
             return num_games
 
     def total_num_games_released(self):
+        """Returns the total number of games released this week (including duplicates)."""
         with self.conn.cursor() as cur:
             cur.execute("""SELECT count(name)
                         FROM game AS g
                         WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
                         AND g.release_date <= CURRENT_DATE AND g.website_id IN %s
-                        """, (self.website_id,))
+                        """, (self.website_ids,))
             num_games = cur.fetchone()['count']
             return num_games
 
     def num_games_over_week(self):
+        """Returns a chart of the number of games released over the week(per day)."""
         with self.conn.cursor() as cur:
             cur.execute("""SELECT count(g.name), g.release_date
                             FROM game AS g
                             WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
                             AND g.release_date <= CURRENT_DATE AND g.website_id IN %s GROUP BY g.release_date;
-                            """, (self.website_id,))
+                            """, (self.website_ids,))
             games = cur.fetchall()
             games = pd.DataFrame(games)
             games['release_date'] = games['release_date'].astype(str)
@@ -70,27 +76,29 @@ class Stats_Retriever():
                 opacity=0.5,
                 color='blue'
             )
-            if len(self.website_id) == 3:
+            if len(self.website_ids) == 3:
                 chart.save('diagrams/chart_sum.png')
-            elif len(self.website_id) == 2:
+            elif len(self.website_ids) == 2:
                 chart.save(
-                    f'diagrams/chart_{self.website_id[0]}_{self.website_id[1]}.png')
+                    f'diagrams/chart_{self.website_ids[0]}_{self.website_ids[1]}.png')
             else:
                 chart.save(
-                    f'diagrams/chart_{self.website_id[0]}.png')
+                    f'diagrams/chart_{self.website_ids[0]}.png')
 
     def average_price(self):
+        """Returns the average price of the games from the week."""
         with self.conn.cursor() as cur:
             cur.execute(
                 """SELECT ROUND(AVG(CAST(g.price AS numeric)), 2)
                 AS avg_price FROM game AS g
                 WHERE
                 g.release_date >= CURRENT_DATE - INTERVAL '7 days'
-                AND g.release_date <= CURRENT_DATE AND g.website_id IN %s;""", (self.website_id,))
+                AND g.release_date <= CURRENT_DATE AND g.website_id IN %s;""", (self.website_ids,))
             avg_price = cur.fetchone()['avg_price']
             return avg_price
 
     def num_games_per_website(self):
+        """Returns a pie chart of the number of games released according to website."""
         with self.conn.cursor() as cur:
             cur.execute("""SELECT w.website_name, count(*) AS num_games
                          FROM game as g
@@ -98,28 +106,29 @@ class Stats_Retriever():
                         ON (g.website_id = w.website_id)
                          WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
                          AND g.release_date <= CURRENT_DATE 
-                        AND g.website_id IN %s GROUP BY w.website_name ;""", (self.website_id,))
+                        AND g.website_id IN %s GROUP BY w.website_name ;""", (self.website_ids,))
             games = cur.fetchall()
             games = pd.DataFrame(games)
             pie_chart = alt.Chart(games, title='Website-game ratio').mark_arc().encode(
                 theta="num_games",
                 color=alt.Color('website_name', scale=alt.Scale(scheme='set2'))
             )
-            if len(self.website_id) == 3:
+            if len(self.website_ids) == 3:
                 pie_chart.save('diagrams/pie_chart_sum.png')
-            elif len(self.website_id) == 2:
+            elif len(self.website_ids) == 2:
                 pie_chart.save(
-                    f'diagrams/pie_chart_{self.website_id[0]}_{self.website_id[1]}.png')
+                    f'diagrams/pie_chart_{self.website_ids[0]}_{self.website_ids[1]}.png')
             else:
                 pie_chart.save(
-                    f'diagrams/pie_chart_{self.website_id[0]}.png')
+                    f'diagrams/pie_chart_{self.website_ids[0]}.png')
 
     def top_five_tags(self):
+        """Returns the top five tags of this weeks games."""
         with self.conn.cursor() as cur:
             cur.execute("""SELECT t.tag_name, count(*) from tag AS t INNER JOIN game_tag_matching AS gt ON(t.tag_id=gt.tag_id) WHERE gt.game_id IN
                         (SELECT game_id from game AS g WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
                         AND g.release_date <= CURRENT_DATE AND g.website_id IN %s) GROUP BY t.tag_name ORDER BY count(*) DESC LIMIT 5;
-                        """, (self.website_id,))
+                        """, (self.website_ids,))
             tags = cur.fetchall()
             tag_list = []
             for x in range(len(tags)):
@@ -127,54 +136,58 @@ class Stats_Retriever():
             return tag_list
 
     def tag_game_ratio(self):
+        """Returns the proportion of tags in the form of a pie-chart. """
         with self.conn.cursor() as cur:
             cur.execute("""SELECT t.tag_name, count(*) from tag AS t INNER JOIN game_tag_matching AS gt ON(t.tag_id=gt.tag_id) WHERE gt.game_id IN
                         (SELECT game_id from game AS g WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
                         AND g.release_date <= CURRENT_DATE AND g.website_id IN %s) GROUP BY t.tag_name ORDER BY count(*) DESC LIMIT 5;
-                        """, (self.website_id,))
+                        """, (self.website_ids,))
             tags = cur.fetchall()
             tags = pd.DataFrame(tags)
             pie_chart = alt.Chart(tags, title='Tag-game ratio').mark_arc().encode(
                 theta="count",
                 color=alt.Color('tag_name', scale=alt.Scale(scheme='set2'))
             )
-            if len(self.website_id) == 3:
+            if len(self.website_ids) == 3:
                 pie_chart.save('diagrams/tags_pie_chart_sum.png')
-            elif len(self.website_id) == 2:
+            elif len(self.website_ids) == 2:
                 pie_chart.save(
-                    f'diagrams/tags_pie_chart_{self.website_id[0]}_{self.website_id[1]}.png')
+                    f'diagrams/tags_pie_chart_{self.website_ids[0]}_{self.website_ids[1]}.png')
             else:
                 pie_chart.save(
-                    f'diagrams/tags_pie_chart_{self.website_id[0]}.png')
+                    f'diagrams/tags_pie_chart_{self.website_ids[0]}.png')
 
     def top_platform(self):
+        """Returns the top platform name."""
         with self.conn.cursor() as cur:
             cur.execute("""SELECT p.platform_name, count(*) from platform AS p
                          INNER JOIN platform_assignment AS pa ON(p.platform_id=pa.platform_id) WHERE pa.game_id IN
                         (SELECT game_id from game AS g WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
                         AND g.release_date <= CURRENT_DATE AND g.website_id IN %s)
                         GROUP BY p.platform_name ORDER BY count(*) DESC LIMIT 1;
-                        """, (self.website_id,))
+                        """, (self.website_ids,))
             platform = cur.fetchone()['platform_name']
             return platform
 
     def average_rating(self):
+        """Returns the average rating of this weeks games."""
         with self.conn.cursor() as cur:
             cur.execute("""SELECT ROUND(AVG(CAST(rating AS numeric)), 2)
                 AS avg_rating
                         FROM game AS g
                         WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
-                        AND g.release_date <= CURRENT_DATE AND g.website_id IN %s;""", (self.website_id,))
+                        AND g.release_date <= CURRENT_DATE AND g.website_id IN %s;""", (self.website_ids,))
             rating = cur.fetchone()['avg_rating']
             return rating
 
     def top_three_publishers(self):
+        """Returns the top three game publishers of this week."""
         with self.conn.cursor() as cur:
             cur.execute("""SELECT p.publisher_name, count(*) AS num_games FROM game as g 
                         LEFT JOIN publisher AS p ON (g.publisher_id = p.publisher_id) 
                         WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
                         AND g.release_date <= CURRENT_DATE AND g.website_id IN %s
-                        GROUP BY p.publisher_name ORDER BY count(*) DESC LIMIT 3;""", (self.website_id,))
+                        GROUP BY p.publisher_name ORDER BY count(*) DESC LIMIT 3;""", (self.website_ids,))
             publishers = cur.fetchall()
             publisher_list = []
             for x in range(len(publishers)):
@@ -182,6 +195,7 @@ class Stats_Retriever():
             return publisher_list
 
     def top_three_developers(self):
+        """Returns the top three game developers of this week."""
         with self.conn.cursor() as cur:
             cur.execute("""SELECT d.developer_name, count(*) AS num_games FROM game as g
                          LEFT JOIN developer AS d
@@ -189,7 +203,7 @@ class Stats_Retriever():
                          WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
                          AND g.release_date <= CURRENT_DATE
                         AND g.website_id IN %s
-                        GROUP BY d.developer_name ORDER BY count(*) DESC LIMIT 3;""", (self.website_id,))
+                        GROUP BY d.developer_name ORDER BY count(*) DESC LIMIT 3;""", (self.website_ids,))
             developers = cur.fetchall()
             developer_list = []
             for x in range(len(developers)):
@@ -197,9 +211,10 @@ class Stats_Retriever():
             return developer_list
 
     def get_website_names(self):
+        """Returns a list of source website used."""
         with self.conn.cursor() as cur:
             cur.execute(
-                """SELECT w.website_name FROM website AS w WHERE w.website_id IN %s""", (self.website_id,))
+                """SELECT w.website_name FROM website AS w WHERE w.website_id IN %s""", (self.website_ids,))
             websites = cur.fetchall()
             website_list = []
             for x in range(len(websites)):
@@ -208,6 +223,7 @@ class Stats_Retriever():
 
 
 def generate_pdf(config):
+    """Creates a summary report of all and individual gaming websites."""
     sum = Stats_Retriever(config)
     steam = Stats_Retriever(config, (1,))
     gog = Stats_Retriever(config, (2,))
