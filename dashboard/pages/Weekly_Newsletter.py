@@ -46,6 +46,7 @@ def add_to_database(first_name: str, last_name: str, email: str) -> None:
                     VALUES (%s,%s,%s)""", (first_name, last_name, email))
 
     conn.commit()
+    conn.close()
 
 
 def remove_from_database(email: str) -> None:
@@ -57,6 +58,7 @@ def remove_from_database(email: str) -> None:
                     WHERE email = (%s)""", (email,))
 
     conn.commit()
+    conn.close()
 
 
 if __name__ == "__main__":
