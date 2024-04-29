@@ -1,4 +1,6 @@
+"""This file is responsible for the generating of a pdf summary report and emailing it to users."""
 import os
+
 from dotenv import load_dotenv
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
