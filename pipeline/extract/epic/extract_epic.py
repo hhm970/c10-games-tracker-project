@@ -38,7 +38,7 @@ def get_games_data(config) -> list[dict]:
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:123.0) Gecko/20100101 Firefox/123.0"
     }
-    res = req.post(config["BASE_URL"], json={
+    res = req.post(config["EPIC_BASE_URL"], json={
                    "query": query}, headers=headers, timeout=10)
     game_data = res.json()
     games = game_data['data']['Catalog']['searchStore']['elements']

@@ -8,15 +8,23 @@ from boto3 import client
 
 TAG_ARNS = {'Action': 'arn:aws:sns:eu-west-2:129033205317:c10-games-action-tag',
             'Adventure': 'arn:aws:sns:eu-west-2:129033205317:c10-games-adventure-tag',
+            "Casual": 'arn:aws:sns:eu-west-2:129033205317:c10-games-casual-tag',
+            "City Builder": 'arn:aws:sns:eu-west-2:129033205317:c10-games-city-builder-tag',
+            "Fantasy": 'arn:aws:sns:eu-west-2:129033205317:c10-games-fantasy-tag',
             'Indie': 'arn:aws:sns:eu-west-2:129033205317:c10-games-indie-tag',
-            'Horror': 'arn:aws:sns:eu-west-2:129033205317:c10-games-horror-tag'}
+            "Puzzle": 'arn:aws:sns:eu-west-2:129033205317:c10-games-puzzle-tag',
+            "RPG": 'arn:aws:sns:eu-west-2:129033205317:c10-games-rpg-tag',
+            "Simulation": 'arn:aws:sns:eu-west-2:129033205317:c10-games-simulation-tag',
+            "Sports": 'arn:aws:sns:eu-west-2:129033205317:c10-games-sports-tag',
+            "Singleplayer": 'arn:aws:sns:eu-west-2:129033205317:c10-games-singleplayer-tag',
+            "Multiplayer": 'arn:aws:sns:eu-west-2:129033205317:c10-games-multiplayer-tag'}
 
 
 def verify_email(email_address: str, config):
     '''Checks if an email is already verified,
     if not it is verified.'''
     ses = client(
-        "ses", aws_access_key_id=config["AWS_KEY"], aws_secret_access_key=config["AWS_SECRET"])
+        "ses", aws_access_key_id=config["AWS_KEY"], aws_secret_access_key=config["AWS_SECRET"], region_name=config['AWS_REGION'])
 
     if email_address not in ses.list_identities(IdentityType='EmailAddress')["Identities"]:
         res = ses.verify_email_identity(EmailAddress=email_address)
@@ -27,7 +35,7 @@ def verify_email(email_address: str, config):
 def subscribe_to_topic(email_address: str, config, topic_name: str):
     '''Subscribes a given email to a given topic.'''
     sns = client(
-        "sns", aws_access_key_id=config["AWS_KEY"], aws_secret_access_key=config["AWS_SECRET"])
+        "sns", aws_access_key_id=config["AWS_KEY"], aws_secret_access_key=config["AWS_SECRET"], region_name=config['AWS_REGION'])
 
     result = sns.subscribe(
         TopicArn=TAG_ARNS[topic_name],
@@ -44,7 +52,7 @@ if __name__ == "__main__":
 
     load_dotenv()
 
-    tags = ['Action', 'Adventure', 'Indie', 'Horror']
+    tags = list(TAG_ARNS.keys())
 
     st.title("New Release Notifications")
     st.write("---")
@@ -59,16 +67,28 @@ if __name__ == "__main__":
             ticked = st.checkbox(tag)
             if ticked:
                 selected.append(tag)
-        email = st.text_input("Enter Email:")
+        email = st.text_input("Enter email here:")
         submit_button = st.form_submit_button(label='Submit')
 
         if submit_button:
-            verify_email(email, ENV)
-            st.write("You have subscribed!")
-            st.write(f"You are now tracking: {', '.join(selected)}")
-            for topic in selected:
-                subscribe_to_topic(email, ENV, topic)
+            if email == '':
+                st.write("No email provided!")
+            else:
+                try:
+                    verify_email(email, ENV)
+                    st.write("You have subscribed!")
+                    st.write(f"You are now tracking: {', '.join(selected)}")
+                    for topic in selected:
+                        subscribe_to_topic(email, ENV, topic)
+                except:
+                    st.write("The email was invalid, try again!")
 
     with st.sidebar:
         st.title("Navigation Station :rocket:")
         st.write("---")
+        st.page_link("Home.py")
+        st.page_link("pages/Epic.py")
+        st.page_link("pages/GOG.py")
+        st.page_link("pages/Steam.py")
+        st.page_link("pages/Daily_Notifications.py")
+        st.page_link("pages/Weekly_Newsletter.py")

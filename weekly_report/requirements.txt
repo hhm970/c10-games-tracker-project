@@ -1,0 +1,9 @@
+pylint
+pytest
+pytest-cov
+psycopg2-binary
+reportlab
+altair
+pandas
+vl-convert-python
+boto3

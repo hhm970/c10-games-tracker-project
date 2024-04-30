@@ -8,7 +8,7 @@ def test_pull_data_from_graphql(requests_mock, epic_game_post_response):
     """Tests successful post request."""
 
     config = {
-        'BASE_URL': 'http://www.epic/test/graphql.com'
+        'EPIC_BASE_URL': 'http://www.epic/test/graphql.com'
     }
     requests_mock.post('http://www.epic/test/graphql.com',
                        json=epic_game_post_response)
@@ -32,7 +32,7 @@ def test_correct_game_details_pulled(epic_game_data_game_obj):
 def test_no_new_games(requests_mock, epic_empty_post_request):
     """Tests error handling of grabbing data."""
     config = {
-        'BASE_URL': 'http://www.epic/test/graphql.com'
+        'EPIC_BASE_URL': 'http://www.epic/test/graphql.com'
     }
     requests_mock.post('http://www.epic/test/graphql.com',
                        json=epic_empty_post_request)
@@ -43,7 +43,7 @@ def test_no_new_games(requests_mock, epic_empty_post_request):
 def test_no_one_new_games(requests_mock, epic_game_post_response):
     """Tests error handling of grabbing data."""
     config = {
-        'BASE_URL': 'http://www.epic/test/graphql.com'
+        'EPIC_BASE_URL': 'http://www.epic/test/graphql.com'
     }
     requests_mock.post('http://www.epic/test/graphql.com',
                        json=epic_game_post_response)

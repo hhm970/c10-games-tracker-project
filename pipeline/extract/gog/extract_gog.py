@@ -12,6 +12,8 @@ from bs4.element import Tag
 
 
 PLATFORM_TITLE = 'window.productcardData.cardProductSystemRequirements'
+FILTER_1 = 'This Game may contain content not appropriate for all ages or may not be appropriate for viewing at work'
+FILTER_2 = 'Buying this game on GOG.COM you will receive a censored version of the game'
 
 
 def get_platforms(game_soup: BeautifulSoup) -> list:
@@ -88,9 +90,12 @@ def get_rating(game_dict: dict) -> float:
     return round(float(game_dict['aggregateRating']['ratingValue']) * 20, 2)
 
 
-def get_release_date(game_dict: dict) -> datetime:
+def get_release_date(game_soup: BeautifulSoup) -> datetime:
     '''Returns a datetime object of the release day.'''
-    return datetime.strptime(game_dict['releaseDate'][:-6], '%Y-%m-%dT%H:%M:%S')
+    divs = (game_soup.find_all(
+        'div', class_='details__content table__row-content'))
+    time_str = ([t.find('span') for t in divs][5].text)
+    return datetime.strptime(time_str[3:21], '%Y-%m-%dT%H:%M:%S')
 
 
 def get_platform_ids(platform_str: list) -> list:
@@ -123,12 +128,13 @@ def get_game_details(game: BeautifulSoup) -> list:
     '''Returns a list of key data points about a given
     game soup.'''
 
-    address = game.find(
-        'a', class_='product-tile product-tile--grid')['href']
+    address = game.find('a', class_='product-tile product-tile--grid')['href']
+
     response = req.get(address, timeout=5)
     game_data = BeautifulSoup(response.text, features="html.parser")
+
     game_json = get_game_data_json(game_data)
-    release_date = get_release_date(game_json)
+    release_date = get_release_date(game_data)
 
     link = get_detail_links(game_data)
     return [get_title(game), get_description(game_data), get_price(game_json),
@@ -146,9 +152,12 @@ def get_games_from_page(soup: BeautifulSoup) -> list:
     for game in soup:
         game_data = get_game_details(game)
         release_date = game_data[5]
-        if release_date > yesterday:
-            game_data[5] = str(game_data[5])
-            recently_released.append(game_data)
+        desc = game_data[1]
+        if (release_date > yesterday):
+            if (FILTER_1 not in desc) and (FILTER_2 not in desc):
+                game_data[5] = str(game_data[5])
+                recently_released.append(game_data)
+
             sleep(1)
         else:
             break
@@ -163,7 +172,7 @@ def search_pages_last_day() -> list:
     load_dotenv()
     counter = 1
     games_from_page = req.get(
-        f'{ENV["SCRAPING_URL"]}&page={counter}', timeout=5)
+        f'{ENV["GOG_BASE_URL"]}&page={counter}', timeout=5)
     page_soup = BeautifulSoup(games_from_page.text, features="html.parser")
     games_soup = page_soup.findAll('product-tile', class_='ng-star-inserted')
     game_data_list = get_games_from_page(games_soup)
@@ -172,7 +181,7 @@ def search_pages_last_day() -> list:
         sleep(1)
         counter += 1
         games_from_page = req.get(
-            f'{ENV["SCRAPING_URL"]}&page={counter}', timeout=5)
+            f'{ENV["GOG_BASE_URL"]}&page={counter}', timeout=5)
         page_soup = BeautifulSoup(games_from_page.text, features="html.parser")
         games_soup = page_soup.findAll(
             'product-tile', class_='ng-star-inserted')
@@ -180,7 +189,7 @@ def search_pages_last_day() -> list:
         if len(game_data) == 0:
             more_pages = False
         else:
-            game_data_list = game_data_list.append(game_data)
+            game_data_list.append(game_data)
 
     return game_data_list
 
