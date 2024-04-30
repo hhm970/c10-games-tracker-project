@@ -1,3 +1,7 @@
+variable "VPC_ID" {
+    type = string
+}
+
 variable "AWS_SECRET" {
     type = string
 }
@@ -24,7 +28,7 @@ variable "DB_NAME" {
 }
 
 variable "DB_PORT" {
-    type = number
+    type = string
 }
 
 variable "REGION" {

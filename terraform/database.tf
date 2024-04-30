@@ -15,7 +15,7 @@ resource "aws_db_instance" "default" {
 
 resource "aws_security_group" "rds_security_group" {
     name = "c10-games-tracker-sg"
-    vpc_id = data.aws_vpc.cohort_10_vpc.id
+    vpc_id = var.VPC_ID
 }
 
 resource "aws_security_group_rule" "allow-all-ipv4-traffic" {
@@ -30,8 +30,3 @@ resource "aws_security_group_rule" "allow-all-ipv4-traffic" {
 data "aws_db_subnet_group" "public_subnet_group" {
     name = "public_subnet_group"
 }
-
-data "aws_vpc" "cohort_10_vpc" {
-    id = "vpc-0c4f01396d92e1cc7"
-}
-
