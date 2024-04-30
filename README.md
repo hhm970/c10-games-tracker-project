@@ -1,6 +1,6 @@
 ## Description
 
-> This Project is responsible for helping users to keep up with the latest releases as well as understand the latest gaming trends.
+> This Project is responsible for helping users to keep up with the latest releases as well as understand latest gaming trends.
 ## Stakeholder Requirements
 -  `Gamers` - know what the latests game releases are.
 - `Developers`- understand the market more effectively.
