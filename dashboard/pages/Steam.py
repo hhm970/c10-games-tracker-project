@@ -130,7 +130,7 @@ def metrics_for_graphs_tags(conn_: connection) -> pd.DataFrame:
 
 
 def metrics_top_ten(conn_: connection) -> pd.DataFrame:
-    """Returns a Data-frame of top rated the games from the last week. """
+    """Returns a Data-frame of top rated the games from the last week."""
     w_list = (get_week_list())
 
     with conn_.cursor() as cur:
