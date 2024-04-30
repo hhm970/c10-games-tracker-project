@@ -9,9 +9,18 @@ DROP TABLE tag CASCADE;
 DROP TABLE game CASCADE;
 DROP TABLE platform_assignment CASCADE;
 DROP TABLE game_tag_matching CASCADE;
+DROP TABLE subscriber
 
 
 
+
+CREATE TABLE subscriber (
+    subscriber_id INT GENERATED ALWAYS AS IDENTITY,
+    first_name VARCHAR(20) UNIQUE NOT NULL,
+    last_name VARCHAR(20) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    PRIMARY KEY (subscriber_id)
+);
 
 CREATE TABLE website (
     website_id INT GENERATED ALWAYS AS IDENTITY,
@@ -22,14 +31,14 @@ CREATE TABLE website (
 
 CREATE TABLE publisher (
     publisher_id INT GENERATED ALWAYS AS IDENTITY,
-    publisher_name VARCHAR(100) UNIQUE NOT NULL,
+    publisher_name TEXT NOT NULL,
     PRIMARY KEY (publisher_id)
 );
 
 
 CREATE TABLE developer (
     developer_id INT GENERATED ALWAYS AS IDENTITY,
-    developer_name VARCHAR(100) UNIQUE NOT NULL,
+    developer_name TEXT NOT NULL,
     PRIMARY KEY (developer_id)
 );
 
@@ -91,4 +100,7 @@ VALUES ('Steam'),('GOG'),('Epic');
 
 INSERT INTO platform (platform_name)
 VALUES ('Windows'),('macOS'),('Linux');
+
+INSERT INTO subscriber (first_name, last_name, email)
+VALUES ('Shindy', 'Manic', 'trainee.setinder.manic@sigmalabs.co.uk');
 

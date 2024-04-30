@@ -67,15 +67,21 @@ if __name__ == "__main__":
             ticked = st.checkbox(tag)
             if ticked:
                 selected.append(tag)
-        email = st.text_input("Enter Email:")
+        email = st.text_input("Enter email here:")
         submit_button = st.form_submit_button(label='Submit')
 
         if submit_button:
-            verify_email(email, ENV)
-            st.write("You have subscribed!")
-            st.write(f"You are now tracking: {', '.join(selected)}")
-            for topic in selected:
-                subscribe_to_topic(email, ENV, topic)
+            if email == '':
+                st.write("No email provided!")
+            else:
+                try:
+                    verify_email(email, ENV)
+                    st.write("You have subscribed!")
+                    st.write(f"You are now tracking: {', '.join(selected)}")
+                    for topic in selected:
+                        subscribe_to_topic(email, ENV, topic)
+                except:
+                    st.write("The email was invalid, try again!")
 
     with st.sidebar:
         st.title("Navigation Station :rocket:")
@@ -84,4 +90,5 @@ if __name__ == "__main__":
         st.page_link("pages/Epic.py")
         st.page_link("pages/GOG.py")
         st.page_link("pages/Steam.py")
-        st.page_link("pages/Subscribe.py")
+        st.page_link("pages/Daily_Notifications.py")
+        st.page_link("pages/Weekly_Newsletter.py")
