@@ -1,13 +1,11 @@
 '''A script that creates the Steam page for the dashboard.'''
 
-from re import match
-from os import environ as ENV, listdir
+from os import environ as ENV
 from datetime import datetime, timedelta
 
 import pandas as pd
 import altair as alt
 import streamlit as st
-from boto3 import client
 from dotenv import load_dotenv
 
 from psycopg2 import connect
@@ -28,116 +26,134 @@ def get_db_connection(config) -> connection:
     )
 
 
-def get_week_list() -> list:
-    week_list = []
+def get_week_list() -> tuple:
+    """Returns a tuple containing the dates 
+    of the last seven days (not including today)."""
+    w_list = []
 
     for each in range(1, 8):
         day = datetime.now() - timedelta(days=each)
-        week_list.append(day.strftime('%Y-%m-%d'))
+        w_list.append(day.strftime('%Y-%m-%d'))
 
-    return tuple(week_list)
+    return tuple(w_list)
 
 
-def filter_tags(data_df: pd.DataFrame, tags: list, col: str) -> pd.DataFrame:
+def filter_tags(data_df: pd.DataFrame, tags_: list, col: str) -> pd.DataFrame:
+    """Returns a Data-frame that only has the relevant tags."""
 
-    data_df = data_df[data_df[col].isin(tags)]
+    data_df = data_df[data_df[col].isin(tags_)]
 
     return data_df
 
 
-def metric_games_yest(conn: connection) -> pd.DataFrame:
-    """Returns a dataframe of all the games tag data from the steam website in the database"""
+def filter_dates(data_df: pd.DataFrame, dates: list, col: str) -> pd.DataFrame:
+    """Returns a Data-frame that only has data from the last 7 days."""
 
-    yesterday = datetime.now() - timedelta(days=1)
-    x = yesterday.strftime('%Y-%m-%d')
+    data_df[col] = data_df[col].astype(str)
+    data_df = data_df[data_df[col].isin(dates)]
 
-    with conn.cursor() as cur:
+    return data_df
+
+
+def metric_games_yest(conn_: connection) -> pd.DataFrame:
+    """Returns a Data-frame of all the games from the yesterday."""
+
+    yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+
+    with conn_.cursor() as cur:
         cur.execute(f""" SELECT name, rating, price, release_date
                     FROM game
-                    WHERE website_id = 3 AND release_date = '{x}';""")
+                    WHERE website_id = 3 AND release_date = '{yesterday}';""")
         steam_games = cur.fetchall()
 
     return pd.DataFrame(steam_games)
 
 
-def metrics_for_graphs_price(conn: connection) -> pd.DataFrame:
-    """Returns a dataframe of all the games tag data from the steam website in the database"""
-    week_list = get_week_list()
+def metrics_for_graphs_price(conn_: connection) -> pd.DataFrame:
+    """Returns a Data-frame of all the average prices for the last week."""
+    w_list = get_week_list()
 
-    with conn.cursor() as cur:
+    with conn_.cursor() as cur:
         cur.execute(f""" SELECT AVG(price), release_date
                     FROM game
-                    WHERE website_id = 3 and release_date in {week_list}
+                    WHERE website_id = 3 and release_date in {w_list}
                     GROUP BY release_date;""")
         steam_games = cur.fetchall()
 
     return pd.DataFrame(steam_games)
 
 
-def metrics_for_graphs_count(conn: connection) -> pd.DataFrame:
-    """Returns a dataframe of all the games tag data from the steam website in the database"""
-    week_list = get_week_list()
+def metrics_for_graphs_count(conn_: connection) -> pd.DataFrame:
+    """"Returns a Data-frame of all the number of games for the last week."""
+    w_list = get_week_list()
 
-    with conn.cursor() as cur:
+    with conn_.cursor() as cur:
         cur.execute(f""" SELECT COUNT(name), release_date
                     FROM game
-                    WHERE website_id = 3 and release_date in {week_list}
+                    WHERE website_id = 3 and release_date in {w_list}
                     GROUP BY release_date;""")
         steam_games = cur.fetchall()
 
     return pd.DataFrame(steam_games)
 
 
-def metrics_for_graphs_rating(conn: connection) -> pd.DataFrame:
-    """Returns a dataframe of all the games tag data from the steam website in the database"""
-    week_list = get_week_list()
+def metrics_for_graphs_rating(conn_: connection) -> pd.DataFrame:
+    """Returns a Data-frame of all the game ratings for the past week."""
+    w_list = get_week_list()
 
-    with conn.cursor() as cur:
+    with conn_.cursor() as cur:
         cur.execute(f""" SELECT AVG(rating), release_date
                     FROM game
-                    WHERE website_id = 3 and release_date in {week_list}
+                    WHERE website_id = 3 and release_date in {w_list}
                     GROUP BY release_date;""")
         steam_games = cur.fetchall()
 
     return pd.DataFrame(steam_games)
 
 
-def metrics_for_graphs_tags(conn: connection) -> pd.DataFrame:
-    """Returns a dataframe of all the games tag data from the steam website in the database"""
-    week_list = (get_week_list())
+def metrics_for_graphs_tags(conn_: connection) -> pd.DataFrame:
+    """Returns a Data-frame of all the games tag data from the past week."""
+    w_list = get_week_list()
 
-    with conn.cursor() as cur:
-        cur.execute(f"""SELECT t.tag_name, count(*) from tag AS t INNER JOIN game_tag_matching AS gt ON t.tag_id = gt.tag_id WHERE gt.game_id IN
-                    (SELECT game_id from game WHERE website_id = 3 AND release_date IN {week_list}) GROUP BY t.tag_name LIMIT 10;""")
-        tags = cur.fetchall()
+    with conn_.cursor() as cur:
+        cur.execute(f"""SELECT t.tag_name, count(*) from tag AS t 
+                    INNER JOIN game_tag_matching AS gt 
+                    ON t.tag_id = gt.tag_id 
+                    WHERE gt.game_id IN
+                    (SELECT game_id from game 
+                    WHERE website_id = 3 AND release_date 
+                    IN {w_list}) 
+                    GROUP BY t.tag_name 
+                    LIMIT 10;""")
+        tag = cur.fetchall()
 
-    return pd.DataFrame(tags)
+    return pd.DataFrame(tag)
 
 
-def metrics_top_ten(conn: connection) -> pd.DataFrame:
-    """Returns a dataframe of all the games tag data from the steam website in the database"""
-    week_list = (get_week_list())
+def metrics_top_ten(conn_: connection) -> pd.DataFrame:
+    """Returns a Data-frame of top rated the games from the last week. """
+    w_list = get_week_list()
 
-    with conn.cursor() as cur:
+    with conn_.cursor() as cur:
         cur.execute(f"""SELECT g.name, g.rating, g.price, d.developer_name, p.publisher_name
                     FROM game as g
                     JOIN developer as d
                     ON g.developer_id = d.developer_id
                     JOIN publisher as p
                     on g.publisher_id = p.publisher_id
-                    WHERE g.website_id = 3 and g.release_date in {week_list}
+                    WHERE g.website_id = 3 and g.release_date in {w_list}
                     ORDER BY rating DESC LIMIT 10;""")
-        tags = cur.fetchall()
+        tags_ = cur.fetchall()
 
-    return pd.DataFrame(tags)
+    return pd.DataFrame(tags_)
 
 
-def price_chart(data_df: pd.DataFrame, sorted=True) -> alt.Chart:
+def price_chart(data_df: pd.DataFrame, sorted_=True) -> alt.Chart:
     """"Generates a bar chart of average daily prices of games over their release dates."""
 
     data_df['release_date'] = data_df['release_date'].astype(str)
     data_df['AVG price (£)'] = data_df['avg'].apply(lambda x: round(x, 2))
-    sort = "-y" if sorted else "x"
+    sort = "-y" if sorted_ else "x"
 
     return alt.Chart(data_df).mark_bar().encode(
         x=alt.Y("AVG price (£)", title='Average Daily Game Price'),
@@ -146,12 +162,12 @@ def price_chart(data_df: pd.DataFrame, sorted=True) -> alt.Chart:
     )
 
 
-def count_chart(data_df: pd.DataFrame, sorted=True) -> alt.Chart:
-    """"Generates a bar chart of average daily prices of games over their release dates."""
+def count_chart(data_df: pd.DataFrame, sorted_=True) -> alt.Chart:
+    """"Generates a bar chart of daily number of games releases."""
 
     data_df['release_date'] = data_df['release_date'].astype(str)
     data_df['Daily Releases'] = data_df['count']
-    sort = "-y" if sorted else "x"
+    sort = "-y" if sorted_ else "x"
 
     return alt.Chart(data_df).mark_line().encode(
         x=alt.X("release_date",  title='Number Of Daily Releases').sort(sort),
@@ -159,12 +175,12 @@ def count_chart(data_df: pd.DataFrame, sorted=True) -> alt.Chart:
     )
 
 
-def rating_chart(data_df: pd.DataFrame, sorted=True) -> alt.Chart:
-    """"Generates a bar chart of average daily prices of games over their release dates."""
+def rating_chart(data_df: pd.DataFrame, sorted_=True) -> alt.Chart:
+    """"Generates a bar chart of average daily ratings of games over their release dates."""
 
     data_df['release_date'] = data_df['release_date'].astype(str)
     data_df['Average Rating(%)'] = data_df['avg']
-    sort = "-y" if sorted else "x"
+    sort = "-y" if sorted_ else "x"
 
     return alt.Chart(data_df).mark_bar().encode(
         x=alt.Y("Average Rating(%)", title='Average Daily Game Rating'),
@@ -173,10 +189,10 @@ def rating_chart(data_df: pd.DataFrame, sorted=True) -> alt.Chart:
     )
 
 
-def make_tag_chart(data_df: pd.DataFrame, sorted=True) -> alt.Chart:
-    """"Generates a bar chart of average daily prices of games over their release dates."""
+def make_tag_chart(data_df: pd.DataFrame, sorted_=True) -> alt.Chart:
+    """Generates a bar chart of most popular tags of games in the last week."""
 
-    sort = "-y" if sorted else "x"
+    sort = "-y" if sorted_ else "x"
 
     return alt.Chart(data_df).mark_bar().encode(
         x=alt.X("tag_name").sort(sort),
@@ -189,22 +205,31 @@ if __name__ == "__main__":
 
     load_dotenv()
     conn = get_db_connection(ENV)
+    week_list = list(get_week_list())
 
     metric_df = metric_games_yest(conn)
     top_ten_games = metrics_top_ten(conn)
+    top_ten_games = top_ten_games.drop('rating', axis=1)
     tag_df = metrics_for_graphs_tags(conn)
 
     no_games = metric_df['name'].nunique()
-
     avg_price = metric_df['price'].mean()
 
-    p_chart = price_chart(metrics_for_graphs_price(conn))
-    c_chart = count_chart(metrics_for_graphs_count(conn))
+    if not metric_df.empty:
+        no_games = metric_df['name'].nunique()
+        avg_rating = metric_df['rating'].mean()
+        avg_price = metric_df['price'].mean()
+    else:
+        no_games = 0
+        avg_rating = 0
+        avg_price = 0
 
+    price_df = metrics_for_graphs_price(conn)
+
+    count_df = metrics_for_graphs_count(conn)
     conn.close()
 
     tags = tag_df["tag_name"].to_list()
-    tag_chart = make_tag_chart(filter_tags(tag_df, tags, "tag_name"))
 
     st.set_page_config(page_title='GameScraper',
                        page_icon=":space_invader:", layout="wide")
@@ -216,32 +241,9 @@ if __name__ == "__main__":
     st.text(
         "Brought to you by the GameScraper Team")
 
-    # metrics
     st.divider()
-
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric("Number of new releases yesterday:", no_games)
-    with col2:
-        st.metric("Average price of new releases yesterday:",
-                  f'£{round(avg_price, 2)}')
-
-    # graphs
-
-    st.subheader("This Weeks Top Ten Games")
-    st.write(top_ten_games)
-
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("Average Price Per Day")
-        st.altair_chart(p_chart)
-
-    with col2:
-        st.subheader("Most Popular Gaming Tags")
-        st.altair_chart(tag_chart)
-
-    st.subheader("Daily Releases")
-    st.altair_chart(c_chart, use_container_width=True)
+    if no_games == 0:
+        st.write("No New Games Released Yesterday")
 
     with st.sidebar:
         st.title("Navigation Station :rocket:")
@@ -249,18 +251,39 @@ if __name__ == "__main__":
         st.title("Filtering")
 
         creator_options = tags
-        creators = st.multiselect("Available Genres",
-                                  options=creator_options,
-                                  default=creator_options)
+        filtered_tags = st.multiselect("Available Genres",
+                                       options=creator_options,
+                                       default=creator_options)
+        end_date = st.select_slider(
+            'Select a range of dates',
+            options=week_list
+        )
 
-        option = st.selectbox("Data type", ["Date", "Games"], 0)
-        time = option == "Date"
-        plant = option == "Game"
+        filtered_days = week_list[:week_list.index(end_date) + 1]
 
-        if plant:
-            hours = st.select_slider("Select time of day",
-                                     options=range(7),
-                                     value=(0, 7))
-            sort = st.checkbox("Sorted")
-        else:
-            days = (0, 7)
+    new_price_df = filter_dates(price_df, filtered_days, "release_date")
+    new_count_df = filter_dates(count_df, filtered_days, "release_date")
+    new_tag_df = filter_tags(tag_df, filtered_tags, "tag_name")
+
+    c_chart = count_chart(new_count_df)
+    p_chart = price_chart(new_price_df)
+    tag_chart = make_tag_chart(new_tag_df)
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Number of new releases yesterday:", no_games)
+    with col2:
+        st.metric("Average price of new releases yesterday:",
+                  f'£{avg_price:.2f}'.format(avg_price))
+    st.subheader("This Weeks Top Ten Games")
+    st.write(top_ten_games)
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("Average Price Per Day")
+        st.altair_chart(p_chart)
+    with col2:
+        st.subheader("This Weeks Most Popular Gaming Tags")
+        st.altair_chart(tag_chart)
+    st.subheader("Daily Releases")
+    st.altair_chart(c_chart, use_container_width=True)
