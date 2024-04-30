@@ -45,3 +45,26 @@ def gog_title():
 def gog_description():
     return BeautifulSoup(
         '''<div class="description" >a very nice really thorough description </div>''', features='html.parser')
+
+
+@pytest.fixture
+def gog_time():
+    return BeautifulSoup(
+        '''<div class="details__content table__row-content" >
+        <span>{{"2024-05-24T09:55:00+03:00"}} </span>
+        </div>
+        <div class="details__content table__row-content" >
+        <span>{{"2024-10-24T09:55:00+03:00"}} </span>
+        </div>
+        <div class="details__content table__row-content" >
+        <span>{{"2024-04-04T09:55:00+03:00"}} </span>
+        </div>
+        <div class="details__content table__row-content" >
+        <span>{{"2023-04-24T09:55:00+03:00"}} </span>
+        </div>
+        <div class="details__content table__row-content" >
+        <span>{{"202400"}} </span>
+        </div>
+        <div class="details__content table__row-content" >
+        <span>{{"2024-04-24T09:55:00+03:00"}} </span>
+        </div>''', features='html.parser')

@@ -6,3 +6,4 @@ reportlab
 altair
 pandas
 vl-convert-python
+boto3
