@@ -1,13 +1,13 @@
 ## Description
 
-> This Folder is responsible for defining and creating the tables in our database.
+This Folder is responsible for defining and creating the tables in our database.
 
 
 ## Requirements
 There are no requirements for this folder.
 
 ## Environment Variables
-In order to run the scripts you will need the following environment variables:
+In order to run the scripts you will need the following environment variables, in a *.env* file:
 
 - DB_PASSWORD
 - DB_NAME
