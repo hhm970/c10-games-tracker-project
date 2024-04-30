@@ -147,7 +147,7 @@ def metrics_top_twenty(conn_: connection) -> pd.DataFrame:
     return pd.DataFrame(tags_)
 
 
-def price_chart(data_df: pd.DataFrame, sorting=True) -> alt.Chart:
+def price_chart(data_df: pd.DataFrame, sorting:bool=True) -> alt.Chart:
     """"Generates a bar chart of average daily prices of games over their release dates."""
 
     data_df['release_date'] = data_df['release_date'].astype(str)
