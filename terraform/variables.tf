@@ -24,7 +24,7 @@ variable "DB_NAME" {
 }
 
 variable "DB_PORT" {
-    type = number
+    type = string
 }
 
 variable "REGION" {

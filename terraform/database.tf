@@ -1,4 +1,4 @@
-resource "aws_db_instance" "default" {
+resource "aws_db_instance" "rds_instance" {
   allocated_storage    = 20
   db_name              = var.DB_NAME
   engine               = "postgres"
@@ -14,13 +14,13 @@ resource "aws_db_instance" "default" {
 }
 
 resource "aws_security_group" "rds_security_group" {
-    name = "c10-games-tracker-sg"
-    vpc_id = data.aws_vpc.cohort_10_vpc.id
+    name = "c10-games-tracker-sg-tf"
+    vpc_id = "vpc-0c4f01396d92e1cc7"
 }
 
 resource "aws_security_group_rule" "allow-all-ipv4-traffic" {
   type              = "ingress"
-  from_port         = 0
+  from_port         = 5432
   to_port           = 5432
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
@@ -30,8 +30,3 @@ resource "aws_security_group_rule" "allow-all-ipv4-traffic" {
 data "aws_db_subnet_group" "public_subnet_group" {
     name = "public_subnet_group"
 }
-
-data "aws_vpc" "cohort_10_vpc" {
-    id = "vpc-0c4f01396d92e1cc7"
-}
-
