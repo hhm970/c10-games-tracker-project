@@ -4,7 +4,7 @@ data "aws_ecr_repository" "lambda-ecr-repo-weekly-report" {
 
 
 data "aws_ecr_image" "lambda-image-weekly-report" {
-  repository_name = data.aws_ecr_repository.lambda-ecr-repo-load.name
+  repository_name = data.aws_ecr_repository.lambda-ecr-repo-weekly-report.name
   image_tag       = "latest"
 }
 
@@ -12,7 +12,7 @@ resource "aws_lambda_function" "c10-games-terraform-weekly-report" {
     role = aws_iam_role.lambda-role.arn
     function_name = "c10-games-terraform-weekly-report"
     package_type = "Image"
-    image_uri = data.aws_ecr_image.lambda-image-load.image_uri
+    image_uri = data.aws_ecr_image.lambda-image-weekly-report.image_uri
     environment {
         variables = {
         DB_HOST = var.DB_HOST,
