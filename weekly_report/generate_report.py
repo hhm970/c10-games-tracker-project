@@ -1,7 +1,9 @@
 """This file is responsible for the generating of a pdf summary report and emailing it to users."""
 import os
+from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
 
-from dotenv import load_dotenv
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
@@ -12,9 +14,6 @@ from psycopg2.extensions import connection
 import altair as alt
 import pandas as pd
 import boto3
-from email.mime.text import MIMEText
-from email.mime.application import MIMEApplication
-from email.mime.multipart import MIMEMultipart
 
 
 class StatsRetriever():
@@ -25,6 +24,7 @@ class StatsRetriever():
         """Initialises DB connection and website IDs."""
         self.conn = self.get_db_connection(config)
         self.website_ids = website_id
+        self.config = config
 
     def get_db_connection(self, config) -> connection:
         """Returns a connection to the database."""
@@ -83,13 +83,13 @@ class StatsRetriever():
                 color='blue'
             )
             if len(self.website_ids) == 3:
-                chart.save('diagrams/chart_sum.png')
+                chart.save(f'{self.config["STORAGE_FOLDER"]}/chart_sum.png')
             elif len(self.website_ids) == 2:
                 chart.save(
-                    f'diagrams/chart_{self.website_ids[0]}_{self.website_ids[1]}.png')
+                    f'{self.config["STORAGE_FOLDER"]}/chart_{self.website_ids[0]}_{self.website_ids[1]}.png')
             else:
                 chart.save(
-                    f'diagrams/chart_{self.website_ids[0]}.png')
+                    f'{self.config["STORAGE_FOLDER"]}/chart_{self.website_ids[0]}.png')
 
     def average_price(self) -> int:
         """Returns the average price of the games from the week."""
@@ -120,13 +120,14 @@ class StatsRetriever():
                 color=alt.Color('website_name', scale=alt.Scale(scheme='set2'))
             )
             if len(self.website_ids) == 3:
-                pie_chart.save('diagrams/pie_chart_sum.png')
+                pie_chart.save(
+                    f'{self.config["STORAGE_FOLDER"]}/pie_chart_sum.png')
             elif len(self.website_ids) == 2:
                 pie_chart.save(
-                    f'diagrams/pie_chart_{self.website_ids[0]}_{self.website_ids[1]}.png')
+                    f'{self.config["STORAGE_FOLDER"]}/pie_chart_{self.website_ids[0]}_{self.website_ids[1]}.png')
             else:
                 pie_chart.save(
-                    f'diagrams/pie_chart_{self.website_ids[0]}.png')
+                    f'{self.config["STORAGE_FOLDER"]}/pie_chart_{self.website_ids[0]}.png')
 
     def top_five_tags(self) -> list[str]:
         """Returns the top five tags of this weeks games."""
@@ -155,13 +156,14 @@ class StatsRetriever():
                 color=alt.Color('tag_name', scale=alt.Scale(scheme='set2'))
             )
             if len(self.website_ids) == 3:
-                pie_chart.save('diagrams/tags_pie_chart_sum.png')
+                pie_chart.save(
+                    f'{self.config["STORAGE_FOLDER"]}/tags_pie_chart_sum.png')
             elif len(self.website_ids) == 2:
                 pie_chart.save(
-                    f'diagrams/tags_pie_chart_{self.website_ids[0]}_{self.website_ids[1]}.png')
+                    f'{self.config["STORAGE_FOLDER"]}/tags_pie_chart_{self.website_ids[0]}_{self.website_ids[1]}.png')
             else:
                 pie_chart.save(
-                    f'diagrams/tags_pie_chart_{self.website_ids[0]}.png')
+                    f'{self.config["STORAGE_FOLDER"]}/tags_pie_chart_{self.website_ids[0]}.png')
 
     def top_platform(self) -> str:
         """Returns the top platform name."""
@@ -229,10 +231,15 @@ class StatsRetriever():
 
 
 class ReportMaker():
+    """This class is responsible for the functionality required to generate
+      the weekly report."""
+
     def __init__(self, config) -> None:
+        """Initialises configuration to use."""
         self.config = config
 
     def generate_summary_text(self, canvas_obj, sum):
+        """Generates the summary page text for the report."""
         sum.tag_game_ratio()
         sum.num_games_per_website()
         sum.num_games_over_week()
@@ -273,7 +280,7 @@ class ReportMaker():
 
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
 
-        canvas_obj.drawImage(f'diagrams/tags_pie_chart_sum.png',
+        canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/tags_pie_chart_sum.png',
                              x=20, y=155, width=280, height=180)
         canvas_obj.drawString(270, 200, 'Top 3 Developers:')
         x = 180
@@ -296,8 +303,9 @@ class ReportMaker():
             canvas_obj.drawString(270, x, f'- {source}')
             x -= 20
 
-        canvas_obj.drawImage(f'diagrams/chart_sum.png', x=350, y=450)
-        canvas_obj.drawImage(f'diagrams/pie_chart_sum.png',
+        canvas_obj.drawImage(
+            f'{self.config["STORAGE_FOLDER"]}/chart_sum.png', x=350, y=450)
+        canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/pie_chart_sum.png',
                              x=320, y=230, width=280, height=180)
         canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
         canvas_obj.drawString(300, 20, f'{canvas_obj.getPageNumber()}')
@@ -347,7 +355,7 @@ class ReportMaker():
 
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
 
-        canvas_obj.drawImage(f'diagrams/tags_pie_chart_{website_id}.png',
+        canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/tags_pie_chart_{website_id}.png',
                              x=300, y=240, width=280, height=180)
         x = 300
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
@@ -356,7 +364,8 @@ class ReportMaker():
         for publisher in website_stats_retriever.top_three_publishers():
             canvas_obj.drawString(50, x, f'- {publisher}')
             x -= 20
-        canvas_obj.drawImage(f'diagrams/chart_{website_id}.png', x=350, y=450)
+        canvas_obj.drawImage(
+            f'{self.config["STORAGE_FOLDER"]}/chart_{website_id}.png', x=350, y=450)
         x = 160
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
         canvas_obj.drawString(50, 200, 'Top 3 Developers:')
@@ -374,7 +383,8 @@ class ReportMaker():
         gog = StatsRetriever(self.config, (2,))
         epic = StatsRetriever(self.config, (3,))
         pdfmetrics.registerFont(TTFont('jersey_15', 'Jersey15-Regular.ttf'))
-        c = canvas.Canvas('Weekly_Report.pdf', pagesize=letter)
+        c = canvas.Canvas(
+            f'{self.config["STORAGE_FOLDER"]}/Weekly_Report.pdf', pagesize=letter)
         c.setFont('jersey_15', 30)
         c.setFillColorRGB(0.6, 0.09, 10.8)
         c.drawString(100, 750, 'GameScraper Weekly Report')
@@ -395,17 +405,22 @@ class ReportMaker():
 
 
 class Alerter():
-    def __init__(self, config) -> None:
-        self.db_conn = self.connect_db(config)
+    """This class is responsible for the functionality 
+    required to email the report out."""
 
-    def connect_db(self, config):
+    def __init__(self, config) -> None:
+        """Initialises configuration and database connection."""
+        self.config = config
+        self.db_conn = self.connect_db()
+
+    def connect_db(self):
         """Returns database connection object."""
         return connect(
-            dbname=config["DB_NAME"],
-            user=config["DB_USER"],
-            password=config["DB_PASSWORD"],
-            host=config["DB_HOST"],
-            port=config["DB_PORT"],
+            dbname=self.config["DB_NAME"],
+            user=self.config["DB_USER"],
+            password=self.config["DB_PASSWORD"],
+            host=self.config["DB_HOST"],
+            port=self.config["DB_PORT"],
             cursor_factory=RealDictCursor
         )
 
@@ -420,16 +435,17 @@ class Alerter():
             return subscriber_list
 
     def send_email(self, subscriber_list: list[str]):
-        """Sends Email containing weekly report to subsribers."""
+        """Sends Email containing weekly report to subscribers."""
 
         client = boto3.client("ses",
                               region_name="eu-west-2",
-                              aws_access_key_id=os.environ["ACCESS_KEY_ID"],
-                              aws_secret_access_key=os.environ["SECRET_ACCESS_KEY"])
+                              aws_access_key_id=self.config["ACCESS_KEY_ID"],
+                              aws_secret_access_key=self.config["SECRET_ACCESS_KEY"])
         message = MIMEMultipart()
         message["Subject"] = "GameScraper Weekly Report"
 
-        attachment = MIMEApplication(open('Weekly_Report.pdf', 'rb').read())
+        attachment = MIMEApplication(
+            open(f'{self.config["STORAGE_FOLDER"]}/Weekly_Report.pdf', 'rb').read())
         attachment.add_header('Content-Disposition',
                               'attachment', filename='report.pdf')
         message_text = MIMEText('Hi -- here is the weekly GameScraper report!')
