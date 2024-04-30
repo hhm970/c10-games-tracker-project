@@ -3,10 +3,10 @@ data "aws_iam_role" "ecs-role" {
 }
 
 resource "aws_ecs_task_definition" "dashboard-task-definition" {
-  family                = "c10-games-dashboard-task"
+  family                = "c10-games-dashboard-task-tf"
   container_definitions = jsonencode([
     {
-      name         = "games-dashboard"
+      name         = "games-dashboard-tf"
       image        = "129033205317.dkr.ecr.eu-west-2.amazonaws.com/c10-games-dashboard:latest"
       essential    = true
       portMappings = [
