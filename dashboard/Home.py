@@ -161,7 +161,7 @@ def price_chart(data_df: pd.DataFrame, sorting:bool=True) -> alt.Chart:
     )
 
 
-def count_chart(data_df: pd.DataFrame, sorting=True) -> alt.Chart:
+def count_chart(data_df: pd.DataFrame, sorting:bool=True) -> alt.Chart:
     """Generates a bar chart of daily number of games releases."""
 
     data_df['release_date'] = data_df['release_date'].astype(str)
