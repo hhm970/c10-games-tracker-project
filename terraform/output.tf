@@ -1,4 +1,4 @@
 output "dashboard_base_url" {
-    value = "http://13.41.77.42:8501/"
-    description = "A URL link to our games tracker dashboard."
+value = aws_ecs_service.games-dashboard.address
+description = "A URL link to our games tracker dashboard."
 }
