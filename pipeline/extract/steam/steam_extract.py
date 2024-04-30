@@ -14,19 +14,19 @@ def get_rating(game_soup: BeautifulSoup) -> float:
 
     rating = game_soup.find('div', class_="review_ctn")
     if "There are no reviews for this product" in rating:
-        return 0.00
+        return None
     else:
         positive = rating.find('label', {'for': "review_type_positive"})
         negative = rating.find('label', {'for': "review_type_negative"})
         if positive:
             p_num = int(positive.find(
-                'span', class_='user_reviews_count').text.strip('()'))
+                'span', class_='user_reviews_count').text.strip('()').replace(',', ''))
         else:
             return 0.00
 
         if negative:
             n_num = int(negative.find(
-                'span', class_='user_reviews_count').text.strip('()'))
+                'span', class_='user_reviews_count').text.strip('()').replace(',', ''))
         else:
             return 100
 
@@ -135,7 +135,7 @@ def get_each_game_details(game_url: str) -> list:
     publisher = get_publisher(game_soup)
     description = get_description(game_soup)
 
-    return [description, developer, publisher, str(date.today()), rating, 1, game_tags, platform_id_list]
+    return [description, developer, publisher, str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")), rating, 1, game_tags, platform_id_list]
 
 
 def grab_all_games_details(all_web_containers: BeautifulSoup) -> list[list]:
@@ -167,9 +167,11 @@ def grab_all_games_details(all_web_containers: BeautifulSoup) -> list[list]:
 def handler(event: dict = None, context=None) -> list[list]:
     """Collects the required data for each game and then returns a
     list of lists of this data."""
-    res = req.get(ENV["BASE_URL"], timeout=10)
+    cookies = {
+        "timezoneOffset": "3600,0"
+    }
+    res = req.get(ENV["STEAM_BASE_URL"], timeout=10, cookies=cookies)
     soup = BeautifulSoup(res.text, features="html.parser")
-
     all_containers = soup.find_all(
         'a', class_="search_result_row")
 
