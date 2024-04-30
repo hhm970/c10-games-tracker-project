@@ -203,5 +203,3 @@ def handler(event: dict = None, context=None) -> list[list]:
 
 if __name__ == "__main__":
     new_games = search_pages_last_day()
-    print(new_games)
-    # [print(g[0]) for g in new_games]
