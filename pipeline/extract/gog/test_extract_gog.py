@@ -45,10 +45,9 @@ def test_get_rating_bad_input():
 
 # get_release_date
 
-def test_get_release_date():
+def test_get_release_date(gog_time):
     '''Tests the get_release_date function with standard inputs.'''
-    test_json = {'releaseDate': '2024-04-24T09:55:00+03:00'}
-    assert get_release_date(test_json) == datetime(2024, 4, 24, 9, 55)
+    assert get_release_date(gog_time) == datetime(2024, 4, 24, 9, 55)
 
 
 # get_platform_ids
