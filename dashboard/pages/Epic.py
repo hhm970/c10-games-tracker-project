@@ -1,4 +1,4 @@
-'''A script that creates the Steam page for the dashboard.'''
+'''A script that creates the Epic games page for the dashboard.'''
 
 from os import environ as ENV
 from datetime import datetime, timedelta
@@ -64,9 +64,9 @@ def metric_games_yest(conn_: connection) -> pd.DataFrame:
         cur.execute(f""" SELECT name, rating, price, release_date
                     FROM game
                     WHERE website_id = 3 AND release_date = '{yesterday}';""")
-        steam_games = cur.fetchall()
+        epic_games = cur.fetchall()
 
-    return pd.DataFrame(steam_games)
+    return pd.DataFrame(epic_games)
 
 
 def metrics_for_graphs_price(conn_: connection) -> pd.DataFrame:
@@ -78,9 +78,9 @@ def metrics_for_graphs_price(conn_: connection) -> pd.DataFrame:
                     FROM game
                     WHERE website_id = 3 and release_date in {w_list}
                     GROUP BY release_date;""")
-        steam_games = cur.fetchall()
+        epic_games = cur.fetchall()
 
-    return pd.DataFrame(steam_games)
+    return pd.DataFrame(epic_games)
 
 
 def metrics_for_graphs_count(conn_: connection) -> pd.DataFrame:
@@ -92,9 +92,9 @@ def metrics_for_graphs_count(conn_: connection) -> pd.DataFrame:
                     FROM game
                     WHERE website_id = 3 and release_date in {w_list}
                     GROUP BY release_date;""")
-        steam_games = cur.fetchall()
+        epic_games = cur.fetchall()
 
-    return pd.DataFrame(steam_games)
+    return pd.DataFrame(epic_games)
 
 
 def metrics_for_graphs_rating(conn_: connection) -> pd.DataFrame:
@@ -106,9 +106,9 @@ def metrics_for_graphs_rating(conn_: connection) -> pd.DataFrame:
                     FROM game
                     WHERE website_id = 3 and release_date in {w_list}
                     GROUP BY release_date;""")
-        steam_games = cur.fetchall()
+        epic_games = cur.fetchall()
 
-    return pd.DataFrame(steam_games)
+    return pd.DataFrame(epic_games)
 
 
 def metrics_for_graphs_tags(conn_: connection) -> pd.DataFrame:
