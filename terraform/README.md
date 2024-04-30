@@ -25,6 +25,8 @@ This folder contains the following scripts:
 
 - **database.tf**  
 This script creates an RDS database.  
+  - **dashboard.tf**
+  This script creates an ECS Service which continually deploys the dashboard.
   
 - **pipeline_eventbridge.tf**  
 This script creates an EventBridge Schedule which triggers every evening at 23:50, and targets the StepFunction that executes the pipeline.  
