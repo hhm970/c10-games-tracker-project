@@ -108,7 +108,7 @@ resource "aws_security_group" "dashboard_security_group" {
 
 resource "aws_security_group_rule" "allow-all-ipv4-traffic-dashboard" {
   type              = "ingress"
-  from_port         = 0
+  from_port         = 8501
   to_port           = 8501
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
@@ -117,7 +117,7 @@ resource "aws_security_group_rule" "allow-all-ipv4-traffic-dashboard" {
 
 resource "aws_security_group_rule" "allow-all-ipv6-traffic-dashboard" {
   type              = "ingress"
-  from_port         = 0
+  from_port         = 8501
   to_port           = 8501
   protocol          = "tcp"
   ipv6_cidr_blocks  = ["::/0"]
