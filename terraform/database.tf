@@ -1,4 +1,4 @@
-resource "aws_db_instance" "default" {
+resource "aws_db_instance" "rds_instance" {
   allocated_storage    = 20
   db_name              = var.DB_NAME
   engine               = "postgres"
@@ -14,7 +14,7 @@ resource "aws_db_instance" "default" {
 }
 
 resource "aws_security_group" "rds_security_group" {
-    name = "c10-games-tracker-sg"
+    name = "c10-games-tracker-sg-tf"
     vpc_id = var.VPC_ID
 }
 

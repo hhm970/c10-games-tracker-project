@@ -84,7 +84,7 @@ data "aws_subnet" "subnet-3" {
 }
 
 resource "aws_ecs_service" "games-dashboard" {
-  name            = "c10-games-dashboard"
+  name            = "c10-games-dashboard-tf"
   cluster         = data.aws_ecs_cluster.c10-ecs-cluster.id
   task_definition = aws_ecs_task_definition.dashboard-task-definition.arn
   launch_type     = "FARGATE"
@@ -102,7 +102,7 @@ resource "aws_ecs_service" "games-dashboard" {
 }
 
 resource "aws_security_group" "dashboard_security_group" {
-    name = "c10-games-dashboard-sg"
+    name = "c10-games-dashboard-sg-tf"
     vpc_id = data.aws_vpc.cohort-10-vpc.id
 }
 
@@ -121,5 +121,23 @@ resource "aws_security_group_rule" "allow-all-ipv6-traffic-dashboard" {
   to_port           = 8501
   protocol          = "tcp"
   ipv6_cidr_blocks  = ["::/0"]
+  security_group_id = aws_security_group.dashboard_security_group.id
+}
+
+resource "aws_security_group_rule" "allow_tcp_traffic" {
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks  = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.dashboard_security_group.id
+}
+
+resource "aws_security_group_rule" "allow_all_outbound_traffic" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks  = ["0.0.0.0/0"]
   security_group_id = aws_security_group.dashboard_security_group.id
 }
