@@ -71,11 +71,17 @@ if __name__ == "__main__":
         submit_button = st.form_submit_button(label='Submit')
 
         if submit_button:
-            verify_email(email, ENV)
-            st.write("You have subscribed!")
-            st.write(f"You are now tracking: {', '.join(selected)}")
-            for topic in selected:
-                subscribe_to_topic(email, ENV, topic)
+            if email == '':
+                st.write("No email provided!")
+            else:
+                try:
+                    verify_email(email, ENV)
+                    st.write("You have subscribed!")
+                    st.write(f"You are now tracking: {', '.join(selected)}")
+                    for topic in selected:
+                        subscribe_to_topic(email, ENV, topic)
+                except:
+                    st.write("The email was invalid, try again!")
 
     with st.sidebar:
         st.title("Navigation Station :rocket:")
