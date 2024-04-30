@@ -15,6 +15,11 @@ from psycopg2.extras import RealDictCursor, RealDictRow
 from psycopg2.extensions import connection
 
 
+TAG_EXCEPTIONS = {'Single Player': 'Singleplayer',
+                  'Rogue-Lite': 'Roguelite',
+                  }
+
+
 def get_db_connection(config) -> connection:
     """Returns a connection to the database."""
 
@@ -43,7 +48,7 @@ def get_game_id_from_inputted_game(inputted_game: list,
     """Given a game that has already been inputted into the database, return its
     matched game_id entry in the database."""
     cursor.execute("""SELECT game_id FROM game
-                        WHERE name = %s""", (inputted_game[0],))
+                        WHERE name = %s;""", (inputted_game[0],))
 
     game_id = cursor.fetchone()['game_id']
 
@@ -55,7 +60,7 @@ def get_dev_id(input_game: list, cursor: connection.cursor) -> RealDictRow:
     name is in the developer table, and None otherwise."""
 
     cursor.execute("""SELECT developer_id FROM developer
-                        WHERE developer_name = %s""", (input_game[3],))
+                        WHERE developer_name = %s;""", (input_game[3],))
 
     developer_id_match = cursor.fetchone()
 
@@ -74,7 +79,7 @@ def input_game_dev_get_dev_id(input_game: list, conn: connection) -> int:
         if developer_id_match is None:
 
             cur.execute("""INSERT INTO developer (developer_name)
-                    VALUES (%s)""", (input_game[3],))
+                    VALUES (%s);""", (input_game[3],))
 
             developer_id_match = get_dev_id(input_game, cur)
 
@@ -88,7 +93,7 @@ def get_pub_id(input_game: list, cursor: connection.cursor) -> RealDictRow:
     if its publisher name is in the publisher table, and None otherwise."""
 
     cursor.execute("""SELECT publisher_id FROM publisher
-                        WHERE publisher_name = %s""", (input_game[4],))
+                        WHERE publisher_name = %s;""", (input_game[4],))
 
     publisher_id_match = cursor.fetchone()
 
@@ -107,7 +112,7 @@ def input_game_pub_get_pub_id(input_game: list, conn: connection) -> int:
         if publisher_id_match is None:
 
             cur.execute("""INSERT INTO publisher (publisher_name)
-                    VALUES (%s)""", (input_game[4],))
+                    VALUES (%s);""", (input_game[4],))
 
             publisher_id_match = get_pub_id(input_game, cur)
 
@@ -132,7 +137,7 @@ def input_game_into_db(game_data: list[list], conn: connection) -> None:
             cur.execute(
                 """INSERT INTO game (name, description, price, developer_id, 
                 publisher_id, release_date, rating, website_id)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""", (game[:8]))
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s);""", (game[:8]))
 
     conn.commit()
 
@@ -151,14 +156,14 @@ def input_game_plat_into_db(game_data: list[list], conn: connection) -> None:
             for plat in game_plat_list:
                 cur.execute(
                     """INSERT INTO platform_assignment (platform_id, game_id)
-                VALUES (%s, %s)""", (plat, game_id))
+                VALUES (%s, %s);""", (plat, game_id))
 
     conn.commit()
 
 
 def input_game_tags_into_db(game_data: list[list], conn: connection) -> None:
-    """For each game, we iterate through its tags. We use the PostgreSQL extension
-    pg_tgm to measure similarity of the tags with existing entries in the tag table,
+    """For each game, we iterate through its tags. Where there are variations of tag names
+    different to each website, we refer to the constant variable TAG_EXCEPTIONS,
     appending the tag iterand into the table if no similar entries are detected."""
 
     with conn.cursor() as cur:
@@ -171,24 +176,29 @@ def input_game_tags_into_db(game_data: list[list], conn: connection) -> None:
 
                 for tag in game_tags:
                     tag_formatted = tag.title()
+
+                    if tag_formatted in TAG_EXCEPTIONS.keys():
+                        tag_formatted = TAG_EXCEPTIONS[tag_formatted]
+
                     cur.execute("""SELECT tag_id FROM tag
-                                WHERE SIMILARITY(%s, tag_name) > 0.9""",
+                                WHERE tag_name = %s""",
                                 (tag_formatted,))
+
                     tag_id_match = cur.fetchone()
 
                     if tag_id_match is None:
                         cur.execute("""INSERT INTO tag (tag_name)
-                                    VALUES (%s)""", (tag_formatted,))
+                                    VALUES (%s);""", (tag_formatted,))
 
                         cur.execute("""SELECT tag_id FROM tag
-                                    WHERE tag_name = %s""", (tag_formatted,))
+                                    WHERE tag_name = %s;""", (tag_formatted,))
 
                         tag_id_match = cur.fetchone()
 
                     tag_id = tag_id_match['tag_id']
 
                     cur.execute("""INSERT INTO game_tag_matching (game_id, tag_id)
-                                VALUES (%s, %s)""", (game_id, tag_id))
+                                VALUES (%s, %s);""", (game_id, tag_id))
 
     conn.commit()
 
