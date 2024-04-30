@@ -1,6 +1,6 @@
 ## Description
 
-This Folder is responsible for defining and creating the tables in our database.
+This Folder is responsible for sending daily email notifications to our users.
 
 
 ## Requirements
