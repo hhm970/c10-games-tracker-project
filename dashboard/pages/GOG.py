@@ -64,9 +64,9 @@ def metric_games_yest(conn_: connection) -> pd.DataFrame:
         cur.execute(f""" SELECT name, rating, price, release_date
                     FROM game
                     WHERE website_id = 2 AND release_date = '{yesterday}';""")
-        steam_games = cur.fetchall()
+        gog_games = cur.fetchall()
 
-    return pd.DataFrame(steam_games)
+    return pd.DataFrame(gog_games)
 
 
 def metrics_for_graphs_price(conn_: connection) -> pd.DataFrame:
@@ -78,9 +78,9 @@ def metrics_for_graphs_price(conn_: connection) -> pd.DataFrame:
                     FROM game
                     WHERE website_id = 2 and release_date in {w_list}
                     GROUP BY release_date;""")
-        steam_games = cur.fetchall()
+        gog_games = cur.fetchall()
 
-    return pd.DataFrame(steam_games)
+    return pd.DataFrame(gog_games)
 
 
 def metrics_for_graphs_count(conn_: connection) -> pd.DataFrame:
@@ -92,9 +92,9 @@ def metrics_for_graphs_count(conn_: connection) -> pd.DataFrame:
                     FROM game
                     WHERE website_id = 2 and release_date in {w_list}
                     GROUP BY release_date;""")
-        steam_games = cur.fetchall()
+        gog_games = cur.fetchall()
 
-    return pd.DataFrame(steam_games)
+    return pd.DataFrame(gog_games)
 
 
 def metrics_for_graphs_rating(conn_: connection) -> pd.DataFrame:
@@ -106,9 +106,9 @@ def metrics_for_graphs_rating(conn_: connection) -> pd.DataFrame:
                     FROM game
                     WHERE website_id = 2 and release_date in {w_list}
                     GROUP BY release_date;""")
-        steam_games = cur.fetchall()
+        gog_games = cur.fetchall()
 
-    return pd.DataFrame(steam_games)
+    return pd.DataFrame(gog_games)
 
 
 def metrics_for_graphs_tags(conn_: connection) -> pd.DataFrame:
@@ -230,7 +230,7 @@ if __name__ == "__main__":
     st.set_page_config(page_title='GameScraper',
                        page_icon=":space_invader:", layout="wide")
 
-    st.title("Steam Summary")
+    st.title("Good Old Games (GOG) Summary")
     st.write("---")
     st.subheader(
         "_The latest metrics & graphs!_")
