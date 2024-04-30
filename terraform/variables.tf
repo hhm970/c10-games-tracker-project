@@ -1,7 +1,3 @@
-variable "VPC_ID" {
-    type = string
-}
-
 variable "AWS_SECRET" {
     type = string
 }

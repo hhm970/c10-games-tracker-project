@@ -55,7 +55,7 @@ resource "aws_ecs_task_definition" "dashboard-task-definition" {
 }
 
 data "aws_vpc" "cohort-10-vpc" {
-  id = var.VPC_ID
+  id = "vpc-0c4f01396d92e1cc7"
 }
 
 data "aws_ecs_cluster" "c10-ecs-cluster" {

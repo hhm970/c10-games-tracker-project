@@ -15,7 +15,7 @@ resource "aws_db_instance" "rds_instance" {
 
 resource "aws_security_group" "rds_security_group" {
     name = "c10-games-tracker-sg-tf"
-    vpc_id = var.VPC_ID
+    vpc_id = "vpc-0c4f01396d92e1cc7"
 }
 
 resource "aws_security_group_rule" "allow-all-ipv4-traffic" {
