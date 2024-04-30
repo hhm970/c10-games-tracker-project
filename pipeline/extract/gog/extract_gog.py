@@ -172,7 +172,7 @@ def search_pages_last_day() -> list:
     load_dotenv()
     counter = 1
     games_from_page = req.get(
-        f'{ENV["GOG_BASE_URL"]}&page={counter}', timeout=1)
+        f'{ENV["GOG_BASE_URL"]}&page={counter}', timeout=5)
     page_soup = BeautifulSoup(games_from_page.text, features="html.parser")
     games_soup = page_soup.findAll('product-tile', class_='ng-star-inserted')
     game_data_list = get_games_from_page(games_soup)
