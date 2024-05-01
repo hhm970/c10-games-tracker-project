@@ -1,8 +1,12 @@
 ## Description
 
 > This Project is responsible for helping users to keep up with the latest releases as well as understand latest gaming trends.
+
+New PC games are released every day on different platforms; it’s hard to keep up with new releases, and it’s even harder to understand the trends in gaming. We aim to create a data pipeline that tracks new new releases on major PC platforms.  
+
+
 ## Stakeholder Requirements
--  `Gamers` - know what the latests game releases are.
+- `Gamers` - know what the latest game releases are.
 - `Developers`- understand the market more effectively.
 
 ### Deliverables
