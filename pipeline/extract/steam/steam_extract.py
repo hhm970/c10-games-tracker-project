@@ -165,7 +165,7 @@ def grab_all_games_details(all_web_containers: BeautifulSoup) -> list[list]:
         final_list.append(name_price_date_list + detail_list)
         sleep(0.5)
 
-    return len(final_list)
+    return final_list
 
 
 def get_headless_browser() -> Firefox:
