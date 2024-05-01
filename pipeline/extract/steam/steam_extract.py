@@ -1,12 +1,13 @@
 """Script to scrape relevant data from the epic games website."""
 
 from os import environ as ENV
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from time import sleep
 
 from dotenv import load_dotenv
 import requests as req
 from bs4 import BeautifulSoup
+from selenium import webdriver
 
 
 def get_rating(game_soup: BeautifulSoup) -> float:
@@ -150,7 +151,7 @@ def grab_all_games_details(all_web_containers: BeautifulSoup) -> list[list]:
         game_date = datetime.strptime(
             name_price_date_list[-1], "%d %b, %Y").date()
         name_price_date_list.pop(-1)
-        if game_date < date.today():
+        if game_date < (datetime.today() - timedelta(days=7)).date():
             break
         game_url = container['href']
 
@@ -159,7 +160,8 @@ def grab_all_games_details(all_web_containers: BeautifulSoup) -> list[list]:
         name_price_date_list.append(name_price_date_list[1])
         name_price_date_list[1] = description
         final_list.append(name_price_date_list + detail_list)
-        sleep(1)
+        print((name_price_date_list + detail_list))
+        sleep(0.5)
 
     return final_list
 
@@ -170,6 +172,23 @@ def handler(event: dict = None, context=None) -> list[list]:
     cookies = {
         "timezoneOffset": "3600,0"
     }
+    browser = webdriver.Firefox()
+    browser.get(ENV["STEAM_BASE_URL"], timeout=10, cookies=cookies)
+
+    for i in range(9):
+        browser.execute_script(
+            "window.scrollTo(0, document.body.scrollHeight);")
+
+        sleep(1)
+
+    content = browser.execute_script("return document.body.innerHTML;")
+    soup = BeautifulSoup(content, features="html.parser")
+
+    with open("steam.html", 'w') as f:
+        f.write(str(soup))
+
+    browser.quit()
+
     res = req.get(ENV["STEAM_BASE_URL"], timeout=10, cookies=cookies)
     soup = BeautifulSoup(res.text, features="html.parser")
     all_containers = soup.find_all(
@@ -179,4 +198,6 @@ def handler(event: dict = None, context=None) -> list[list]:
 
 
 if __name__ == "__main__":
-    pass
+    load_dotenv()
+
+    print(handler())
