@@ -23,10 +23,6 @@ if __name__ == "__main__":
     tag_df = metrics_for_graphs_tags(conn, 1)
     tags = tag_df["tag_name"].to_list()
 
-    no_games = metric_df['name'].nunique()
-    avg_rating = metric_df['rating'].mean()
-    avg_price = metric_df['price'].mean()
-
     if not metric_df.empty:
         no_games = metric_df['name'].nunique()
         avg_rating = metric_df['rating'].mean()
