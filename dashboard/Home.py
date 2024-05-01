@@ -27,7 +27,7 @@ def get_db_connection(config) -> connection:
 
 
 def get_week_list() -> tuple:
-    """Returns a tuple containing the dates 
+    """Returns a tuple containing the dates
     of the last seven days (not including today)."""
     w_list = []
 
@@ -59,6 +59,20 @@ def metric_games_yest(conn_: connection) -> pd.DataFrame:
     """Returns a Data-frame of all the games from the yesterday."""
 
     yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+
+    with conn_.cursor() as cur:
+        cur.execute(f""" SELECT name, rating, price, release_date
+                    FROM game
+                    WHERE release_date = '{yesterday}';""")
+        steam_games = cur.fetchall()
+
+    return pd.DataFrame(steam_games)
+
+
+def metric_games_two_days(conn_: connection) -> pd.DataFrame:
+    """Returns a Data-frame of all the games from the yesterday."""
+
+    yesterday = (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d')
 
     with conn_.cursor() as cur:
         cur.execute(f""" SELECT name, rating, price, release_date
@@ -127,13 +141,13 @@ def metrics_for_graphs_tags(conn_: connection) -> pd.DataFrame:
     this_week_list = get_week_list()
 
     with conn_.cursor() as cur:
-        cur.execute(f"""SELECT t.tag_name, count(*) from tag AS t 
-                    INNER JOIN game_tag_matching AS gt 
-                    ON t.tag_id = gt.tag_id 
+        cur.execute(f"""SELECT t.tag_name, count(*) from tag AS t
+                    INNER JOIN game_tag_matching AS gt
+                    ON t.tag_id = gt.tag_id
                     WHERE gt.game_id IN
-                    (SELECT game_id from game 
-                    WHERE release_date IN {this_week_list}) 
-                    GROUP BY t.tag_name 
+                    (SELECT game_id from game
+                    WHERE release_date IN {this_week_list})
+                    GROUP BY t.tag_name
                     LIMIT 10;""")
         tags_ = cur.fetchall()
 
@@ -244,6 +258,7 @@ if __name__ == "__main__":
 
     if on:
         metric_df = metric_games_yest(conn)
+        delta = metric_games_two_days(conn)
         st.write('Metrics For Yesterday:')
     else:
         metric_df = metric_games_all(conn)
@@ -254,28 +269,54 @@ if __name__ == "__main__":
         no_games = metric_df['name'].nunique()
         avg_rating = metric_df['rating'].mean()
         avg_price = metric_df['price'].mean()
+
+        if on:
+            no_games_delta = delta['name'].nunique()
+            avg_rating_delta = delta['rating'].mean()
+            avg_price_delta = delta['price'].mean()
     else:
         no_games = 0
         avg_rating = 0
         avg_price = 0
 
+        if on:
+            no_games_delta = 0
+            avg_rating_delta = 0
+            avg_price_delta = 0
+
     conn.close()
     if no_games == 0 and on:
         st.write("No New Games Released Yesterday")
 
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("Number of new releases:", no_games)
-    with col2:
-        if pd.isna(avg_rating):
-            avg_rating = "N/A"
-            st.metric("Average price of new releases:", '-')
-        else:
-            st.metric("Average rating of new releases:",
-                      f'{round(avg_rating,2)}%')
-    with col3:
-        st.metric("Average price of new releases:",
-                  f'£{avg_price:.2f}'.format(avg_price))
+    if on:
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Number of new releases:", no_games,
+                      delta=no_games-no_games_delta)
+        with col2:
+            if pd.isna(avg_rating):
+                st.metric("Average ratinf of new releases:", '-')
+            else:
+                st.metric("Average rating of new releases:",
+                          f'{round(avg_rating,2)}%', delta=round(avg_rating-avg_rating_delta, 2))
+        with col3:
+            st.metric("Average price of new releases:",
+                      f'£{avg_price:.2f}'.format(avg_price), delta=round(avg_price-avg_price_delta, 2))
+
+    else:
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Number of new releases:", no_games)
+        with col2:
+            if pd.isna(avg_rating):
+                avg_rating = "N/A"
+                st.metric("Average price of new releases:", '-')
+            else:
+                st.metric("Average rating of new releases:",
+                          f'{round(avg_rating,2)}%')
+        with col3:
+            st.metric("Average price of new releases:",
+                      f'£{avg_price:.2f}'.format(avg_price))
 
     with st.sidebar:
         st.title("Navigation Station :rocket:")

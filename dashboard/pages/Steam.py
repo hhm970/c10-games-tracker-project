@@ -3,13 +3,15 @@
 from os import environ as ENV
 import streamlit as st
 from dotenv import load_dotenv
+import pandas as pd
 
 from pages.functions import (get_db_connection, get_week_list,
                              make_tag_chart, metric_games_yest,
                              metrics_for_graphs_count, metrics_for_graphs_price,
                              metrics_for_graphs_rating, metrics_for_graphs_tags,
                              metrics_top_ten, rating_chart, count_chart, price_chart,
-                             filter_dates, filter_tags, metric_games_all)
+                             filter_dates, filter_tags, metric_games_all,
+                             metric_games_two_days)
 
 
 if __name__ == "__main__":
@@ -32,6 +34,7 @@ if __name__ == "__main__":
 
     if on:
         metric_df = metric_games_yest(conn, 1)
+        delta = metric_games_two_days(conn, 1)
         st.write('Metrics For Yesterday:')
 
     else:
@@ -43,13 +46,24 @@ if __name__ == "__main__":
     tags = tag_df["tag_name"].to_list()
 
     if not metric_df.empty:
+
         no_games = metric_df['name'].nunique()
         avg_rating = metric_df['rating'].mean()
         avg_price = metric_df['price'].mean()
+
+        if on:
+            no_games_delta = delta['name'].nunique()
+            avg_rating_delta = delta['rating'].mean()
+            avg_price_delta = delta['price'].mean()
     else:
         no_games = 0
         avg_rating = 0
         avg_price = 0
+
+        if on:
+            no_games_delta = 0
+            avg_rating_delta = 0
+            avg_price_delta = 0
     if no_games == 0:
         st.write("No New Games Released")
 
@@ -58,15 +72,35 @@ if __name__ == "__main__":
     rating_df = metrics_for_graphs_rating(conn, 1)
     conn.close()
 
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("Number of new releases:", no_games)
-    with col2:
-        st.metric("Average rating of new releases:",
-                  f'{round(avg_rating,2)}%')
-    with col3:
-        st.metric("Average price of new releases:",
-                  f'£{avg_price:.2f}'.format(avg_price))
+    if on:
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Number of new releases:", no_games,
+                      delta=no_games-no_games_delta)
+        with col2:
+            if pd.isna(avg_rating):
+                st.metric("Average ratinf of new releases:", '-')
+            else:
+                st.metric("Average rating of new releases:",
+                          f'{round(avg_rating,2)}%', delta=round(avg_rating-avg_rating_delta, 2))
+        with col3:
+            st.metric("Average price of new releases:",
+                      f'£{avg_price:.2f}'.format(avg_price), delta=round(avg_price-avg_price_delta, 2))
+
+    else:
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Number of new releases:", no_games)
+        with col2:
+            if pd.isna(avg_rating):
+                avg_rating = "N/A"
+                st.metric("Average price of new releases:", '-')
+            else:
+                st.metric("Average rating of new releases:",
+                          f'{round(avg_rating,2)}%')
+        with col3:
+            st.metric("Average price of new releases:",
+                      f'£{avg_price:.2f}'.format(avg_price))
 
     with st.sidebar:
         st.title("Navigation Station :rocket:")
