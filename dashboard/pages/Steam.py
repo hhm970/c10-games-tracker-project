@@ -76,9 +76,9 @@ if __name__ == "__main__":
                                        options=creator_options,
                                        default=creator_options)
 
-        end_date = st.select_slider(
-            'Select a range of dates',
-            options=week_list
+        end_date = st.selectbox(
+            'Select Start Date:',
+            options=week_list[::-1]
         )
 
     filtered_days = week_list[:week_list.index(end_date) + 1]

@@ -158,7 +158,8 @@ def price_chart(data_df: pd.DataFrame, sorted_=True) -> alt.Chart:
     return alt.Chart(data_df).mark_bar().encode(
         x=alt.Y("AVG price (£)", title='Average Daily Game Price'),
         y=alt.X("release_date", title='Release Date').sort(sort),
-        color=alt.Color("release_date", title='Release Date')
+        color=alt.Color("release_date", title='Release Date').scale(
+            scheme="plasma")
     )
 
 
@@ -171,7 +172,8 @@ def count_chart(data_df: pd.DataFrame, sorted_=True) -> alt.Chart:
 
     return alt.Chart(data_df).mark_line().encode(
         x=alt.X("release_date",  title='Date').sort(sort),
-        y=alt.Y("Daily Releases",  title='Number Of Daily Releases')
+        y=alt.Y("Daily Releases",  title='Number Of Daily Releases'),
+        color=alt.value("#ff8c61")
     )
 
 
@@ -185,7 +187,8 @@ def rating_chart(data_df: pd.DataFrame, sorted_=True) -> alt.Chart:
     return alt.Chart(data_df).mark_bar().encode(
         x=alt.Y("Average Rating(%)", title='Average Daily Game Rating'),
         y=alt.X("release_date", title='Release Date').sort(sort),
-        color=alt.Color("release_date", title='Release Date')
+        color=alt.Color("release_date", title='Release Date').scale(
+            scheme="plasma")
     )
 
 
@@ -197,5 +200,6 @@ def make_tag_chart(data_df: pd.DataFrame, sorted_=True) -> alt.Chart:
     return alt.Chart(data_df).mark_bar().encode(
         x=alt.X("tag_name", title='Tag Name').sort(sort),
         y=alt.Y("count", title='Average Game Rating'),
-        color=alt.Color("tag_name", title='Tags')
+        color=alt.Color("tag_name", title='Tags').scale(
+            scheme="goldorange")
     )
