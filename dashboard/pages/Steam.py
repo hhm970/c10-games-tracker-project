@@ -46,7 +46,7 @@ if __name__ == "__main__":
     st.title("Steam Summary")
     st.write("---")
     st.subheader(
-        "_The latest metrics & graphs!_")
+        "The latest metrics & graphs!")
     st.text(
         "Brought to you by the GameScraper Team")
 
@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
     tag_chart = make_tag_chart(new_tag_df)
     p_chart = price_chart(new_price_df)
-    c_chart = count_chart(new_count_df)
+    c_chart = count_chart(new_count_df, sorted_=False)
     r_chart = rating_chart(new_rating_df)
 
     st.subheader("This Weeks Top Ten Games")

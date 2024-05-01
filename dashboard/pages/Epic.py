@@ -48,7 +48,7 @@ if __name__ == "__main__":
     st.title("Epic Games Summary")
     st.write("---")
     st.subheader(
-        "_The latest metrics & graphs!_")
+        "The latest metrics & graphs!")
     st.text(
         "Brought to you by the GameScraper Team")
 
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     new_count_df = filter_dates(count_df, filtered_days, "release_date")
     new_tag_df = filter_tags(tag_df, filtered_tags, "tag_name")
 
-    c_chart = count_chart(new_count_df)
+    c_chart = count_chart(new_count_df, sorted_=False)
     p_chart = price_chart(new_price_df)
     tag_chart = make_tag_chart(new_tag_df)
 
