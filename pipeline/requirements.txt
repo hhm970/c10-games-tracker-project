@@ -1,0 +1,10 @@
+pylint
+pytest
+pytest-cov
+python-dotenv
+bs4
+requests
+requests-mock
+pandas
+psycopg2-binary
+boto3
