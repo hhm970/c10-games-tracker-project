@@ -207,13 +207,19 @@ if __name__ == "__main__":
     week_list = list(get_week_list())
 
     metric_df = metric_games_yest(conn)
+    if not metric_df.empty:
+
+        no_games = metric_df['name'].nunique()
+        avg_rating = metric_df['rating'].mean()
+        avg_price = metric_df['price'].mean()
+    else:
+        no_games = 0
+        avg_rating = 0
+        avg_price = 0
+        
     top_twenty_games = metrics_top_twenty(conn)
     tag_df = metrics_for_graphs_tags(conn)
     tags = tag_df["tag_name"].to_list()
-
-    no_games = metric_df['name'].nunique()
-    avg_rating = metric_df['rating'].mean()
-    avg_price = metric_df['price'].mean()
 
     price_df = metrics_for_graphs_price(conn)
     count_df = metrics_for_graphs_count(conn)
@@ -273,8 +279,6 @@ if __name__ == "__main__":
     new_tag_df = filter_tags(tag_df, filtered_tags, "tag_name")
     top_twenty_games = top_twenty_games.drop('rating', axis=1)
 
-    # print(top_twenty_games.keys)
-    # top_twenty_games['Ranking'] = top_twenty_games[0]+1
     tag_chart = make_tag_chart(new_tag_df)
     p_chart = price_chart(new_price_df)
     c_chart = count_chart(new_count_df, sorting=False)
