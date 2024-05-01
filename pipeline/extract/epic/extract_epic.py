@@ -8,8 +8,9 @@ from datetime import datetime, timedelta
 
 def get_games_data(config) -> list[dict]:
     """Returns games json data."""
-    today_date = str(datetime.now().date())
-    yesterday_date = str((datetime.now()-timedelta(days=1.0)).date())
+    today_date = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+    yesterday_date = (
+        (datetime.now()-timedelta(days=1.0)).strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z')
     query = """{{
 	Catalog {{
 		searchStore (count:40, sortBy: "releaseDate", sortDir: "DESC",
