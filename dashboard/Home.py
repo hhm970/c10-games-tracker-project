@@ -288,7 +288,7 @@ if __name__ == "__main__":
     st.altair_chart(tag_chart, use_container_width=True)
     st.subheader("Average Price Per Day",)
     st.altair_chart(p_chart, use_container_width=True)
-    st.subheader("This Weeks Top 20 Games")
+    st.subheader("This Week's Top 20 Games")
     st.write(top_twenty_games)
 
     col1, col2 = st.columns(2)
