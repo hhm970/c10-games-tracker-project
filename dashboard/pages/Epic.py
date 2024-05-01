@@ -9,7 +9,7 @@ from pages.functions import (get_db_connection, get_week_list,
                              make_tag_chart, metric_games_yest,
                              metrics_for_graphs_count, metrics_for_graphs_price,
                              metrics_for_graphs_tags, metrics_top_ten, count_chart, price_chart,
-                             filter_dates, filter_tags)
+                             filter_dates, filter_tags, metric_games_all)
 
 
 if __name__ == "__main__":
@@ -26,19 +26,9 @@ if __name__ == "__main__":
     no_games = metric_df['name'].nunique()
     avg_price = metric_df['price'].mean()
 
-    if not metric_df.empty:
-        no_games = metric_df['name'].nunique()
-
-        avg_price = metric_df['price'].mean()
-    else:
-        no_games = 0
-
-        avg_price = 0
-
     price_df = metrics_for_graphs_price(conn, 3)
 
     count_df = metrics_for_graphs_count(conn, 3)
-    conn.close()
 
     tags = tag_df["tag_name"].to_list()
 
@@ -53,6 +43,24 @@ if __name__ == "__main__":
         "Brought to you by the GameScraper Team")
 
     st.divider()
+    on = st.toggle("Yesterday")
+
+    if on:
+        metric_df = metric_games_yest(conn, 3)
+        st.write('Metrics For Yesterday:')
+    else:
+        metric_df = metric_games_all(conn, 3)
+        st.write('Metrics For All Data:')
+
+    if not metric_df.empty:
+        no_games = metric_df['name'].nunique()
+
+        avg_price = metric_df['price'].mean()
+    else:
+        no_games = 0
+
+        avg_price = 0
+    conn.close()
     if no_games == 0:
         st.write("No New Games Released Yesterday")
 
@@ -88,9 +96,9 @@ if __name__ == "__main__":
 
     col1, col2 = st.columns(2)
     with col1:
-        st.metric("Number of new releases yesterday:", no_games)
+        st.metric("Number of new releases:", no_games)
     with col2:
-        st.metric("Average price of new releases yesterday:",
+        st.metric("Average price of new releases:",
                   f'£{avg_price:.2f}'.format(avg_price))
     st.subheader("This Weeks Top Ten Games")
     st.write(top_ten_games)

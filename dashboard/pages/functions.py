@@ -67,6 +67,18 @@ def metric_games_yest(conn_: connection, id: int) -> pd.DataFrame:
     return pd.DataFrame(steam_games)
 
 
+def metric_games_all(conn_: connection, id: int) -> pd.DataFrame:
+    """Returns a Data-frame of all the games from the yesterday."""
+
+    with conn_.cursor() as cur:
+        cur.execute(f""" SELECT name, rating, price, release_date
+                    FROM game
+                    WHERE website_id = '{id}';""")
+        steam_games = cur.fetchall()
+
+    return pd.DataFrame(steam_games)
+
+
 def metrics_for_graphs_price(conn_: connection, id: int) -> pd.DataFrame:
     """Returns a Data-frame of all the average prices for the last week."""
     w_list = get_week_list()
