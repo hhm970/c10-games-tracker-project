@@ -216,8 +216,9 @@ if __name__ == "__main__":
         no_games = 0
         avg_rating = 0
         avg_price = 0
-        
-    top_twenty_games = metrics_top_twenty(conn)
+
+    top_twenty_games = metrics_top_twenty(conn).set_index(
+        pd.Index([str(i) for i in range(1, 21)]))
     tag_df = metrics_for_graphs_tags(conn)
     tags = tag_df["tag_name"].to_list()
 

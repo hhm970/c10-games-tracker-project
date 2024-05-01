@@ -144,7 +144,8 @@ def metrics_top_ten(conn_: connection, id: int) -> pd.DataFrame:
     ORDER BY rating DESC LIMIT 10; """)
         tags_ = cur.fetchall()
 
-    return pd.DataFrame(tags_)
+    return pd.DataFrame(tags_).set_index(
+        pd.Index([str(i) for i in range(1, 11)]))
 
 
 def price_chart(data_df: pd.DataFrame, sorted_=True) -> alt.Chart:
