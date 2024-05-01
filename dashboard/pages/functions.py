@@ -67,6 +67,20 @@ def metric_games_yest(conn_: connection, id: int) -> pd.DataFrame:
     return pd.DataFrame(steam_games)
 
 
+def metric_games_two_days(conn_: connection, id: int) -> pd.DataFrame:
+    """Returns a Data-frame of all the games from the yesterday."""
+
+    yesterday = (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d')
+
+    with conn_.cursor() as cur:
+        cur.execute(f""" SELECT name, rating, price, release_date
+                    FROM game
+                    WHERE website_id = '{id}' AND release_date = '{yesterday}';""")
+        steam_games = cur.fetchall()
+
+    return pd.DataFrame(steam_games)
+
+
 def metric_games_all(conn_: connection, id: int) -> pd.DataFrame:
     """Returns a Data-frame of all the games from the yesterday."""
 
