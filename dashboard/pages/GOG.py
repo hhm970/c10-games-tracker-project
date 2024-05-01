@@ -96,7 +96,7 @@ if __name__ == "__main__":
     c_chart = count_chart(new_count_df, sorted_=False)
     r_chart = rating_chart(new_rating_df)
 
-    st.subheader("This Weeks Top Ten Games")
+    st.subheader("This Week's Top Ten Games")
     st.write(top_ten_games)
 
     col1, col2 = st.columns(2)
