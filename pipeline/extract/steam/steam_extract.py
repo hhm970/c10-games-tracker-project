@@ -1,6 +1,6 @@
 """Script to scrape relevant data from the epic games website."""
 
-from os import environ as ENV
+from os import mkdir, environ as ENV
 from datetime import datetime, date, timedelta
 from time import sleep
 
@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 import requests as req
 from bs4 import BeautifulSoup
 from selenium.webdriver.firefox.options import Options
-from selenium.webdriver import Firefox
+from selenium.webdriver import Firefox, FirefoxProfile
 
 
 def get_rating(game_soup: BeautifulSoup) -> float:
@@ -173,7 +173,13 @@ def get_headless_browser() -> Firefox:
     firefox_options = Options()
     firefox_options.add_argument("-headless")
     firefox_options.binary_location = '/opt/firefox/113.0/firefox/firefox'
-    driver = Firefox(options=firefox_options)
+    tmp_dir = '/tmp/ff'
+    mkdir(tmp_dir)
+    ff_profile = FirefoxProfile(profile_directory=tmp_dir)
+    driver = Firefox(firefox_profile=ff_profile,
+                     executable_path='/opt/geckodriver/0.33.0/geckodriver',
+                     options=firefox_options,
+                     service_log_path='/tmp/geckodriver.log')
     return driver
 
 
