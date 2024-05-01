@@ -27,7 +27,15 @@ def get_platforms(game_soup: BeautifulSoup) -> list:
                    for l in filtered_script.split(';')]
     script_dict = [l for l in script_dict if len(l) == 2]
     script_dict = {l[0].strip(): l[1] for l in script_dict}
-    return list(json.loads(script_dict[PLATFORM_TITLE]).keys())
+    platforms = []
+    if "windows" in script_dict[PLATFORM_TITLE].lower():
+        platforms.append("windows")
+    if "osx" in script_dict[PLATFORM_TITLE].lower():
+        platforms.append("osx")
+    if "linux" in script_dict[PLATFORM_TITLE].lower():
+        platforms.append("linux")
+
+    return platforms
 
 
 def get_soup(web_address: str) -> BeautifulSoup:
