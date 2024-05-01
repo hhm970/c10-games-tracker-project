@@ -9,7 +9,7 @@ from pages.functions import (get_db_connection, get_week_list,
                              metrics_for_graphs_count, metrics_for_graphs_price,
                              metrics_for_graphs_rating, metrics_for_graphs_tags,
                              metrics_top_ten, rating_chart, count_chart, price_chart,
-                             filter_dates, filter_tags)
+                             filter_dates, filter_tags, metric_games_all)
 
 
 if __name__ == "__main__":
@@ -18,7 +18,26 @@ if __name__ == "__main__":
     conn = get_db_connection(ENV)
     week_list = list(get_week_list())
 
-    metric_df = metric_games_yest(conn, 1)
+    st.set_page_config(page_title='GameScraper',
+                       page_icon=":space_invader:", layout="wide")
+    st.title("Steam Summary")
+    st.write("---")
+    st.subheader(
+        "The latest metrics & graphs!")
+    st.text(
+        "Brought to you by the GameScraper Team")
+
+    st.divider()
+    on = st.toggle("Yesterday")
+
+    if on:
+        metric_df = metric_games_yest(conn, 1)
+        st.write('Metrics For Yesterday:')
+
+    else:
+        metric_df = metric_games_all(conn, 1)
+        st.write('Metrics For All Data:')
+
     top_ten_games = metrics_top_ten(conn, 1)
     tag_df = metrics_for_graphs_tags(conn, 1)
     tags = tag_df["tag_name"].to_list()
@@ -31,33 +50,22 @@ if __name__ == "__main__":
         no_games = 0
         avg_rating = 0
         avg_price = 0
+    if no_games == 0:
+        st.write("No New Games Released")
 
     price_df = metrics_for_graphs_price(conn, 1)
     count_df = metrics_for_graphs_count(conn, 1)
     rating_df = metrics_for_graphs_rating(conn, 1)
     conn.close()
 
-    st.set_page_config(page_title='GameScraper',
-                       page_icon=":space_invader:", layout="wide")
-    st.title("Steam Summary")
-    st.write("---")
-    st.subheader(
-        "The latest metrics & graphs!")
-    st.text(
-        "Brought to you by the GameScraper Team")
-
-    st.divider()
-    if no_games == 0:
-        st.write("No New Games Released Yesterday")
-
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("Number of new releases yesterday:", no_games)
+        st.metric("Number of new releases:", no_games)
     with col2:
-        st.metric("Average rating of new releases yesterday:",
+        st.metric("Average rating of new releases:",
                   f'{round(avg_rating,2)}%')
     with col3:
-        st.metric("Average price of new releases yesterday:",
+        st.metric("Average price of new releases:",
                   f'£{avg_price:.2f}'.format(avg_price))
 
     with st.sidebar:

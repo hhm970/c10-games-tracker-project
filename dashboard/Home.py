@@ -69,6 +69,17 @@ def metric_games_yest(conn_: connection) -> pd.DataFrame:
     return pd.DataFrame(steam_games)
 
 
+def metric_games_all(conn_: connection) -> pd.DataFrame:
+    """Returns a Data-frame of all the games from all time."""
+
+    with conn_.cursor() as cur:
+        cur.execute(f""" SELECT name, rating, price, release_date
+                    FROM game;""")
+        steam_games = cur.fetchall()
+
+    return pd.DataFrame(steam_games)
+
+
 def metrics_for_graphs_price(conn_: connection) -> pd.DataFrame:
     """Returns a Data-frame of all the average prices for the last week."""
     this_week_list = get_week_list()
@@ -209,8 +220,34 @@ if __name__ == "__main__":
     load_dotenv()
     conn = get_db_connection(ENV)
     week_list = list(get_week_list())
+    st.set_page_config(page_title='GameScraper',
+                       page_icon=":space_invader:", layout="wide")
 
-    metric_df = metric_games_yest(conn)
+    top_twenty_games = metrics_top_twenty(conn).set_index(
+        pd.Index([str(i) for i in range(1, 21)]))
+    tag_df = metrics_for_graphs_tags(conn)
+    tags = tag_df["tag_name"].to_list()
+
+    price_df = metrics_for_graphs_price(conn)
+    count_df = metrics_for_graphs_count(conn)
+    rating_df = metrics_for_graphs_rating(conn)
+
+    st.title("Welcome To GameScraper")
+    st.write("---")
+    st.subheader(
+        "This weeks latest metrics & graphs from the hottest new games!")
+    st.text(
+        "Brought to you by the GameScraper Team")
+
+    st.divider()
+    on = st.toggle("Yesterday")
+
+    if on:
+        metric_df = metric_games_yest(conn)
+        st.write('Metrics For Yesterday:')
+    else:
+        metric_df = metric_games_all(conn)
+        st.write('Metrics For All Data:')
 
     if not metric_df.empty:
 
@@ -222,38 +259,22 @@ if __name__ == "__main__":
         avg_rating = 0
         avg_price = 0
 
-    top_twenty_games = metrics_top_twenty(conn).set_index(
-        pd.Index([str(i) for i in range(1, 21)]))
-    tag_df = metrics_for_graphs_tags(conn)
-    tags = tag_df["tag_name"].to_list()
-
-    price_df = metrics_for_graphs_price(conn)
-    count_df = metrics_for_graphs_count(conn)
-    rating_df = metrics_for_graphs_rating(conn)
-
     conn.close()
-
-    st.set_page_config(page_title='GameScraper',
-                       page_icon=":space_invader:", layout="wide")
-    st.title("Welcome To GameScraper")
-    st.write("---")
-    st.subheader(
-        "This weeks latest metrics & graphs from the hottest new games!")
-    st.text(
-        "Brought to you by the GameScraper Team")
-
-    st.divider()
-    if no_games == 0:
+    if no_games == 0 and on:
         st.write("No New Games Released Yesterday")
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("Number of new releases yesterday:", no_games)
+        st.metric("Number of new releases:", no_games)
     with col2:
-        st.metric("Average rating of new releases yesterday:",
-                  f'{round(avg_rating,2)}%')
+        if pd.isna(avg_rating):
+            avg_rating = "N/A"
+            st.metric("Average price of new releases:", '-')
+        else:
+            st.metric("Average rating of new releases:",
+                      f'{round(avg_rating,2)}%')
     with col3:
-        st.metric("Average price of new releases yesterday:",
+        st.metric("Average price of new releases:",
                   f'£{avg_price:.2f}'.format(avg_price))
 
     with st.sidebar:
