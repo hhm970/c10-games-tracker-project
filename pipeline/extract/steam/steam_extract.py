@@ -7,7 +7,8 @@ from time import sleep
 from dotenv import load_dotenv
 import requests as req
 from bs4 import BeautifulSoup
-from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver import Firefox
 
 
 def get_rating(game_soup: BeautifulSoup) -> float:
@@ -161,11 +162,19 @@ def grab_all_games_details(all_web_containers: BeautifulSoup) -> list[list]:
         name_price_date_list.append(name_price_date_list[1])
         name_price_date_list[1] = description
         detail_list.insert(2, n_game_date)
-        print(name_price_date_list + detail_list)
         final_list.append(name_price_date_list + detail_list)
         sleep(0.5)
 
     return len(final_list)
+
+
+def get_headless_browser() -> Firefox:
+    """Returns a headless browser setup to work inside a Lambda environment."""
+    firefox_options = Options()
+    firefox_options.add_argument("-headless")
+    firefox_options.binary_location = '/opt/firefox/113.0/firefox/firefox'
+    driver = Firefox(options=firefox_options)
+    return driver
 
 
 def handler(event: dict = None, context=None) -> list[list]:
@@ -174,11 +183,10 @@ def handler(event: dict = None, context=None) -> list[list]:
     cookies = {"name": "timezoneOffset", "value": "3600,0"
                }
 
-    browser = webdriver.Firefox()
+    browser = get_headless_browser()
     browser.set_page_load_timeout(10)
     browser.get(ENV["STEAM_BASE_URL"])
     browser.add_cookie(cookies)
-
     for i in range(9):
         browser.execute_script(
             "window.scrollTo(0, document.body.scrollHeight);")
@@ -196,6 +204,4 @@ def handler(event: dict = None, context=None) -> list[list]:
 
 
 if __name__ == "__main__":
-    load_dotenv()
-
-    print(handler())
+    pass

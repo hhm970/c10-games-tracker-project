@@ -3,16 +3,15 @@ FROM public.ecr.aws/lambda/python:latest
 
 WORKDIR ${LAMBDA_TASK_ROOT}
 
-RUN yum update -y \
-    && yum clean all \
-    && yum install -y tar gzip bzip2
-RUN yum install xz atk cups-libs gtk3 libXcomposite alsa-lib \
-
+RUN dnf update -y \
+    && dnf clean all \
+    && dnf install -y tar gzip bzip2
+RUN dnf install xz atk cups-libs gtk3 libXcomposite alsa-lib \
     libXcursor libXdamage libXext libXi libXrandr libXScrnSaver \
     libXtst pango at-spi2-atk libXt xorg-x11-server-Xvfb \
-    xorg-x11-xauth dbus-glib dbus-glib-devel -y -q
+    xorg-x11-xauth dbus-glib dbus-glib-devel -y
 
-RUN rm -rf /var/cache/yum
+RUN rm -rf /var/cache/dnf
 
 COPY install-firefox.sh .
 
