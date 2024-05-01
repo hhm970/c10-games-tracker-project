@@ -1,0 +1,7 @@
+streamlit
+pandas
+altair
+boto3
+python-dotenv
+psycopg2
+
