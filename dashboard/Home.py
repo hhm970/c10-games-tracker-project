@@ -147,7 +147,7 @@ def metrics_top_twenty(conn_: connection) -> pd.DataFrame:
     return pd.DataFrame(tags_)
 
 
-def price_chart(data_df: pd.DataFrame, sorting:bool=True) -> alt.Chart:
+def price_chart(data_df: pd.DataFrame, sorting: bool = True) -> alt.Chart:
     """"Generates a bar chart of average daily prices of games over their release dates."""
 
     data_df['release_date'] = data_df['release_date'].astype(str)
@@ -161,7 +161,7 @@ def price_chart(data_df: pd.DataFrame, sorting:bool=True) -> alt.Chart:
     )
 
 
-def count_chart(data_df: pd.DataFrame, sorting:bool=True) -> alt.Chart:
+def count_chart(data_df: pd.DataFrame, sorting: bool = True) -> alt.Chart:
     """Generates a bar chart of daily number of games releases."""
 
     data_df['release_date'] = data_df['release_date'].astype(str)
@@ -216,8 +216,9 @@ if __name__ == "__main__":
         no_games = 0
         avg_rating = 0
         avg_price = 0
-        
-    top_twenty_games = metrics_top_twenty(conn)
+
+    top_twenty_games = metrics_top_twenty(conn).set_index(
+        pd.Index([str(i) for i in range(1, 21)]))
     tag_df = metrics_for_graphs_tags(conn)
     tags = tag_df["tag_name"].to_list()
 
@@ -259,7 +260,7 @@ if __name__ == "__main__":
         st.page_link("pages/Steam.py")
         st.page_link("pages/Daily_Notifications.py")
         st.page_link("pages/Weekly_Newsletter.py")
-        
+
         st.title("Filtering")
 
         creator_options = tags
@@ -297,4 +298,3 @@ if __name__ == "__main__":
     with col2:
         st.subheader("Daily Releases")
         st.altair_chart(c_chart, use_container_width=True)
-
