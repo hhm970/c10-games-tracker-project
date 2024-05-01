@@ -147,7 +147,7 @@ def metrics_top_twenty(conn_: connection) -> pd.DataFrame:
     return pd.DataFrame(tags_)
 
 
-def price_chart(data_df: pd.DataFrame, sorting:bool=True) -> alt.Chart:
+def price_chart(data_df: pd.DataFrame, sorting: bool = True) -> alt.Chart:
     """"Generates a bar chart of average daily prices of games over their release dates."""
 
     data_df['release_date'] = data_df['release_date'].astype(str)
@@ -155,13 +155,14 @@ def price_chart(data_df: pd.DataFrame, sorting:bool=True) -> alt.Chart:
     sort = "-y" if sorting else "x"
 
     return alt.Chart(data_df).mark_bar().encode(
-        x=alt.Y("AVG price (£)", title='Average Daily Game Price'),
-        y=alt.X("release_date").sort(sort),
-        color="release_date"
+        x=alt.Y("AVG price (£)", title='Average Game Price (£)'),
+        y=alt.X("release_date", title='Release Date').sort(sort),
+        color=alt.Color("release_date", title='Release Date').scale(
+            scheme="plasma")
     )
 
 
-def count_chart(data_df: pd.DataFrame, sorting:bool=True) -> alt.Chart:
+def count_chart(data_df: pd.DataFrame, sorting: bool = True) -> alt.Chart:
     """Generates a bar chart of daily number of games releases."""
 
     data_df['release_date'] = data_df['release_date'].astype(str)
@@ -169,8 +170,9 @@ def count_chart(data_df: pd.DataFrame, sorting:bool=True) -> alt.Chart:
     sort = "-y" if sorting else "x"
 
     return alt.Chart(data_df).mark_line().encode(
-        x=alt.X("release_date",  title='Number Of Daily Releases').sort(sort),
-        y=alt.Y("Daily Releases")
+        x=alt.X("release_date",  title='Date').sort(sort),
+        y=alt.Y("Daily Releases",  title='Number Of Daily Releases'),
+        color=alt.value("#ff8c61")
     )
 
 
@@ -182,9 +184,10 @@ def rating_chart(data_df: pd.DataFrame, sorting=True) -> alt.Chart:
     sort = "-y" if sorting else "x"
 
     return alt.Chart(data_df).mark_bar().encode(
-        x=alt.Y("Average Rating(%)", title='Average Daily Game Rating'),
-        y=alt.X("release_date").sort(sort),
-        color="release_date"
+        x=alt.Y("Average Rating(%)", title='Average Game Rating'),
+        y=alt.X("release_date", title='Release Date').sort(sort),
+        color=alt.Color("release_date", title='Release Date').scale(
+            scheme="plasma")
     )
 
 
@@ -194,9 +197,10 @@ def make_tag_chart(data_df: pd.DataFrame, sorting=True) -> alt.Chart:
     sort = "-y" if sorting else "x"
 
     return alt.Chart(data_df).mark_bar().encode(
-        x=alt.X("tag_name").sort(sort),
-        y="count",
-        color="tag_name"
+        x=alt.X("tag_name", title='Tag Name').sort(sort),
+        y=alt.Y("count", title='Average Game Rating'),
+        color=alt.Color("count", title='Tags').scale(
+            scheme="goldorange")
     )
 
 
@@ -207,6 +211,7 @@ if __name__ == "__main__":
     week_list = list(get_week_list())
 
     metric_df = metric_games_yest(conn)
+
     if not metric_df.empty:
 
         no_games = metric_df['name'].nunique()
@@ -216,8 +221,9 @@ if __name__ == "__main__":
         no_games = 0
         avg_rating = 0
         avg_price = 0
-        
-    top_twenty_games = metrics_top_twenty(conn)
+
+    top_twenty_games = metrics_top_twenty(conn).set_index(
+        pd.Index([str(i) for i in range(1, 21)]))
     tag_df = metrics_for_graphs_tags(conn)
     tags = tag_df["tag_name"].to_list()
 
@@ -259,7 +265,7 @@ if __name__ == "__main__":
         st.page_link("pages/Steam.py")
         st.page_link("pages/Daily_Notifications.py")
         st.page_link("pages/Weekly_Newsletter.py")
-        
+
         st.title("Filtering")
 
         creator_options = tags
@@ -267,9 +273,9 @@ if __name__ == "__main__":
                                        options=creator_options,
                                        default=creator_options)
 
-        end_date = st.select_slider(
-            'Select a range of dates',
-            options=week_list
+        end_date = st.selectbox(
+            'Select Start Date:',
+            options=week_list[::-1]
         )
 
     filtered_days = week_list[:week_list.index(end_date) + 1]
@@ -278,16 +284,17 @@ if __name__ == "__main__":
     new_rating_df = filter_dates(rating_df, filtered_days, "release_date")
     new_tag_df = filter_tags(tag_df, filtered_tags, "tag_name")
     top_twenty_games = top_twenty_games.drop('rating', axis=1)
+
     tag_chart = make_tag_chart(new_tag_df)
     p_chart = price_chart(new_price_df)
-    c_chart = count_chart(new_count_df)
+    c_chart = count_chart(new_count_df, sorting=False)
     r_chart = rating_chart(new_rating_df)
 
     st.subheader("This Weeks Most Popular Gaming Tags")
     st.altair_chart(tag_chart, use_container_width=True)
     st.subheader("Average Price Per Day",)
     st.altair_chart(p_chart, use_container_width=True)
-    st.subheader("This Weeks Top Twenty Games")
+    st.subheader("This Week's Top 20 Games")
     st.write(top_twenty_games)
 
     col1, col2 = st.columns(2)
@@ -297,4 +304,3 @@ if __name__ == "__main__":
     with col2:
         st.subheader("Daily Releases")
         st.altair_chart(c_chart, use_container_width=True)
-
