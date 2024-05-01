@@ -9,7 +9,7 @@ from pages.functions import (get_db_connection, get_week_list,
                              make_tag_chart, metric_games_yest,
                              metrics_for_graphs_count, metrics_for_graphs_price,
                              metrics_for_graphs_tags, metrics_top_ten, count_chart, price_chart,
-                             filter_dates, filter_tags)
+                             filter_dates, filter_tags, metric_games_all)
 
 
 if __name__ == "__main__":
@@ -26,19 +26,9 @@ if __name__ == "__main__":
     no_games = metric_df['name'].nunique()
     avg_price = metric_df['price'].mean()
 
-    if not metric_df.empty:
-        no_games = metric_df['name'].nunique()
-
-        avg_price = metric_df['price'].mean()
-    else:
-        no_games = 0
-
-        avg_price = 0
-
     price_df = metrics_for_graphs_price(conn, 3)
 
     count_df = metrics_for_graphs_count(conn, 3)
-    conn.close()
 
     tags = tag_df["tag_name"].to_list()
 
@@ -48,11 +38,29 @@ if __name__ == "__main__":
     st.title("Epic Games Summary")
     st.write("---")
     st.subheader(
-        "_The latest metrics & graphs!_")
+        "The latest metrics & graphs!")
     st.text(
         "Brought to you by the GameScraper Team")
 
     st.divider()
+    on = st.toggle("Yesterday")
+
+    if on:
+        metric_df = metric_games_yest(conn, 3)
+        st.write('Metrics For Yesterday:')
+    else:
+        metric_df = metric_games_all(conn, 3)
+        st.write('Metrics For All Data:')
+
+    if not metric_df.empty:
+        no_games = metric_df['name'].nunique()
+
+        avg_price = metric_df['price'].mean()
+    else:
+        no_games = 0
+
+        avg_price = 0
+    conn.close()
     if no_games == 0:
         st.write("No New Games Released Yesterday")
 
@@ -71,9 +79,9 @@ if __name__ == "__main__":
         filtered_tags = st.multiselect("Available Genres",
                                        options=creator_options,
                                        default=creator_options)
-        end_date = st.select_slider(
-            'Select a range of dates',
-            options=week_list
+        end_date = st.selectbox(
+            'Select Start Date:',
+            options=week_list[::-1]
         )
 
         filtered_days = week_list[:week_list.index(end_date) + 1]
@@ -82,15 +90,15 @@ if __name__ == "__main__":
     new_count_df = filter_dates(count_df, filtered_days, "release_date")
     new_tag_df = filter_tags(tag_df, filtered_tags, "tag_name")
 
-    c_chart = count_chart(new_count_df)
+    c_chart = count_chart(new_count_df, sorted_=False)
     p_chart = price_chart(new_price_df)
     tag_chart = make_tag_chart(new_tag_df)
 
     col1, col2 = st.columns(2)
     with col1:
-        st.metric("Number of new releases yesterday:", no_games)
+        st.metric("Number of new releases:", no_games)
     with col2:
-        st.metric("Average price of new releases yesterday:",
+        st.metric("Average price of new releases:",
                   f'£{avg_price:.2f}'.format(avg_price))
     st.subheader("This Weeks Top Ten Games")
     st.write(top_ten_games)

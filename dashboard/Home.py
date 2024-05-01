@@ -69,6 +69,17 @@ def metric_games_yest(conn_: connection) -> pd.DataFrame:
     return pd.DataFrame(steam_games)
 
 
+def metric_games_all(conn_: connection) -> pd.DataFrame:
+    """Returns a Data-frame of all the games from all time."""
+
+    with conn_.cursor() as cur:
+        cur.execute(f""" SELECT name, rating, price, release_date
+                    FROM game;""")
+        steam_games = cur.fetchall()
+
+    return pd.DataFrame(steam_games)
+
+
 def metrics_for_graphs_price(conn_: connection) -> pd.DataFrame:
     """Returns a Data-frame of all the average prices for the last week."""
     this_week_list = get_week_list()
@@ -155,9 +166,10 @@ def price_chart(data_df: pd.DataFrame, sorting: bool = True) -> alt.Chart:
     sort = "-y" if sorting else "x"
 
     return alt.Chart(data_df).mark_bar().encode(
-        x=alt.Y("AVG price (£)", title='Average Daily Game Price'),
-        y=alt.X("release_date").sort(sort),
-        color="release_date"
+        x=alt.Y("AVG price (£)", title='Average Game Price (£)'),
+        y=alt.X("release_date", title='Release Date').sort(sort),
+        color=alt.Color("release_date", title='Release Date').scale(
+            scheme="plasma")
     )
 
 
@@ -169,8 +181,9 @@ def count_chart(data_df: pd.DataFrame, sorting: bool = True) -> alt.Chart:
     sort = "-y" if sorting else "x"
 
     return alt.Chart(data_df).mark_line().encode(
-        x=alt.X("release_date",  title='Number Of Daily Releases').sort(sort),
-        y=alt.Y("Daily Releases")
+        x=alt.X("release_date",  title='Date').sort(sort),
+        y=alt.Y("Daily Releases",  title='Number Of Daily Releases'),
+        color=alt.value("#ff8c61")
     )
 
 
@@ -182,9 +195,10 @@ def rating_chart(data_df: pd.DataFrame, sorting=True) -> alt.Chart:
     sort = "-y" if sorting else "x"
 
     return alt.Chart(data_df).mark_bar().encode(
-        x=alt.Y("Average Rating(%)", title='Average Daily Game Rating'),
-        y=alt.X("release_date").sort(sort),
-        color="release_date"
+        x=alt.Y("Average Rating(%)", title='Average Game Rating'),
+        y=alt.X("release_date", title='Release Date').sort(sort),
+        color=alt.Color("release_date", title='Release Date').scale(
+            scheme="plasma")
     )
 
 
@@ -194,9 +208,10 @@ def make_tag_chart(data_df: pd.DataFrame, sorting=True) -> alt.Chart:
     sort = "-y" if sorting else "x"
 
     return alt.Chart(data_df).mark_bar().encode(
-        x=alt.X("tag_name").sort(sort),
-        y="count",
-        color="tag_name"
+        x=alt.X("tag_name", title='Tag Name').sort(sort),
+        y=alt.Y("count", title='Average Game Rating'),
+        color=alt.Color("count", title='Tags').scale(
+            scheme="goldorange")
     )
 
 
@@ -205,17 +220,8 @@ if __name__ == "__main__":
     load_dotenv()
     conn = get_db_connection(ENV)
     week_list = list(get_week_list())
-
-    metric_df = metric_games_yest(conn)
-    if not metric_df.empty:
-
-        no_games = metric_df['name'].nunique()
-        avg_rating = metric_df['rating'].mean()
-        avg_price = metric_df['price'].mean()
-    else:
-        no_games = 0
-        avg_rating = 0
-        avg_price = 0
+    st.set_page_config(page_title='GameScraper',
+                       page_icon=":space_invader:", layout="wide")
 
     top_twenty_games = metrics_top_twenty(conn).set_index(
         pd.Index([str(i) for i in range(1, 21)]))
@@ -226,10 +232,6 @@ if __name__ == "__main__":
     count_df = metrics_for_graphs_count(conn)
     rating_df = metrics_for_graphs_rating(conn)
 
-    conn.close()
-
-    st.set_page_config(page_title='GameScraper',
-                       page_icon=":space_invader:", layout="wide")
     st.title("Welcome To GameScraper")
     st.write("---")
     st.subheader(
@@ -238,17 +240,41 @@ if __name__ == "__main__":
         "Brought to you by the GameScraper Team")
 
     st.divider()
-    if no_games == 0:
+    on = st.toggle("Yesterday")
+
+    if on:
+        metric_df = metric_games_yest(conn)
+        st.write('Metrics For Yesterday:')
+    else:
+        metric_df = metric_games_all(conn)
+        st.write('Metrics For All Data:')
+
+    if not metric_df.empty:
+
+        no_games = metric_df['name'].nunique()
+        avg_rating = metric_df['rating'].mean()
+        avg_price = metric_df['price'].mean()
+    else:
+        no_games = 0
+        avg_rating = 0
+        avg_price = 0
+
+    conn.close()
+    if no_games == 0 and on:
         st.write("No New Games Released Yesterday")
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric("Number of new releases yesterday:", no_games)
+        st.metric("Number of new releases:", no_games)
     with col2:
-        st.metric("Average rating of new releases yesterday:",
-                  f'{round(avg_rating,2)}%')
+        if pd.isna(avg_rating):
+            avg_rating = "N/A"
+            st.metric("Average price of new releases:", '-')
+        else:
+            st.metric("Average rating of new releases:",
+                      f'{round(avg_rating,2)}%')
     with col3:
-        st.metric("Average price of new releases yesterday:",
+        st.metric("Average price of new releases:",
                   f'£{avg_price:.2f}'.format(avg_price))
 
     with st.sidebar:
@@ -268,9 +294,9 @@ if __name__ == "__main__":
                                        options=creator_options,
                                        default=creator_options)
 
-        end_date = st.select_slider(
-            'Select a range of dates',
-            options=week_list
+        end_date = st.selectbox(
+            'Select Start Date:',
+            options=week_list[::-1]
         )
 
     filtered_days = week_list[:week_list.index(end_date) + 1]
@@ -279,16 +305,17 @@ if __name__ == "__main__":
     new_rating_df = filter_dates(rating_df, filtered_days, "release_date")
     new_tag_df = filter_tags(tag_df, filtered_tags, "tag_name")
     top_twenty_games = top_twenty_games.drop('rating', axis=1)
+
     tag_chart = make_tag_chart(new_tag_df)
     p_chart = price_chart(new_price_df)
-    c_chart = count_chart(new_count_df)
+    c_chart = count_chart(new_count_df, sorting=False)
     r_chart = rating_chart(new_rating_df)
 
     st.subheader("This Weeks Most Popular Gaming Tags")
     st.altair_chart(tag_chart, use_container_width=True)
     st.subheader("Average Price Per Day",)
     st.altair_chart(p_chart, use_container_width=True)
-    st.subheader("This Weeks Top Twenty Games")
+    st.subheader("This Week's Top 20 Games")
     st.write(top_twenty_games)
 
     col1, col2 = st.columns(2)
