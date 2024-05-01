@@ -279,7 +279,6 @@ if __name__ == "__main__":
     new_tag_df = filter_tags(tag_df, filtered_tags, "tag_name")
     top_twenty_games = top_twenty_games.drop('rating', axis=1)
 
-    # top_twenty_games['Ranking'] = top_twenty_games[0]+1
     tag_chart = make_tag_chart(new_tag_df)
     p_chart = price_chart(new_price_df)
     c_chart = count_chart(new_count_df, sorting=False)
