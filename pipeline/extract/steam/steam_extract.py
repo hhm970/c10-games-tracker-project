@@ -136,7 +136,7 @@ def get_each_game_details(game_url: str) -> list:
     publisher = get_publisher(game_soup)
     description = get_description(game_soup)
 
-    return [description, developer, publisher, str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")), rating, 1, game_tags, platform_id_list]
+    return [description, developer, publisher, rating, 1, game_tags, platform_id_list]
 
 
 def grab_all_games_details(all_web_containers: BeautifulSoup) -> list[list]:
@@ -153,44 +153,42 @@ def grab_all_games_details(all_web_containers: BeautifulSoup) -> list[list]:
         name_price_date_list.pop(-1)
         if game_date < (datetime.today() - timedelta(days=7)).date():
             break
+        n_game_date = datetime.combine(game_date, datetime.min.time())
         game_url = container['href']
 
         detail_list = get_each_game_details(game_url)
         description = detail_list.pop(0)
         name_price_date_list.append(name_price_date_list[1])
         name_price_date_list[1] = description
+        detail_list.insert(2, n_game_date)
+        print(name_price_date_list + detail_list)
         final_list.append(name_price_date_list + detail_list)
-        print((name_price_date_list + detail_list))
         sleep(0.5)
 
-    return final_list
+    return len(final_list)
 
 
 def handler(event: dict = None, context=None) -> list[list]:
     """Collects the required data for each game and then returns a
     list of lists of this data."""
-    cookies = {
-        "timezoneOffset": "3600,0"
-    }
+    cookies = {"name": "timezoneOffset", "value": "3600,0"
+               }
+
     browser = webdriver.Firefox()
-    browser.get(ENV["STEAM_BASE_URL"], timeout=10, cookies=cookies)
+    browser.set_page_load_timeout(10)
+    browser.get(ENV["STEAM_BASE_URL"])
+    browser.add_cookie(cookies)
 
     for i in range(9):
         browser.execute_script(
             "window.scrollTo(0, document.body.scrollHeight);")
 
-        sleep(1)
+        sleep(0.5)
 
     content = browser.execute_script("return document.body.innerHTML;")
     soup = BeautifulSoup(content, features="html.parser")
 
-    with open("steam.html", 'w') as f:
-        f.write(str(soup))
-
     browser.quit()
-
-    res = req.get(ENV["STEAM_BASE_URL"], timeout=10, cookies=cookies)
-    soup = BeautifulSoup(res.text, features="html.parser")
     all_containers = soup.find_all(
         'a', class_="search_result_row")
 
