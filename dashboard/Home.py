@@ -240,8 +240,10 @@ if __name__ == "__main__":
     st.set_page_config(page_title='GameScraper',
                        page_icon=":space_invader:", layout="wide")
 
+
     top_twenty_games = metrics_top_twenty(conn).set_index(
         pd.Index([str(i) for i in range(1, 21)]))
+
     tag_df = metrics_for_graphs_tags(conn)
     tags = tag_df["tag_name"].to_list()
 
@@ -330,6 +332,7 @@ if __name__ == "__main__":
         st.page_link("pages/Steam.py")
         st.page_link("pages/Daily_Notifications.py")
         st.page_link("pages/Weekly_Report.py")
+        st.page_link("pages/Search.py")
 
         st.title("Filtering")
 
