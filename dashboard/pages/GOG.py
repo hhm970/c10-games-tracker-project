@@ -109,8 +109,9 @@ if __name__ == "__main__":
         st.page_link("pages/GOG.py")
         st.page_link("pages/Steam.py")
         st.page_link("pages/Daily_Notifications.py")
-        st.page_link("pages/Weekly_Newsletter.py")
+        st.page_link("pages/Weekly_Report.py")
         st.page_link("pages/Search.py")
+
         st.title("Filtering")
 
         creator_options = tags
