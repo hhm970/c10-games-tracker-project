@@ -1,4 +1,5 @@
-'''A script that creates the Steam page for the dashboard.'''
+'''A script that searches the database for games
+for the search page on the dashboard.'''
 
 from os import environ as ENV
 import streamlit as st
@@ -15,7 +16,8 @@ from rapidfuzz.utils import default_process
 from pages.functions import (get_db_connection)
 
 
-def get_name_list(conn: connection):
+def get_name_list(conn: connection) -> list:
+    """Returns list of names of all games in the DB."""
 
     with conn.cursor() as cur:
         cur.execute(f""" SELECT name
@@ -26,10 +28,7 @@ def get_name_list(conn: connection):
 
 
 def show_result(word: str, conn: connection):
-    """takes in the word, does fuzzymatching,
-    uses that to query the database (maybe get list
-      of game names from db first), then uses that to return all
-        the details of the game, possible cross platform?"""
+    """Returns name of the game found after fuzzy matching."""
 
     games_list = get_name_list(conn)
 
@@ -43,6 +42,7 @@ def show_result(word: str, conn: connection):
 
 
 def get_all_game_details(result: str, conn: connection):
+    """Returns dictionary containing all the details of the game found."""
 
     with conn.cursor() as cur:
         cur.execute(f"""SELECT *
@@ -70,6 +70,7 @@ def get_all_game_details(result: str, conn: connection):
 
 
 if __name__ == "__main__":
+
     load_dotenv()
 
     st.set_page_config(page_title='GameScraper',
