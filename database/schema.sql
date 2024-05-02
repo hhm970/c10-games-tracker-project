@@ -9,7 +9,7 @@ DROP TABLE tag CASCADE;
 DROP TABLE game CASCADE;
 DROP TABLE platform_assignment CASCADE;
 DROP TABLE game_tag_matching CASCADE;
-DROP TABLE subscriber
+DROP TABLE subscriber;
 
 
 
