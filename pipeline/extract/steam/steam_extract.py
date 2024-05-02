@@ -1,14 +1,13 @@
-from selenium import webdriver
-from bs4 import BeautifulSoup
-import requests as req
-from dotenv import load_dotenv
-from time import sleep
-from datetime import datetime, date, timedelta
-from os import environ as ENV
-Steam
-
-
 """Script to scrape relevant data from the epic games website."""
+
+from os import environ as ENV
+from datetime import datetime, date, timedelta
+from time import sleep
+
+from dotenv import load_dotenv
+import requests as req
+from bs4 import BeautifulSoup
+from selenium import webdriver
 
 
 def get_rating(game_soup: BeautifulSoup) -> float:
@@ -190,6 +189,8 @@ def handler(event: dict = None, context=None) -> list[list]:
 
     browser.quit()
 
+
+
     res = req.get(ENV["STEAM_BASE_URL"], timeout=10, cookies=cookies)
     soup = BeautifulSoup(res.text, features="html.parser")
     all_containers = soup.find_all(
@@ -200,5 +201,7 @@ def handler(event: dict = None, context=None) -> list[list]:
 
 if __name__ == "__main__":
     load_dotenv()
+
+    
 
     print(handler())
