@@ -167,6 +167,7 @@ def metrics_top_ten(conn_: connection, id: int) -> pd.DataFrame:
     JOIN publisher as p
     on g.publisher_id = p.publisher_id
     WHERE g.website_id = '{id}' and g.release_date in {w_list}
+    AND g.rating IS NOT NULL
     ORDER BY rating DESC LIMIT 10; """)
         tags_ = cur.fetchall()
 
