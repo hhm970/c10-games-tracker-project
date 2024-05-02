@@ -67,6 +67,32 @@ def metric_games_yest(conn_: connection, id: int) -> pd.DataFrame:
     return pd.DataFrame(steam_games)
 
 
+def metric_games_two_days(conn_: connection, id: int) -> pd.DataFrame:
+    """Returns a Data-frame of all the games from the yesterday."""
+
+    yesterday = (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d')
+
+    with conn_.cursor() as cur:
+        cur.execute(f""" SELECT name, rating, price, release_date
+                    FROM game
+                    WHERE website_id = '{id}' AND release_date = '{yesterday}';""")
+        steam_games = cur.fetchall()
+
+    return pd.DataFrame(steam_games)
+
+
+def metric_games_all(conn_: connection, id: int) -> pd.DataFrame:
+    """Returns a Data-frame of all the games from the yesterday."""
+
+    with conn_.cursor() as cur:
+        cur.execute(f""" SELECT name, rating, price, release_date
+                    FROM game
+                    WHERE website_id = '{id}';""")
+        steam_games = cur.fetchall()
+
+    return pd.DataFrame(steam_games)
+
+
 def metrics_for_graphs_price(conn_: connection, id: int) -> pd.DataFrame:
     """Returns a Data-frame of all the average prices for the last week."""
     w_list = get_week_list()
@@ -144,7 +170,10 @@ def metrics_top_ten(conn_: connection, id: int) -> pd.DataFrame:
     ORDER BY rating DESC LIMIT 10; """)
         tags_ = cur.fetchall()
 
-    return pd.DataFrame(tags_)
+        min_upper_bd = min(len(tags_) + 1, 11)
+
+    return pd.DataFrame(tags_).set_index(
+        pd.Index([str(i) for i in range(1, min_upper_bd)]))
 
 
 def price_chart(data_df: pd.DataFrame, sorted_=True) -> alt.Chart:
@@ -156,8 +185,9 @@ def price_chart(data_df: pd.DataFrame, sorted_=True) -> alt.Chart:
 
     return alt.Chart(data_df).mark_bar().encode(
         x=alt.Y("AVG price (£)", title='Average Daily Game Price'),
-        y=alt.X("release_date").sort(sort),
-        color="release_date"
+        y=alt.X("release_date", title='Release Date').sort(sort),
+        color=alt.Color("release_date", title='Release Date').scale(
+            scheme="plasma")
     )
 
 
@@ -169,8 +199,9 @@ def count_chart(data_df: pd.DataFrame, sorted_=True) -> alt.Chart:
     sort = "-y" if sorted_ else "x"
 
     return alt.Chart(data_df).mark_line().encode(
-        x=alt.X("release_date",  title='Number Of Daily Releases').sort(sort),
-        y=alt.Y("Daily Releases")
+        x=alt.X("release_date",  title='Date').sort(sort),
+        y=alt.Y("Daily Releases",  title='Number Of Daily Releases'),
+        color=alt.value("#ff8c61")
     )
 
 
@@ -183,8 +214,9 @@ def rating_chart(data_df: pd.DataFrame, sorted_=True) -> alt.Chart:
 
     return alt.Chart(data_df).mark_bar().encode(
         x=alt.Y("Average Rating(%)", title='Average Daily Game Rating'),
-        y=alt.X("release_date").sort(sort),
-        color="release_date"
+        y=alt.X("release_date", title='Release Date').sort(sort),
+        color=alt.Color("release_date", title='Release Date').scale(
+            scheme="plasma")
     )
 
 
@@ -194,7 +226,8 @@ def make_tag_chart(data_df: pd.DataFrame, sorted_=True) -> alt.Chart:
     sort = "-y" if sorted_ else "x"
 
     return alt.Chart(data_df).mark_bar().encode(
-        x=alt.X("tag_name").sort(sort),
-        y="count",
-        color="tag_name"
+        x=alt.X("tag_name", title='Tag Name').sort(sort),
+        y=alt.Y("count", title='Average Game Rating'),
+        color=alt.Color("tag_name", title='Tags').scale(
+            scheme="goldorange")
     )

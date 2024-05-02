@@ -1,17 +1,14 @@
+# Games Tracker Project
 ## Description
+> This Project is responsible for helping users to keep up with the latest game releases as well as understand the latest gaming trends.
 
-> This Project is responsible for helping users to keep up with the latest releases as well as understand latest gaming trends.
+New PC games are released every day on different platforms; it’s hard to keep up with new releases, and it’s even harder to understand the trends in gaming. We aim to create a data pipeline that tracks new new releases on major PC platforms. We will also produce a dashboard with key metrics and graphs for comparisons between different websites. Furthermore we will also send email notifications to our subscribers- weekly PDF reports and daily notifications about new releases that day.   
+
+
 ## Stakeholder Requirements
--  `Gamers` - know what the latests game releases are.
+- `Gamers` - know what the latest game releases are.
+
 - `Developers`- understand the market more effectively.
-
-### Deliverables
-
-
-### Dashboard Requirements
-
-The requirements are:
-
 
 ## Requirements
 
@@ -19,41 +16,70 @@ The requirements are:
 
 - Python 3.11
 - pip3
-- AWS CLI
+- awscli
 - Docker
 - Terraform
+- PostgreSQL
 
 ### Imports
+Each sub-folder in this repository holds their own `requirements.txt` file. This is has been done to ensure clarity in what modules the scripts require.
 
- ```sh
-   pip3 install -r requirements.txt
-   ```
+In each folder's directory to download the requirements use this command:
+
+```sh
+pip3 install -r requirements.txt
+  ```
 
 **Secrets/Authentication**
 > [!IMPORTANT]  
-> To be able to run these scripts locally the following details must be provided in the `.env` file.
+> To be able to run these scripts locally the details must be provided in a `.env` file within each folder.
+> Further details of the secrets required can be found in sub-folders `README.md`
 
 
+## Cloud Deployment
+This project has been designed to be able to hosted on the cloud. 
 
-## Deployment
 
-- Run the following command to deploy the project:
-  ```sh
+Run the following command to deploy the project:
+
+```sh
   cd terraform
   terraform init
   terraform apply
   ```
 
-## Files and Folder Structure Explained
+> [!NOTE]  
+> The ECR repositories were made via the AWS console. In order to be able to run the terraform script you must create the following ECR repositories listed below before.
 
-- root folder: Contains the following files:
+#### ECR Repositories
+- c10-games-dashboard
+- c10-games-db-load
+- c10-games-epic-extract
+- c10-games-gog-scrape
+- c10-games-steam-scrape
+- c10-games-weekly-report
 
-- .github folder: Contains code related to the github actions.
-- dashboard folder: Contains code related to the dashboard.
+## Folder Structure Explained
 
-- pipeline folder: Contains code and resources related to the pipeline.
+root: Contains the following files:
 
-- terraform folder: Contains code and resources related to the terraform.
+- `.github`: Contains code related to the github actions.
+
+- `dashboard`: Contains code related to the dashboard.
+
+- `pipeline`: Contains code and resources related to the pipeline and notification generation.
+
+- `terraform`: Contains code and resources related to terraforming cloud infrastructure.
+
+- `database`: contains code and resources related to the RDS database.
+
+- `diagrams`: Contains images required for this file.
+
+- `weekly_report`: contains code and resources related to the report generation and distribution.
+
+
+> [!NOTE]  
+> Our storage system for the emails inputted when subscribing to weekly newsletters is not secure. Please do not actually input your email here.
 
 
 ## ERD

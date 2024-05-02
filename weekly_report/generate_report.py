@@ -3,7 +3,8 @@ import os
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
-
+from datetime import datetime
+from dotenv import load_dotenv
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
@@ -11,6 +12,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from psycopg2 import connect
 from psycopg2.extras import RealDictCursor
 from psycopg2.extensions import connection
+from wordcloud import WordCloud
 import altair as alt
 import pandas as pd
 import boto3
@@ -44,7 +46,8 @@ class StatsRetriever():
             cur.execute("""SELECT count(distinct g.name)
                             FROM game AS g
                             WHERE release_date >= CURRENT_DATE - INTERVAL '7 days'
-                            AND release_date <= CURRENT_DATE AND g.website_id IN %s;""", (self.website_ids,))
+                            AND release_date <= CURRENT_DATE 
+                        AND g.website_id IN %s;""", (self.website_ids,))
 
             num_games = cur.fetchone()['count']
             return num_games
@@ -111,7 +114,7 @@ class StatsRetriever():
                          LEFT JOIN website AS w
                         ON (g.website_id = w.website_id)
                          WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
-                         AND g.release_date <= CURRENT_DATE 
+                         AND g.release_date <= CURRENT_DATE
                         AND g.website_id IN %s GROUP BY w.website_name ;""", (self.website_ids,))
             games = cur.fetchall()
             games = pd.DataFrame(games)
@@ -138,8 +141,21 @@ class StatsRetriever():
                         """, (self.website_ids,))
             tags = cur.fetchall()
             tag_list = []
+            res = {}
+            word_counts = []
             for x in range(len(tags)):
                 tag_list.append(tags[x]['tag_name'])
+                word_counts.append(tags[x]['count'])
+            for key in tag_list:
+                for value in word_counts:
+                    res[key] = value
+            fog_machine = WordCloud(
+                background_color='#FFFFFF', colormap="cool")
+            fog_machine.generate_from_frequencies(res)
+            fog_machine.to_image()
+            fog_machine.to_file(
+                f'{self.config["STORAGE_FOLDER"]}/tags_wordcloud.png')
+
             return tag_list
 
     def tag_game_ratio(self):
@@ -191,8 +207,8 @@ class StatsRetriever():
     def top_three_publishers(self) -> list[str]:
         """Returns the top three game publishers of this week."""
         with self.conn.cursor() as cur:
-            cur.execute("""SELECT p.publisher_name, count(*) AS num_games FROM game as g 
-                        LEFT JOIN publisher AS p ON (g.publisher_id = p.publisher_id) 
+            cur.execute("""SELECT p.publisher_name, count(*) AS num_games FROM game as g
+                        LEFT JOIN publisher AS p ON (g.publisher_id = p.publisher_id)
                         WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
                         AND g.release_date <= CURRENT_DATE AND g.website_id IN %s
                         GROUP BY p.publisher_name ORDER BY count(*) DESC LIMIT 3;""", (self.website_ids,))
@@ -229,6 +245,43 @@ class StatsRetriever():
                 website_list.append(websites[x]['website_name'])
             return website_list
 
+    def get_tags_word_count(self):
+        """Returns the result of a sql query which returns tags and the
+          number of times it occurs in set of website ids.."""
+        with self.conn.cursor() as cur:
+            cur.execute("""SELECT t.tag_name, count(*) from tag AS t INNER JOIN game_tag_matching AS gt ON(t.tag_id=gt.tag_id) WHERE gt.game_id IN
+                        (SELECT game_id from game AS g WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
+                        AND g.release_date <= CURRENT_DATE AND g.website_id IN %s) GROUP BY t.tag_name ORDER BY count(*) DESC;
+                        """, (self.website_ids,))
+            tags_word_count = cur.fetchall()
+            return tags_word_count
+
+    def get_word_cloud(self):
+        """Creates a word cloud based on the tags of each website."""
+        tags_word_count = self.get_tags_word_count()
+        tag_list = [tags_word_count[x]['tag_name']
+                    for x in range(len(tags_word_count))]
+        word_counts = [tags_word_count[x]['count']
+                       for x in range(len(tags_word_count))]
+
+        res = {tag_list[i]: word_counts[i] for i in range(len(tag_list))}
+
+        fog_machine = WordCloud(
+            background_color='#FFFFFF', colormap="cool")
+        fog_machine.generate_from_frequencies(res)
+        fog_machine.to_image()
+
+        # saving image to file
+        if len(self.website_ids) == 3:
+            fog_machine.to_file(
+                f'{self.config["STORAGE_FOLDER"]}/tags_sum_wordcloud.png')
+        elif len(self.website_ids) == 2:
+            fog_machine.to_file(
+                f'{self.config["STORAGE_FOLDER"]}/tags_{self.website_ids[0]}_{self.website_ids[1]}_wordcloud.png')
+        else:
+            fog_machine.to_file(
+                f'{self.config["STORAGE_FOLDER"]}/tags_{self.website_ids[0]}_wordcloud.png')
+
 
 class ReportMaker():
     """This class is responsible for the functionality required to generate
@@ -240,144 +293,145 @@ class ReportMaker():
 
     def generate_summary_text(self, canvas_obj, sum):
         """Generates the summary page text for the report."""
-        sum.tag_game_ratio()
         sum.num_games_per_website()
         sum.num_games_over_week()
-
+        sum.get_word_cloud()
         canvas_obj.setFont('jersey_15', 20)
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 680, 'Number of Games released:')
+        canvas_obj.drawString(50, 660, 'Number of Games released:')
         canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        canvas_obj.drawString(50, 660, f'{sum.total_num_games_released()}')
+        canvas_obj.drawString(50, 640, f'{sum.total_num_games_released()}')
 
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 640, 'Number of Unique Games released:')
+        canvas_obj.drawString(50, 610, 'Number of Unique Games released:')
         canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        canvas_obj.drawString(50, 620, f'{sum.num_games_unique_released()}')
+        canvas_obj.drawString(50, 590, f'{sum.num_games_unique_released()}')
 
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 600, 'Average Price:')
+        canvas_obj.drawString(50, 560, 'Average Price:')
         canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        canvas_obj.drawString(50, 580, f'£ {sum.average_price()}')
+        canvas_obj.drawString(50, 540, f'£ {sum.average_price()}')
 
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 560, 'Top 5 Tags:')
+        canvas_obj.drawString(50, 440, 'Top 5 Tags:')
         canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        x = 540
+        x = 420
         for tag in sum.top_five_tags():
             canvas_obj.drawString(50, x, f'- {tag}')
             x -= 20
 
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 420, 'Top Platform:')
+        canvas_obj.drawString(50, 300, 'Top Platform:')
         canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        canvas_obj.drawString(50, 400, f'{sum.top_platform()}')
+        canvas_obj.drawString(50, 280, f'{sum.top_platform()}')
 
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 380, 'Average Rating:')
+        canvas_obj.drawString(50, 510, 'Average Rating:')
         canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        canvas_obj.drawString(50, 360, f'{sum.average_rating()}%')
-
+        canvas_obj.drawString(50, 490, f'{sum.average_rating()}%')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
 
-        canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/tags_pie_chart_sum.png',
-                             x=20, y=155, width=280, height=180)
-        canvas_obj.drawString(270, 200, 'Top 3 Developers:')
-        x = 180
+        canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/tags_wordcloud.png',
+                             x=300, y=280, width=280, height=180)
+        canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/pie_chart_sum.png',
+                             x=320, y=10, width=280, height=200)
+        canvas_obj.drawString(50, 250, 'Top 3 Developers:')
+        x = 230
         canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
         for developer in sum.top_three_developers():
-            canvas_obj.drawString(270, x, f'- {developer}')
+            canvas_obj.drawString(50, x, f'- {developer}')
             x -= 20
-        x = 100
+
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 120, 'Top 3 Publishers:')
+        canvas_obj.drawString(50, 160, 'Top 3 Publishers:')
         canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        x = 140
         for publisher in sum.top_three_publishers():
             canvas_obj.drawString(50, x, f'- {publisher}')
             x -= 20
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(270, 100, 'Sources:')
-        x = 80
-        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        for source in sum.get_website_names():
-            canvas_obj.drawString(270, x, f'- {source}')
-            x -= 20
 
         canvas_obj.drawImage(
-            f'{self.config["STORAGE_FOLDER"]}/chart_sum.png', x=350, y=450)
-        canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/pie_chart_sum.png',
-                             x=320, y=230, width=280, height=180)
+            f'{self.config["STORAGE_FOLDER"]}/chart_sum.png', x=350, y=470)
         canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
         canvas_obj.drawString(300, 20, f'{canvas_obj.getPageNumber()}')
 
     def individual_summary(self, canvas_obj, website_stats_retriever: StatsRetriever, website_id: int, name: str):
         """Creates individual report text for a website source."""
-        website_stats_retriever.tag_game_ratio()
+        website_stats_retriever.num_games_per_website()
         website_stats_retriever.num_games_over_week()
+        website_stats_retriever.get_word_cloud()
         canvas_obj.setFont('jersey_15', 30)
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(100, 750, f'GameScraper Weekly Report - {name}')
+        canvas_obj.drawString(100, 750, 'GameScraper Weekly Report')
         canvas_obj.drawImage('game_scraper_logo.png',
-                             x=520, y=735, width=50, height=50)
-
+                             x=430, y=735, width=50, height=50)
+        canvas_obj.setFont('jersey_15', 20)
+        canvas_obj.drawString(50, 715, f'Summary - {name}')
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawString(50, 695, f'Date: {str(datetime.now().date())}')
         canvas_obj.setFont('jersey_15', 20)
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 680, 'Number of Games released:')
+        canvas_obj.drawString(50, 660, 'Number of Games released:')
         canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
         canvas_obj.drawString(
-            50, 660, f'{website_stats_retriever.total_num_games_released()}')
+            50, 640, f'{website_stats_retriever.total_num_games_released()}')
 
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 640, 'Average Price:')
+        canvas_obj.drawString(50, 600, 'Average Price:')
         canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
         canvas_obj.drawString(
-            50, 620, f'£ {website_stats_retriever.average_price()}')
+            50, 580, f'£ {website_stats_retriever.average_price()}')
 
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 580, 'Top 5 Tags:')
+        canvas_obj.drawString(50, 480, 'Top 5 Tags:')
         canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        x = 560
+        x = 460
         for tag in website_stats_retriever.top_five_tags():
             canvas_obj.drawString(50, x, f'- {tag}')
             x -= 20
 
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 440, 'Top Platform:')
+        canvas_obj.drawString(50, 350, 'Top Platform:')
         canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
         canvas_obj.drawString(
-            50, 420, f'{website_stats_retriever.top_platform()}')
+            50, 320, f'{website_stats_retriever.top_platform()}')
 
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 380, 'Average Rating:')
+        canvas_obj.drawString(50, 540, 'Average Rating:')
         canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
         canvas_obj.drawString(
-            50, 360, f'{website_stats_retriever.average_rating()}')
+            50, 520, f'{website_stats_retriever.average_rating()}%')
 
-        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-
+        canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/tags_{website_id}_wordcloud.png',
+                             x=300, y=280, width=280, height=180)
         canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/tags_pie_chart_{website_id}.png',
-                             x=300, y=240, width=280, height=180)
-        x = 300
+                             x=320, y=20, width=280, height=200)
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 320, 'Top 3 Publishers:')
-        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        for publisher in website_stats_retriever.top_three_publishers():
-            canvas_obj.drawString(50, x, f'- {publisher}')
-            x -= 20
-        canvas_obj.drawImage(
-            f'{self.config["STORAGE_FOLDER"]}/chart_{website_id}.png', x=350, y=450)
-        x = 160
-        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 200, 'Top 3 Developers:')
-        x = 180
+        canvas_obj.drawString(50, 280, 'Top 3 Developers:')
+        x = 260
         canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
         for developer in website_stats_retriever.top_three_developers():
             canvas_obj.drawString(50, x, f'- {developer}')
             x -= 20
-        canvas_obj.setFillColorRGB(0.6, 0.70, 30.0)
+
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawString(50, 180, 'Top 3 Publishers:')
+        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        x = 160
+        for publisher in website_stats_retriever.top_three_publishers():
+            canvas_obj.drawString(50, x, f'- {publisher}')
+            x -= 20
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+
+        canvas_obj.drawImage(
+            f'{self.config["STORAGE_FOLDER"]}/chart_{website_id}.png', x=350, y=470)
+        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
         canvas_obj.drawString(300, 20, f'{canvas_obj.getPageNumber()}')
 
     def generate_report(self):
+        """This function is responsible in generating a 
+        PDF report and saving it to a chosen folder."""
         sum = StatsRetriever(self.config)
         steam = StatsRetriever(self.config, (1,))
         gog = StatsRetriever(self.config, (2,))
@@ -390,6 +444,10 @@ class ReportMaker():
         c.drawString(100, 750, 'GameScraper Weekly Report')
         c.drawImage('game_scraper_logo.png',
                     x=430, y=735, width=50, height=50)
+        c.setFont('jersey_15', 20)
+        c.drawString(50, 715, 'Summary')
+        c.setFillColorRGB(0.6, 0.50, 30.0)
+        c.drawString(50, 695, f'Date: {str(datetime.now().date())}')
         self.generate_summary_text(c, sum)
         c.showPage()
         # Individual reports
@@ -405,7 +463,7 @@ class ReportMaker():
 
 
 class Alerter():
-    """This class is responsible for the functionality 
+    """This class is responsible for the functionality
     required to email the report out."""
 
     def __init__(self, config) -> None:
@@ -475,6 +533,7 @@ def handler(event: dict = None, context: dict = None) -> dict:
 
 
 if __name__ == "__main__":
+    load_dotenv()
     report_maker_obj = ReportMaker(os.environ)
     report_maker_obj.generate_report()
     emailer_obj = Alerter(os.environ)
