@@ -63,3 +63,5 @@ JavaScript warning: https://store.cloudflare.steamstatic.com/public/shared/javas
 CAppearMonitor.prototype.CheckVisibilityInternal@https://store.cloudflare.steamstatic.com/public/shared/javascript/shared_global.js?v=wJD9maDpDcVL&l=english&_cdn=cloudflare:4941:60
 
 JavaScript error: resource:///modules/sessionstore/SessionStore.sys.mjs, line 3773: TypeError: this._windows[aWindow.__SSi] is undefined
+1714663404306	addons.xpi	ERROR	System addon update list error SyntaxError: XMLHttpRequest.open: 'http://%(server)s/dummy-system-addons.xml' is not a valid URL.
+1714663515891	addons.xpi	ERROR	System addon update list error SyntaxError: XMLHttpRequest.open: 'http://%(server)s/dummy-system-addons.xml' is not a valid URL.
