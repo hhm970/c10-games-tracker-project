@@ -361,7 +361,7 @@ if __name__ == "__main__":
     st.altair_chart(p_chart, use_container_width=True)
     st.subheader("This Week's Top 20 Games")
     top_twenty_games = top_twenty_games.rename(
-        columns={'name': 'Name', 'price': 'Price', 'developer_name': 'Developer Name', 'publisher_name': 'Publisher'})
+        columns={'name': 'Name', 'price': 'Price', 'developer_name': 'Developer Name', 'publisher_name': 'Publisher', 'website_name': 'Website'})
     st.write(top_twenty_games)
 
     col1, col2 = st.columns(2)
