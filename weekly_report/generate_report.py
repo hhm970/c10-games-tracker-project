@@ -4,7 +4,6 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
-from dotenv import load_dotenv
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
@@ -16,6 +15,7 @@ from wordcloud import WordCloud
 import altair as alt
 import pandas as pd
 import boto3
+from dotenv import load_dotenv
 
 
 class StatsRetriever():
@@ -297,70 +297,74 @@ class ReportMaker():
         sum.num_games_over_week()
         sum.get_word_cloud()
         canvas_obj.setFont('jersey_15', 20)
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(50, 670, 'Number of Games released:')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 660, 'Number of Games released:')
-        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        canvas_obj.drawString(50, 640, f'{sum.total_num_games_released()}')
+        canvas_obj.drawString(50, 650, f'{sum.total_num_games_released()}')
 
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(50, 620, 'Number of Unique Games released:')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 610, 'Number of Unique Games released:')
-        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        canvas_obj.drawString(50, 590, f'{sum.num_games_unique_released()}')
+        canvas_obj.drawString(50, 600, f'{sum.num_games_unique_released()}')
 
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(50, 570, 'Average Price:')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 560, 'Average Price:')
-        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        canvas_obj.drawString(50, 540, f'£ {sum.average_price()}')
+        canvas_obj.drawString(50, 550, f'£ {sum.average_price()}')
 
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(50, 520, 'Average Rating:')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 440, 'Top 5 Tags:')
-        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        x = 420
+        canvas_obj.drawString(50, 500, f'{sum.average_rating()}%')
+
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(50, 470, 'Top 5 Tags:')
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        x = 450
         for tag in sum.top_five_tags():
             canvas_obj.drawString(50, x, f'- {tag}')
             x -= 20
 
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(50, 340, 'Top Platform:')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 300, 'Top Platform:')
-        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        canvas_obj.drawString(50, 280, f'{sum.top_platform()}')
+        canvas_obj.drawString(50, 320, f'{sum.top_platform()}')
 
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+
+        canvas_obj.drawString(50, 290, 'Top 3 Developers:')
+        x = 270
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 510, 'Average Rating:')
-        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        canvas_obj.drawString(50, 490, f'{sum.average_rating()}%')
+        for developer in sum.top_three_developers():
+            canvas_obj.drawString(50, x, f'- {developer}')
+            x -= 20
+
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(50, 200, 'Top 3 Publishers:')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        x = 180
+        for publisher in sum.top_three_publishers():
+            canvas_obj.drawString(50, x, f'- {publisher}')
+            x -= 20
 
         canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/tags_wordcloud.png',
                              x=300, y=280, width=280, height=180)
         canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/pie_chart_sum.png',
                              x=320, y=10, width=280, height=200)
-        canvas_obj.drawString(50, 250, 'Top 3 Developers:')
-        x = 230
-        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        for developer in sum.top_three_developers():
-            canvas_obj.drawString(50, x, f'- {developer}')
-            x -= 20
-
-        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 160, 'Top 3 Publishers:')
-        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        x = 140
-        for publisher in sum.top_three_publishers():
-            canvas_obj.drawString(50, x, f'- {publisher}')
-            x -= 20
-        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
 
         canvas_obj.drawImage(
             f'{self.config["STORAGE_FOLDER"]}/chart_sum.png', x=350, y=470)
-        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
         canvas_obj.drawString(300, 20, f'{canvas_obj.getPageNumber()}')
 
     def individual_summary(self, canvas_obj, website_stats_retriever: StatsRetriever, website_id: int, name: str):
         """Creates individual report text for a website source."""
+        website_stats_retriever.tag_game_ratio()
         website_stats_retriever.num_games_per_website()
         website_stats_retriever.num_games_over_week()
         website_stats_retriever.get_word_cloud()
+
         canvas_obj.setFont('jersey_15', 30)
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
         canvas_obj.drawString(100, 750, 'GameScraper Weekly Report')
@@ -371,62 +375,62 @@ class ReportMaker():
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
         canvas_obj.drawString(50, 695, f'Date: {str(datetime.now().date())}')
         canvas_obj.setFont('jersey_15', 20)
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(50, 670, 'Number of Games released:')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 660, 'Number of Games released:')
-        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
         canvas_obj.drawString(
-            50, 640, f'{website_stats_retriever.total_num_games_released()}')
+            50, 650, f'{website_stats_retriever.total_num_games_released()}')
 
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(50, 620, 'Average Price:')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 600, 'Average Price:')
-        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
         canvas_obj.drawString(
-            50, 580, f'£ {website_stats_retriever.average_price()}')
+            50, 600, f'£ {website_stats_retriever.average_price()}')
 
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(50, 570, 'Average Rating:')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 480, 'Top 5 Tags:')
-        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        x = 460
+        canvas_obj.drawString(
+            50, 550, f'{website_stats_retriever.average_rating()}%')
+
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(50, 520, 'Top 5 Tags:')
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        x = 500
         for tag in website_stats_retriever.top_five_tags():
             canvas_obj.drawString(50, x, f'- {tag}')
             x -= 20
 
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(50, 390, 'Top Platform:')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 350, 'Top Platform:')
-        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
         canvas_obj.drawString(
-            50, 320, f'{website_stats_retriever.top_platform()}')
+            50, 370, f'{website_stats_retriever.top_platform()}')
 
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(50, 340, 'Top 3 Developers:')
+        x = 320
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 540, 'Average Rating:')
-        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        canvas_obj.drawString(
-            50, 520, f'{website_stats_retriever.average_rating()}%')
+        for developer in website_stats_retriever.top_three_developers():
+            canvas_obj.drawString(50, x, f'- {developer}')
+            x -= 20
+
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(50, 250, 'Top 3 Publishers:')
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        x = 230
+        for publisher in website_stats_retriever.top_three_publishers():
+            canvas_obj.drawString(50, x, f'- {publisher}')
+            x -= 20
+
+        canvas_obj.drawImage(
+            f'{self.config["STORAGE_FOLDER"]}/chart_{website_id}.png', x=350, y=470)
 
         canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/tags_{website_id}_wordcloud.png',
                              x=300, y=280, width=280, height=180)
         canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/tags_pie_chart_{website_id}.png',
                              x=320, y=20, width=280, height=200)
-        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 280, 'Top 3 Developers:')
-        x = 260
-        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        for developer in website_stats_retriever.top_three_developers():
-            canvas_obj.drawString(50, x, f'- {developer}')
-            x -= 20
-
-        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 180, 'Top 3 Publishers:')
-        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
-        x = 160
-        for publisher in website_stats_retriever.top_three_publishers():
-            canvas_obj.drawString(50, x, f'- {publisher}')
-            x -= 20
-        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-
-        canvas_obj.drawImage(
-            f'{self.config["STORAGE_FOLDER"]}/chart_{website_id}.png', x=350, y=470)
-        canvas_obj.setFillColorRGB(0.6, 0.70, 35.0)
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
         canvas_obj.drawString(300, 20, f'{canvas_obj.getPageNumber()}')
 
     def generate_report(self):
@@ -538,4 +542,4 @@ if __name__ == "__main__":
     report_maker_obj.generate_report()
     emailer_obj = Alerter(os.environ)
     subscribers = emailer_obj.get_subscription_emails()
-    emailer_obj.send_email(subscribers)
+    # emailer_obj.send_email(subscribers)
