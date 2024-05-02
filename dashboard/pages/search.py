@@ -5,9 +5,6 @@ from os import environ as ENV
 import streamlit as st
 from dotenv import load_dotenv
 
-
-from psycopg2 import connect
-from psycopg2.extras import RealDictCursor
 from psycopg2.extensions import connection
 from rapidfuzz.distance import DamerauLevenshtein
 from rapidfuzz.process import extractOne
@@ -20,7 +17,7 @@ def get_name_list(conn: connection) -> list:
     """Returns list of names of all games in the DB."""
 
     with conn.cursor() as cur:
-        cur.execute(f""" SELECT name
+        cur.execute(""" SELECT name
                     FROM game;""")
         games = cur.fetchall()
 
@@ -99,16 +96,16 @@ if __name__ == "__main__":
             if not search:
                 st.write("Please Enter A Game To Search")
             else:
-                conn = get_db_connection(ENV)
+                conn_ = get_db_connection(ENV)
 
-                result = show_result(search, conn)
-                if result != "Game not found":
-                    details = get_all_game_details(result, conn)
+                result_ = show_result(search, conn_)
+                if result_ != "Game not found":
+                    details = get_all_game_details(result_, conn_)
 
-                    conn.close()
+                    conn_.close()
                     st.title("Search Result")
                     st.write("---")
-                    st.subheader(f"Game Found: {result}")
+                    st.subheader(f"Game Found: {result_}")
                     st.text(f"Game Title: {details['game_details']['name']}")
                     st.write(
                         f"Description: {details['game_details']['description']}")
@@ -121,10 +118,10 @@ if __name__ == "__main__":
                     st.text(
                         f"Release Date: {details['game_details']['release_date'].strftime('%d/%m/%Y')}")
                     st.text(
-                        f"Platforms Available: ")
+                        "Platforms Available: ")
                     if details['game_details']['website_id'] == 1:
                         st.text(
-                            f"Steam - https://store.steampowered.com/")
+                            "Steam - https://store.steampowered.com/")
                     elif details['game_details']['website_id'] == 2:
                         st.write("Good Old Games - https://www.gog.com/en/")
                     elif details['game_details']['website_id'] == 3:
