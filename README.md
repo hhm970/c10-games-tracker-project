@@ -78,6 +78,10 @@ root: Contains the following files:
 - `weekly_report`: contains code and resources related to the report generation and distribution.
 
 
+> [!NOTE]  
+> Our storage system for the emails inputted when subscribing to weekly newsletters is not secure. Please do not actually input your email here.
+
+
 ## ERD
 ![ERD Diagram](<diagrams/ERD diagram.png>)
 
