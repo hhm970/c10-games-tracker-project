@@ -160,7 +160,6 @@ def grab_all_games_details(all_web_containers: BeautifulSoup) -> list[list]:
         name_price_date_list.append(name_price_date_list[1])
         name_price_date_list[1] = description
         final_list.append(name_price_date_list + detail_list)
-        print((name_price_date_list + detail_list))
         sleep(0.5)
 
     return final_list
@@ -172,25 +171,6 @@ def handler(event: dict = None, context=None) -> list[list]:
     cookies = {
         "timezoneOffset": "3600,0"
     }
-    browser = webdriver.Firefox()
-    browser.get(ENV["STEAM_BASE_URL"], timeout=10, cookies=cookies)
-
-    for i in range(9):
-        browser.execute_script(
-            "window.scrollTo(0, document.body.scrollHeight);")
-
-        sleep(1)
-
-    content = browser.execute_script("return document.body.innerHTML;")
-    soup = BeautifulSoup(content, features="html.parser")
-
-    with open("steam.html", 'w') as f:
-        f.write(str(soup))
-
-    browser.quit()
-
-
-
     res = req.get(ENV["STEAM_BASE_URL"], timeout=10, cookies=cookies)
     soup = BeautifulSoup(res.text, features="html.parser")
     all_containers = soup.find_all(
@@ -200,8 +180,4 @@ def handler(event: dict = None, context=None) -> list[list]:
 
 
 if __name__ == "__main__":
-    load_dotenv()
-
-    
-
-    print(handler())
+    pass
