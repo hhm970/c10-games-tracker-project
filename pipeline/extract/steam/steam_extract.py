@@ -7,8 +7,7 @@ from time import sleep
 from dotenv import load_dotenv
 import requests as req
 from bs4 import BeautifulSoup
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver import Firefox, FirefoxProfile
+from selenium import webdriver
 
 
 def get_rating(game_soup: BeautifulSoup) -> float:
@@ -171,38 +170,28 @@ def grab_all_games_details(all_web_containers: BeautifulSoup) -> list[list]:
 def handler(event: dict = None, context=None) -> list[list]:
     """Collects the required data for each game and then returns a
     list of lists of this data."""
-    cookies = {
-        "timezoneOffset": "3600,0"
-    }
+
     cookies = {"name": "timezoneOffset", "value": "3600,0"
                }
 
     browser = webdriver.Firefox()
-    browser.get(ENV["STEAM_BASE_URL"], timeout=10, cookies=cookies)
-    browser.set_page_load_timeout(10)
     browser.get(ENV["STEAM_BASE_URL"])
+    browser.set_page_load_timeout(10)
     browser.add_cookie(cookies)
 
     for i in range(9):
         browser.execute_script(
             "window.scrollTo(0, document.body.scrollHeight);")
-
-        sleep(1)
         sleep(0.5)
 
     content = browser.execute_script("return document.body.innerHTML;")
     soup = BeautifulSoup(content, features="html.parser")
-
-    with open("steam.html", 'w') as f:
-        f.write(str(soup))
-
     browser.quit()
-
-    res = req.get(ENV["STEAM_BASE_URL"], timeout=10, cookies=cookies)
-    soup = BeautifulSoup(res.text, features="html.parser")
     all_containers = soup.find_all(
         'a', class_="search_result_row")
+    return grab_all_games_details(all_containers)
 
 
 if __name__ == "__main__":
-    pass
+    load_dotenv()
+    print(handler())
