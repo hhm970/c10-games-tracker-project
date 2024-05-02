@@ -7,7 +7,6 @@ from time import sleep
 from dotenv import load_dotenv
 import requests as req
 from bs4 import BeautifulSoup
-from selenium import webdriver
 
 
 def get_rating(game_soup: BeautifulSoup) -> float:
@@ -151,7 +150,7 @@ def grab_all_games_details(all_web_containers: BeautifulSoup) -> list[list]:
         game_date = datetime.strptime(
             name_price_date_list[-1], "%d %b, %Y").date()
         name_price_date_list.pop(-1)
-        if game_date < (datetime.today() - timedelta(days=7)).date():
+        if game_date < date.today():
             break
         game_url = container['href']
 
