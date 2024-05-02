@@ -46,7 +46,8 @@ class StatsRetriever():
             cur.execute("""SELECT count(distinct g.name)
                             FROM game AS g
                             WHERE release_date >= CURRENT_DATE - INTERVAL '7 days'
-                            AND release_date <= CURRENT_DATE AND g.website_id IN %s;""", (self.website_ids,))
+                            AND release_date <= CURRENT_DATE 
+                        AND g.website_id IN %s;""", (self.website_ids,))
 
             num_games = cur.fetchone()['count']
             return num_games
@@ -244,36 +245,42 @@ class StatsRetriever():
                 website_list.append(websites[x]['website_name'])
             return website_list
 
-    def get_word_cloud(self):
-        """Creates a word cloud based on the tags of each website."""
+    def get_tags_word_count(self):
+        """Returns the result of a sql query which returns tags and the
+          number of times it occurs in set of website ids.."""
         with self.conn.cursor() as cur:
             cur.execute("""SELECT t.tag_name, count(*) from tag AS t INNER JOIN game_tag_matching AS gt ON(t.tag_id=gt.tag_id) WHERE gt.game_id IN
                         (SELECT game_id from game AS g WHERE g.release_date >= CURRENT_DATE - INTERVAL '7 days'
                         AND g.release_date <= CURRENT_DATE AND g.website_id IN %s) GROUP BY t.tag_name ORDER BY count(*) DESC;
                         """, (self.website_ids,))
-            tags = cur.fetchall()
-            tag_list = []
-            res = {}
-            word_counts = []
-            for x in range(len(tags)):
-                tag_list.append(tags[x]['tag_name'])
-                word_counts.append(tags[x]['count'])
-            for key in tag_list:
-                for value in word_counts:
-                    res[key] = value
-            fog_machine = WordCloud(
-                background_color='#FFFFFF', colormap="cool")
-            fog_machine.generate_from_frequencies(res)
-            fog_machine.to_image()
-            if len(self.website_ids) == 3:
-                fog_machine.to_file(
-                    f'{self.config["STORAGE_FOLDER"]}/tags_sum_wordcloud.png')
-            elif len(self.website_ids) == 2:
-                fog_machine.to_file(
-                    f'{self.config["STORAGE_FOLDER"]}/tags_{self.website_ids[0]}_{self.website_ids[1]}_wordcloud.png')
-            else:
-                fog_machine.to_file(
-                    f'{self.config["STORAGE_FOLDER"]}/tags_{self.website_ids[0]}_wordcloud.png')
+            tags_word_count = cur.fetchall()
+            return tags_word_count
+
+    def get_word_cloud(self):
+        """Creates a word cloud based on the tags of each website."""
+        tags_word_count = self.get_tags_word_count()
+        tag_list = [tags_word_count[x]['tag_name']
+                    for x in range(len(tags_word_count))]
+        word_counts = [tags_word_count[x]['count']
+                       for x in range(len(tags_word_count))]
+
+        res = {tag_list[i]: word_counts[i] for i in range(len(tag_list))}
+
+        fog_machine = WordCloud(
+            background_color='#FFFFFF', colormap="cool")
+        fog_machine.generate_from_frequencies(res)
+        fog_machine.to_image()
+
+        # saving image to file
+        if len(self.website_ids) == 3:
+            fog_machine.to_file(
+                f'{self.config["STORAGE_FOLDER"]}/tags_sum_wordcloud.png')
+        elif len(self.website_ids) == 2:
+            fog_machine.to_file(
+                f'{self.config["STORAGE_FOLDER"]}/tags_{self.website_ids[0]}_{self.website_ids[1]}_wordcloud.png')
+        else:
+            fog_machine.to_file(
+                f'{self.config["STORAGE_FOLDER"]}/tags_{self.website_ids[0]}_wordcloud.png')
 
 
 class ReportMaker():
@@ -423,6 +430,8 @@ class ReportMaker():
         canvas_obj.drawString(300, 20, f'{canvas_obj.getPageNumber()}')
 
     def generate_report(self):
+        """This function is responsible in generating a 
+        PDF report and saving it to a chosen folder."""
         sum = StatsRetriever(self.config)
         steam = StatsRetriever(self.config, (1,))
         gog = StatsRetriever(self.config, (2,))
