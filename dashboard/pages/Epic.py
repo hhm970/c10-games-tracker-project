@@ -128,7 +128,8 @@ if __name__ == "__main__":
             st.metric("Average price of new releases:",
                       f'£{avg_price:.2f}'.format(avg_price))
         st.subheader("This Weeks Top Ten Games")
-        st.write(top_ten_games)
+        st.write(top_ten_games.rename(
+            columns={'name': 'Name', 'price': 'Price', 'developer_name': 'Developer Name', 'publisher_name': 'Publisher', 'rating': 'Rating'}))
 
         col1, col2 = st.columns(2)
         with col1:

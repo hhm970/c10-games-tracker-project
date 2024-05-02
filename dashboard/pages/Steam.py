@@ -136,7 +136,8 @@ if __name__ == "__main__":
     r_chart = rating_chart(new_rating_df)
 
     st.subheader("This Week's Top Ten Games")
-    st.write(top_ten_games)
+    st.write(top_ten_games.rename(
+        columns={'name': 'Name', 'price': 'Price', 'developer_name': 'Developer Name', 'publisher_name': 'Publisher', 'rating': 'Rating'}))
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("Average Price Per Day")
