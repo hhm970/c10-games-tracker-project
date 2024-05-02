@@ -3,8 +3,6 @@
 from os import environ as ENV
 import streamlit as st
 from dotenv import load_dotenv
-import spacy
-import xml.etree.ElementTree as ET
 
 
 from psycopg2 import connect

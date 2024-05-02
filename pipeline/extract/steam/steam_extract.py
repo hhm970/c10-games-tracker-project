@@ -193,5 +193,4 @@ def handler(event: dict = None, context=None) -> list[list]:
 
 
 if __name__ == "__main__":
-    load_dotenv()
-    print(handler())
+    pass
