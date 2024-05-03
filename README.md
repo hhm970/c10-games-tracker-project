@@ -1,14 +1,20 @@
-# Games Tracker Project
+# Games Tracker Project 👾
 ## Description
-> This Project is responsible for helping users to keep up with the latest game releases as well as understand the latest gaming trends.
+**This Project is responsible for helping users to keep up with the latest game releases as well as understand the latest gaming trends.**
 
-New PC games are released every day on different platforms; it’s hard to keep up with new releases, and it’s even harder to understand the trends in gaming. We aim to create a data pipeline that tracks new new releases on major PC platforms. We will also produce a dashboard with key metrics and graphs for comparisons between different websites. Furthermore we will also send email notifications to our subscribers- weekly PDF reports and daily notifications about new releases that day.   
+>New PC games are released every day on different platforms; it’s hard to keep up with new releases, and it’s even harder to understand the trends in gaming. We aim to create a data pipeline that tracks new new releases on major PC platforms. We will also produce a dashboard with key metrics and graphs for comparisons between different websites. Furthermore we will also send email notifications to our subscribers- weekly PDF reports and daily notifications about new releases that day.   
 
+## Data Sources
+- `Epic Games` - GraphQL API
+- `GOG` - Webscraping
+- `Steam` - Webscraping
 
-## Stakeholder Requirements
-- `Gamers` - know what the latest game releases are.
+## Users
+- `Gamers` - Know what the latest game releases are.
 
-- `Developers`- understand the market more effectively.
+- `Developers`- Understand the market more effectively and produce games which align with current market trends.
+
+- `Retailers` - Understand latest market trends - use knowledge to know what games to push/recommend to users.
 
 ## Requirements
 
@@ -73,7 +79,7 @@ root: Contains the following files:
 
 - `database`: contains code and resources related to the RDS database.
 
-- `diagrams`: Contains images required for this file.
+- `diagrams`: Contains images related to this project.
 
 - `weekly_report`: contains code and resources related to the report generation and distribution.
 
@@ -92,7 +98,7 @@ root: Contains the following files:
 
 
 ## Maintainers
-
+### The GameScraper Team 🚀
 * [hhm970](https://github.com/hhm970)
 * [annalisev](https://github.com/annalisev)
 * [EIbironke](https://github.com/EIbironke)
