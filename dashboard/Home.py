@@ -159,13 +159,16 @@ def metrics_top_twenty(conn_: connection) -> pd.DataFrame:
     this_week_list = get_week_list()
 
     with conn_.cursor() as cur:
-        cur.execute(f"""SELECT g.name, g.rating, g.price, d.developer_name, p.publisher_name
+        cur.execute(f"""SELECT g.name, g.rating, g.price, d.developer_name, p.publisher_name, w.website_name
                     FROM game as g
                     JOIN developer as d
                     ON g.developer_id = d.developer_id
                     JOIN publisher as p
                     on g.publisher_id = p.publisher_id
+                    JOIN website as w
+                    on g.website_id = w.website_id
                     WHERE g.release_date in {this_week_list}
+                    AND g.rating IS NOT NULL
                     ORDER BY rating DESC LIMIT 20;""")
         tags_ = cur.fetchall()
 
@@ -239,6 +242,7 @@ if __name__ == "__main__":
 
     top_twenty_games = metrics_top_twenty(conn).set_index(
         pd.Index([str(i) for i in range(1, 21)]))
+
     tag_df = metrics_for_graphs_tags(conn)
     tags = tag_df["tag_name"].to_list()
 
@@ -325,8 +329,11 @@ if __name__ == "__main__":
         st.page_link("pages/Epic.py")
         st.page_link("pages/GOG.py")
         st.page_link("pages/Steam.py")
+        st.page_link("pages/Search.py")
+        st.write("---")
         st.page_link("pages/Daily_Notifications.py")
-        st.page_link("pages/Weekly_Newsletter.py")
+        st.page_link("pages/Weekly_Report.py")
+        st.write("---")
 
         st.title("Filtering")
 
@@ -357,6 +364,8 @@ if __name__ == "__main__":
     st.subheader("Average Price Per Day",)
     st.altair_chart(p_chart, use_container_width=True)
     st.subheader("This Week's Top 20 Games")
+    top_twenty_games = top_twenty_games.rename(
+        columns={'name': 'Name', 'price': 'Price', 'developer_name': 'Developer Name', 'publisher_name': 'Publisher', 'website_name': 'Website'})
     st.write(top_twenty_games)
 
     col1, col2 = st.columns(2)

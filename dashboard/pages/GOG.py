@@ -47,6 +47,7 @@ if __name__ == "__main__":
     else:
         metric_df = metric_games_all(conn, 2)
         st.write('Metrics For All Data:')
+
     top_ten_games = metrics_top_ten(conn, 2)
     tag_df = metrics_for_graphs_tags(conn, 2)
     tags = tag_df["tag_name"].to_list()
@@ -56,10 +57,14 @@ if __name__ == "__main__":
         avg_rating = metric_df['rating'].mean()
         avg_price = metric_df['price'].mean()
 
-        if on:
+        if on and not delta.empty:
             no_games_delta = delta['name'].nunique()
             avg_rating_delta = delta['rating'].mean()
             avg_price_delta = delta['price'].mean()
+        else:
+            no_games_delta = 0
+            avg_rating_delta = 0
+            avg_price_delta = 0
     else:
         no_games = 0
         avg_rating = 0
@@ -108,8 +113,12 @@ if __name__ == "__main__":
         st.page_link("pages/Epic.py")
         st.page_link("pages/GOG.py")
         st.page_link("pages/Steam.py")
+        st.page_link("pages/Search.py")
+        st.write("---")
         st.page_link("pages/Daily_Notifications.py")
-        st.page_link("pages/Weekly_Newsletter.py")
+        st.page_link("pages/Weekly_Report.py")
+        st.write("---")
+
         st.title("Filtering")
 
         creator_options = tags
@@ -135,7 +144,8 @@ if __name__ == "__main__":
     r_chart = rating_chart(new_rating_df)
 
     st.subheader("This Week's Top Ten Games")
-    st.write(top_ten_games)
+    st.write(top_ten_games.rename(
+        columns={'name': 'Name', 'price': 'Price', 'developer_name': 'Developer Name', 'publisher_name': 'Publisher', 'rating': 'Rating'}))
 
     col1, col2 = st.columns(2)
     with col1:

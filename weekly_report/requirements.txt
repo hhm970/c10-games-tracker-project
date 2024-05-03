@@ -7,3 +7,4 @@ altair
 pandas
 vl-convert-python
 boto3
+wordcloud
