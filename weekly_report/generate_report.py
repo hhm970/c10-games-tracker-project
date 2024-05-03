@@ -353,6 +353,11 @@ class ReportMaker():
         website_stats_retriever.num_games_per_website()
         website_stats_retriever.num_games_over_week()
         website_stats_retriever.get_word_cloud()
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.setFont('jersey_15', 20)
+        canvas_obj.drawString(50, 715, f'Summary - {name}')
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawString(50, 695, f'Date: {str(datetime.now().date())}')
         canvas_obj.setFont('jersey_15', 30)
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
         canvas_obj.drawString(100, 750, 'GameScraper Weekly Report')
@@ -364,12 +369,6 @@ class ReportMaker():
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
         canvas_obj.drawString(
             50, 650, f'{website_stats_retriever.total_num_games_released()}')
-
-        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(300, 670, 'Number of Unique Games released:')
-        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(
-            300, 650, f'{website_stats_retriever.num_games_unique_released()}')
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
         canvas_obj.drawString(50, 620, 'Average Price:')
@@ -534,6 +533,7 @@ def handler(event: dict = None, context: dict = None) -> dict:
 
 
 if __name__ == "__main__":
+    load_dotenv()
     report_maker_obj = ReportMaker(os.environ)
     report_maker_obj.generate_report()
     emailer_obj = Alerter(os.environ)
