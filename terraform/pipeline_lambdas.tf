@@ -19,7 +19,6 @@ resource "aws_iam_role" "lambda-role" {
 
 
 
-#STEAM
 data "aws_ecr_repository" "lambda-ecr-repo-steam" {
   name = "c10-games-steam-scrape"
 }
@@ -45,7 +44,6 @@ resource "aws_lambda_function" "c10-games-terraform-pipeline-steam" {
 
 
 
-#GOG
 data "aws_ecr_repository" "lambda-ecr-repo-gog" {
   name = "c10-games-gog-scrape"
 }
@@ -71,7 +69,6 @@ resource "aws_lambda_function" "c10-games-terraform-pipeline-gog" {
 
 
 
-#EPIC
 data "aws_ecr_repository" "lambda-ecr-repo-epic" {
   name = "c10-games-epic-extract"
 }
@@ -96,7 +93,6 @@ resource "aws_lambda_function" "c10-games-terraform-pipeline-epic" {
 }
 
 
-#ALERT
 data "aws_ecr_repository" "lambda-ecr-repo-alert" {
   name = "c10-games-daily-alert"
 }
@@ -121,7 +117,6 @@ resource "aws_lambda_function" "c10-games-terraform-alert" {
     timeout = 10
 }
 
-#LOAD
 data "aws_ecr_repository" "lambda-ecr-repo-load" {
   name = "c10-games-db-load"
 }
