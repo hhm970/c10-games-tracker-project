@@ -9,7 +9,7 @@ resource "aws_scheduler_schedule" "c10-games-terraform-report" {
   schedule_expression = "cron(0 9 ? * 2 *)"
 
   target {
-    arn      = "arn:aws:lambda:eu-west-2:129033205317:function:c10-games-terraform-weekly-report"
-    role_arn = aws_iam_role.lambda-role.arn
+    arn      = aws_ecs_task_definition.weekly-report-task-def.arn
+    role_arn = data.aws_iam_role.ecs-task-role.arn
   }
 }

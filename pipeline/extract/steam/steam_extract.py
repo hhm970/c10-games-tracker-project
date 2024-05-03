@@ -1,7 +1,7 @@
 """Script to scrape relevant data from the epic games website."""
 
 from os import environ as ENV
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from time import sleep
 
 from dotenv import load_dotenv
@@ -159,7 +159,7 @@ def grab_all_games_details(all_web_containers: BeautifulSoup) -> list[list]:
         name_price_date_list.append(name_price_date_list[1])
         name_price_date_list[1] = description
         final_list.append(name_price_date_list + detail_list)
-        sleep(1)
+        sleep(0.5)
 
     return final_list
 

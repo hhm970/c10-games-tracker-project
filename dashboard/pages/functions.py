@@ -54,7 +54,7 @@ def filter_dates(data_df: pd.DataFrame, dates: list, col: str) -> pd.DataFrame:
 
 
 def metric_games_yest(conn_: connection, id: int) -> pd.DataFrame:
-    """Returns a Data-frame of all the games from the yesterday."""
+    """Returns a Data-frame of all the games from yesterday."""
 
     yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
 
@@ -68,7 +68,7 @@ def metric_games_yest(conn_: connection, id: int) -> pd.DataFrame:
 
 
 def metric_games_two_days(conn_: connection, id: int) -> pd.DataFrame:
-    """Returns a Data-frame of all the games from the yesterday."""
+    """Returns a Data-frame of all the games from two days ago."""
 
     yesterday = (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d')
 
@@ -156,6 +156,28 @@ def metrics_for_graphs_tags(conn_: connection, id: int) -> pd.DataFrame:
 
 
 def metrics_top_ten(conn_: connection, id: int) -> pd.DataFrame:
+    """Returns a Data-frame of top rated the games from the last week."""
+    w_list = (get_week_list())
+
+    with conn_.cursor() as cur:
+        cur.execute(f"""SELECT g.name, g.rating, g.price, d.developer_name, p.publisher_name
+    FROM game as g
+    JOIN developer as d
+    ON g.developer_id = d.developer_id
+    JOIN publisher as p
+    on g.publisher_id = p.publisher_id
+    WHERE g.website_id = '{id}' and g.release_date in {w_list}
+    AND g.rating IS NOT NULL
+    ORDER BY rating DESC LIMIT 10; """)
+        tags_ = cur.fetchall()
+
+        min_upper_bd = min(len(tags_) + 1, 11)
+
+    return pd.DataFrame(tags_).set_index(
+        pd.Index([str(i) for i in range(1, min_upper_bd)]))
+
+
+def metrics_top_ten_epic(conn_: connection, id: int) -> pd.DataFrame:
     """Returns a Data-frame of top rated the games from the last week."""
     w_list = (get_week_list())
 

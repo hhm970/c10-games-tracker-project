@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from pages.functions import (get_db_connection, get_week_list,
                              make_tag_chart, metric_games_yest,
                              metrics_for_graphs_count, metrics_for_graphs_price,
-                             metrics_for_graphs_tags, metrics_top_ten, count_chart, price_chart,
+                             metrics_for_graphs_tags, metrics_top_ten_epic, count_chart, price_chart,
                              filter_dates, filter_tags, metric_games_all,
                              metric_games_two_days)
 
@@ -19,7 +19,7 @@ if __name__ == "__main__":
     conn = get_db_connection(ENV)
     week_list = list(get_week_list())
 
-    top_ten_games = metrics_top_ten(conn, 3)
+    top_ten_games = metrics_top_ten_epic(conn, 3)
     top_ten_games = top_ten_games.drop('rating', axis=1)
     tag_df = metrics_for_graphs_tags(conn, 3)
 
@@ -54,9 +54,14 @@ if __name__ == "__main__":
         no_games = metric_df['name'].nunique()
 
         avg_price = metric_df['price'].mean()
-        if on:
+        if on and not delta.empty:
             no_games_delta = delta['name'].nunique()
             avg_price_delta = delta['price'].mean()
+
+        else:
+            no_games_delta = 0
+            avg_price_delta = 0
+
     else:
         no_games = 0
 
@@ -77,8 +82,12 @@ if __name__ == "__main__":
         st.page_link("pages/Epic.py")
         st.page_link("pages/GOG.py")
         st.page_link("pages/Steam.py")
+        st.page_link("pages/Search.py")
+        st.write("---")
         st.page_link("pages/Daily_Notifications.py")
-        st.page_link("pages/Weekly_Newsletter.py")
+        st.page_link("pages/Weekly_Report.py")
+        st.write("---")
+
         st.title("Filtering")
 
         creator_options = tags
