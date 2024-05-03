@@ -75,12 +75,12 @@ class StatsRetriever():
             games = pd.DataFrame(games)
             games['release_date'] = games['release_date'].astype(str)
 
-            chart = alt.Chart(games, title='Number of game releases per day').mark_bar(size=10).encode(
+            chart = alt.Chart(games, title='Number of game releases per day').mark_bar(size=30).encode(
                 x='release_date',
                 y='count',
             ).properties(
-                width=200,
-                height=150
+                width=800,
+                height=200
             ).configure_mark(
                 opacity=0.5,
                 color='blue'
@@ -141,20 +141,8 @@ class StatsRetriever():
                         """, (self.website_ids,))
             tags = cur.fetchall()
             tag_list = []
-            res = {}
-            word_counts = []
             for x in range(len(tags)):
                 tag_list.append(tags[x]['tag_name'])
-                word_counts.append(tags[x]['count'])
-            for key in tag_list:
-                for value in word_counts:
-                    res[key] = value
-            fog_machine = WordCloud(
-                background_color='#FFFFFF', colormap="cool")
-            fog_machine.generate_from_frequencies(res)
-            fog_machine.to_image()
-            fog_machine.to_file(
-                f'{self.config["STORAGE_FOLDER"]}/tags_wordcloud.png')
 
             return tag_list
 
@@ -170,6 +158,12 @@ class StatsRetriever():
             pie_chart = alt.Chart(tags, title='Tag-game ratio').mark_arc().encode(
                 theta="count",
                 color=alt.Color('tag_name', scale=alt.Scale(scheme='set2'))
+            ).properties(
+                width=200,
+                height=200
+            ).configure_legend(
+                titleFontSize=10,
+                labelFontSize=10
             )
             if len(self.website_ids) == 3:
                 pie_chart.save(
@@ -277,10 +271,10 @@ class StatsRetriever():
                 f'{self.config["STORAGE_FOLDER"]}/tags_sum_wordcloud.png')
         elif len(self.website_ids) == 2:
             fog_machine.to_file(
-                f'{self.config["STORAGE_FOLDER"]}/tags_{self.website_ids[0]}_{self.website_ids[1]}_wordcloud.png')
+                f'{self.config["STORAGE_FOLDER"]}/tags_wordcloud_{self.website_ids[0]}_{self.website_ids[1]}.png')
         else:
             fog_machine.to_file(
-                f'{self.config["STORAGE_FOLDER"]}/tags_{self.website_ids[0]}_wordcloud.png')
+                f'{self.config["STORAGE_FOLDER"]}/tags_wordcloud_{self.website_ids[0]}.png')
 
 
 class ReportMaker():
@@ -303,57 +297,52 @@ class ReportMaker():
         canvas_obj.drawString(50, 650, f'{sum.total_num_games_released()}')
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(50, 620, 'Number of Unique Games released:')
+        canvas_obj.drawString(300, 670, 'Number of Unique Games released:')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 600, f'{sum.num_games_unique_released()}')
+        canvas_obj.drawString(300, 650, f'{sum.num_games_unique_released()}')
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(50, 570, 'Average Price:')
+        canvas_obj.drawString(50, 620, 'Average Price:')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 550, f'£ {sum.average_price()}')
+        canvas_obj.drawString(50, 600, f'£ {sum.average_price()}')
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(50, 520, 'Average Rating:')
+        canvas_obj.drawString(210, 620, 'Average Rating:')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 500, f'{sum.average_rating()}%')
+        canvas_obj.drawString(225, 600, f'{sum.average_rating()}%')
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(50, 470, 'Top 5 Tags:')
+        canvas_obj.drawString(400, 620, 'Top Platform:')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        x = 450
-        for tag in sum.top_five_tags():
-            canvas_obj.drawString(50, x, f'- {tag}')
-            x -= 20
-
-        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(50, 340, 'Top Platform:')
-        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 320, f'{sum.top_platform()}')
+        canvas_obj.drawString(400, 600, f'{sum.top_platform()}')
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
 
-        canvas_obj.drawString(50, 290, 'Top 3 Developers:')
-        x = 270
+        canvas_obj.drawString(50, 350, 'Top 3 Developers:')
+        x = 330
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
         for developer in sum.top_three_developers():
             canvas_obj.drawString(50, x, f'- {developer}')
             x -= 20
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(50, 200, 'Top 3 Publishers:')
+        canvas_obj.drawString(400, 350, 'Top 3 Publishers:')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        x = 180
+        x = 330
         for publisher in sum.top_three_publishers():
-            canvas_obj.drawString(50, x, f'- {publisher}')
+            canvas_obj.drawString(400, x, f'- {publisher}')
             x -= 20
 
-        canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/tags_wordcloud.png',
-                             x=300, y=280, width=280, height=180)
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(50, 260, ' Top Tags:')
+
+        canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/tags_sum_wordcloud.png',
+                             x=50, y=130, width=175, height=112.5)
         canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/pie_chart_sum.png',
-                             x=320, y=10, width=280, height=200)
+                             x=320, y=50, width=280, height=200)
 
         canvas_obj.drawImage(
-            f'{self.config["STORAGE_FOLDER"]}/chart_sum.png', x=350, y=470)
+            f'{self.config["STORAGE_FOLDER"]}/chart_sum.png', x=75, y=380, width=450, height=200)
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
         canvas_obj.drawString(300, 20, f'{canvas_obj.getPageNumber()}')
@@ -364,16 +353,11 @@ class ReportMaker():
         website_stats_retriever.num_games_per_website()
         website_stats_retriever.num_games_over_week()
         website_stats_retriever.get_word_cloud()
-
         canvas_obj.setFont('jersey_15', 30)
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
         canvas_obj.drawString(100, 750, 'GameScraper Weekly Report')
         canvas_obj.drawImage('game_scraper_logo.png',
                              x=430, y=735, width=50, height=50)
-        canvas_obj.setFont('jersey_15', 20)
-        canvas_obj.drawString(50, 715, f'Summary - {name}')
-        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 695, f'Date: {str(datetime.now().date())}')
         canvas_obj.setFont('jersey_15', 20)
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
         canvas_obj.drawString(50, 670, 'Number of Games released:')
@@ -382,54 +366,67 @@ class ReportMaker():
             50, 650, f'{website_stats_retriever.total_num_games_released()}')
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(300, 670, 'Number of Unique Games released:')
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        canvas_obj.drawString(
+            300, 650, f'{website_stats_retriever.num_games_unique_released()}')
+
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
         canvas_obj.drawString(50, 620, 'Average Price:')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
         canvas_obj.drawString(
             50, 600, f'£ {website_stats_retriever.average_price()}')
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(50, 570, 'Average Rating:')
+        canvas_obj.drawString(210, 620, 'Average Rating:')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
         canvas_obj.drawString(
-            50, 550, f'{website_stats_retriever.average_rating()}%')
+            225, 600, f'{website_stats_retriever.average_rating()}%')
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(50, 520, 'Top 5 Tags:')
-        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        x = 500
-        for tag in website_stats_retriever.top_five_tags():
-            canvas_obj.drawString(50, x, f'- {tag}')
-            x -= 20
-
-        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(50, 390, 'Top Platform:')
+        canvas_obj.drawString(400, 620, 'Top Platform:')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
         canvas_obj.drawString(
-            50, 370, f'{website_stats_retriever.top_platform()}')
+            400, 600, f'{website_stats_retriever.top_platform()}')
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(50, 340, 'Top 3 Developers:')
-        x = 320
+
+        canvas_obj.drawString(50, 350, 'Top 3 Developers:')
+        x = 330
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
         for developer in website_stats_retriever.top_three_developers():
-            canvas_obj.drawString(50, x, f'- {developer}')
+            if developer != None:
+                if len(developer) > 21:
+                    canvas_obj.drawString(50, x, f'- {developer[0:20]}')
+                else:
+                    canvas_obj.drawString(50, x, f'- {developer}')
+                x -= 20
+
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(400, 350, 'Top 3 Publishers:')
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
+        x = 330
+        for publisher in website_stats_retriever.top_three_publishers():
+            if publisher != None:
+                if len(publisher) > 21:
+                    canvas_obj.drawString(400, x, f'- {publisher[0:21]}')
+                else:
+                    canvas_obj.drawString(400, x, f'- {publisher}')
             x -= 20
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(50, 250, 'Top 3 Publishers:')
-        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        x = 230
-        for publisher in website_stats_retriever.top_three_publishers():
-            canvas_obj.drawString(50, x, f'- {publisher}')
-            x -= 20
+        canvas_obj.drawString(50, 260, ' Top Tags:')
+
+        canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/tags_wordcloud_{website_id}.png',
+                             x=50, y=130, width=175, height=112.5)
+        canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/tags_pie_chart_{website_id}.png',
+                             x=320, y=50, width=250, height=200)
 
         canvas_obj.drawImage(
-            f'{self.config["STORAGE_FOLDER"]}/chart_{website_id}.png', x=350, y=470)
+            f'{self.config["STORAGE_FOLDER"]}/chart_{website_id}.png',  x=75, y=380, width=450, height=200)
 
-        canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/tags_{website_id}_wordcloud.png',
-                             x=300, y=280, width=280, height=180)
-        canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/tags_pie_chart_{website_id}.png',
-                             x=320, y=20, width=280, height=200)
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(300, 20, f'{canvas_obj.getPageNumber()}')
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
         canvas_obj.drawString(300, 20, f'{canvas_obj.getPageNumber()}')
 
