@@ -63,7 +63,7 @@ This script is used to run the database.
 The dashboard folder contains the following folders:
 
 - **.streamlit**  
-This folder defines the style and colours of the dashboard.  
+This folder defines the style and colours (configuration) of the dashboard.  
 
 
   
