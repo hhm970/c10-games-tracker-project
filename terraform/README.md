@@ -4,7 +4,7 @@ This Folder contains all the terraform files to create all our AWS services.
 
 
 ## Requirements
-There are no requirements for this folder.
+- Terraform
 
 ## Environment Variables
 In order to run the scripts you will need the following environment variables in a *terraform.tfvars* file:
@@ -41,14 +41,11 @@ This script creates a StepFunction that executes the pipeline.
 This script defines the provider.  
   
 - **report_eventbridge.tf**  
-This script creates an EventBridge Schedule which triggers every Monday at 09:00am, and targets the StepFunction that sends out the weekly report.  
+This script creates an EventBridge Schedule which triggers every Monday at 09:00am, and targets the ECS Fargate task that sends out the weekly report.  
   
-- **report_lamda.tf**  
-This script creates the Lambda functions which are used in the weekly report StepFunction.  
-  
-- **report_stepfunction.tf**  
-This script creates a StepFunction that sends the weekly reports.    
-
+- **report_ecs.tf**  
+This script creates the ECS Fargate task which is used to generate and distribute the weekly report.  
+    
 - **variables.tf**  
 This script defines the types for all the secret variables.  
   
@@ -58,3 +55,14 @@ To create all the AWS services defined here, in the command line run:
 
 To destroy the terraformed AWS services defined here, in the command line run:
 > terraform destroy
+
+> [!NOTE]  
+> The ECR repositories used in these terraform scripts were made via the AWS console. In order to be able to run the terraform scripts you must create the following ECR repositories listed below before.
+
+#### ECR Repositories
+- c10-games-dashboard
+- c10-games-db-load
+- c10-games-epic-extract
+- c10-games-gog-scrape
+- c10-games-steam-scrape
+- c10-games-weekly-report
