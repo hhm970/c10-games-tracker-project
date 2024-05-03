@@ -261,7 +261,7 @@ class StatsRetriever():
         res = {tag_list[i]: word_counts[i] for i in range(len(tag_list))}
 
         fog_machine = WordCloud(
-            background_color='#FFFFFF', colormap="cool")
+            background_color='#FFFFFF', colormap="viridis")
         fog_machine.generate_from_frequencies(res)
         fog_machine.to_image()
 
