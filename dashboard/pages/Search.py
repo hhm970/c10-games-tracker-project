@@ -83,9 +83,11 @@ if __name__ == "__main__":
         st.page_link("pages/Epic.py")
         st.page_link("pages/GOG.py")
         st.page_link("pages/Steam.py")
+        st.page_link("pages/Search.py")
+        st.write("---")
         st.page_link("pages/Daily_Notifications.py")
-        st.page_link("pages/Weekly_Newsletter.py")
-        st.page_link("pages/search.py")
+        st.page_link("pages/Weekly_Report.py")
+        st.write("---")
 
     with st.form("main form", clear_on_submit=True):
 
@@ -130,6 +132,9 @@ if __name__ == "__main__":
                     else:
                         st.text("Missing")
                     st.text("Genre/ Tags:")
-                    st.text(f"{details['game_tags']}")
+                    tags = ''
+                    for tag in details["game_tags"]:
+                        tags += ' - ' + tag
+                    st.write(tags[2:])
                 else:
                     st.text(f"Game not found: {search}")
