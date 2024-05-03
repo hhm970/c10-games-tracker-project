@@ -534,9 +534,8 @@ def handler(event: dict = None, context: dict = None) -> dict:
 
 
 if __name__ == "__main__":
-    load_dotenv()
     report_maker_obj = ReportMaker(os.environ)
     report_maker_obj.generate_report()
     emailer_obj = Alerter(os.environ)
     subscribers = emailer_obj.get_subscription_emails()
-    # emailer_obj.send_email(subscribers)
+    emailer_obj.send_email(subscribers)
