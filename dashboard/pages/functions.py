@@ -54,7 +54,7 @@ def filter_dates(data_df: pd.DataFrame, dates: list, col: str) -> pd.DataFrame:
 
 
 def metric_games_yest(conn_: connection, id: int) -> pd.DataFrame:
-    """Returns a Data-frame of all the games from the yesterday."""
+    """Returns a Data-frame of all the games from yesterday."""
 
     yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
 
@@ -68,7 +68,7 @@ def metric_games_yest(conn_: connection, id: int) -> pd.DataFrame:
 
 
 def metric_games_two_days(conn_: connection, id: int) -> pd.DataFrame:
-    """Returns a Data-frame of all the games from the yesterday."""
+    """Returns a Data-frame of all the games from two days ago."""
 
     yesterday = (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d')
 

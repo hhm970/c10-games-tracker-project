@@ -47,6 +47,7 @@ if __name__ == "__main__":
     else:
         metric_df = metric_games_all(conn, 2)
         st.write('Metrics For All Data:')
+
     top_ten_games = metrics_top_ten(conn, 2)
     tag_df = metrics_for_graphs_tags(conn, 2)
     tags = tag_df["tag_name"].to_list()
@@ -56,10 +57,14 @@ if __name__ == "__main__":
         avg_rating = metric_df['rating'].mean()
         avg_price = metric_df['price'].mean()
 
-        if on:
+        if on and not delta.empty:
             no_games_delta = delta['name'].nunique()
             avg_rating_delta = delta['rating'].mean()
             avg_price_delta = delta['price'].mean()
+        else:
+            no_games_delta = 0
+            avg_rating_delta = 0
+            avg_price_delta = 0
     else:
         no_games = 0
         avg_rating = 0
