@@ -8,3 +8,4 @@ requests-mock
 pandas
 psycopg2-binary
 boto3
+selenium
