@@ -22,7 +22,7 @@ def steam_no_rating_soup() -> BeautifulSoup:
 
 
 @pytest.fixture
-def steam_rating_soup_positive_only():
+def steam_rating_soup_positive_only() -> BeautifulSoup:
     '''Returns an example of html for the number of reviews,
     when there are only positive reviews.'''
     return BeautifulSoup(""" <div class="review_ctn"> 
