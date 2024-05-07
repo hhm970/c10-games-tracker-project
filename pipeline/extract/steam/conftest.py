@@ -31,7 +31,7 @@ def steam_rating_soup_positive_only() -> BeautifulSoup:
 
 
 @pytest.fixture
-def steam_rating_soup_negative_only():
+def steam_rating_soup_negative_only() -> BeautifulSoup:
     '''Returns an example of html for the number of reviews,
     when there are only negative reviews.'''
     return BeautifulSoup(""" <div class="review_ctn"> 
