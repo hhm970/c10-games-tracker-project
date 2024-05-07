@@ -4,7 +4,7 @@ import pytest
 
 
 @pytest.fixture
-def test_game_data():
+def test_game_data() -> list[list[list]]:
     """A sample list of video games following the 
     appropriate formatting of cleaned data."""
     return [["Stardew Valley", "A great game", 4.99, "ConcernedApe",
@@ -16,7 +16,7 @@ def test_game_data():
 
 
 @pytest.fixture
-def test_game_data2():
+def test_game_data2() -> list[list[list]]:
     """A sample list of video game with a singular video game."""
     return [["Among Us", "A great game", 4.99, "Me",
             "Me", "2000-11-29 14:48:00", 5, 2,
