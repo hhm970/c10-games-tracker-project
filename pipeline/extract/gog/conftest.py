@@ -41,7 +41,7 @@ def gog_tags_bad() -> list[BeautifulSoup]:
 
 
 @pytest.fixture
-def gog_title():
+def gog_title() -> BeautifulSoup:
     '''Returns an example of a game title.'''
     return BeautifulSoup(
         '''<div class="product-tile__title" title='goodtitle'>tag7</div>
