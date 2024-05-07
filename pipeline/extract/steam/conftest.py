@@ -48,7 +48,7 @@ def steam_tags_good() -> BeautifulSoup:
 
 
 @pytest.fixture
-def steam_tags_none():
+def steam_tags_none() -> BeautifulSoup:
     '''Returns an example of html for the tags, when there are none.'''
     return BeautifulSoup("""<div class="review_ctn"> 
                          <label for="review_type_negative">Negative&nbsp;<span class="user_reviews_count">(103)</span></label>
