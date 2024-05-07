@@ -16,7 +16,7 @@ def gog_fake_links() -> list[BeautifulSoup]:
 
 
 @pytest.fixture
-def gog_fake_links_bad():
+def gog_fake_links_bad() -> list[BeautifulSoup]:
     '''Returns badly formatted hrefs.'''
     return [BeautifulSoup(
         '<a href="/gamesubliesda">publisher1</a>', features='html.parser').find('a'), BeautifulSoup(
