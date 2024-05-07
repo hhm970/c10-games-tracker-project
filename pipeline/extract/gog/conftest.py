@@ -56,7 +56,7 @@ def gog_description() -> BeautifulSoup:
 
 
 @pytest.fixture
-def gog_time():
+def gog_time() -> BeautifulSoup:
     '''Returns an example of release dates.'''
     return BeautifulSoup(
         '''<div class="details__content table__row-content" >
