@@ -40,7 +40,7 @@ def steam_rating_soup_negative_only() -> BeautifulSoup:
 
 
 @pytest.fixture
-def steam_tags_good():
+def steam_tags_good() -> BeautifulSoup:
     '''Returns an example of html for game tags.'''
     return BeautifulSoup(""" <a href="https://store.steampowered.com/tags/en/Horror/?snr=1_5_9__409" class="app_tag" style="display: none;"> Horror	</a>
                          <a href="https://store.steampowered.com/tags/en/Atmospheric/?snr=1_5_9__409" class="app_tag" style="display: none;">Atmospheric</a>""",
