@@ -57,7 +57,7 @@ def steam_tags_none() -> BeautifulSoup:
 
 
 @pytest.fixture
-def steam_developer_good():
+def steam_developer_good() -> BeautifulSoup:
     '''Returns an example of html for the developer.'''
     return BeautifulSoup("""</div>
 <div class="dev_row">
