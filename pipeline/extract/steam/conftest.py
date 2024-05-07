@@ -14,7 +14,7 @@ def steam_rating_soup() -> BeautifulSoup:
 
 
 @pytest.fixture
-def steam_no_rating_soup():
+def steam_no_rating_soup() -> BeautifulSoup:
     '''Returns an example of html for no reviews.'''
     return BeautifulSoup(""" <div class="review_ctn"> 
                         "There are no reviews for this product"
