@@ -2,6 +2,10 @@ data "aws_iam_role" "ecs-task-role" {
     name = "ecsTaskExecutionRole"
 }
 
+data "aws_ecs_cluster" "c10-ecs-cluster" {
+  cluster_name = "c10-ecs-cluster"
+}
+
 data "aws_ecr_repository" "ecr-repo-weekly-report" {
   name = "c10-games-weekly-report"
 }
@@ -12,7 +16,7 @@ data "aws_ecr_image" "ecr-image-weekly-report" {
 }
 
 resource "aws_ecs_task_definition" "weekly-report-task-def" {
-  family                = "c10-games-weekly-report-tf"
+  family                = "c10-games-weekly-report-task-def"
   container_definitions = jsonencode([
     {
       name         = "games-weekly-report"
@@ -46,6 +50,10 @@ resource "aws_ecs_task_definition" "weekly-report-task-def" {
                 {
                     "name": "DB_PASSWORD",
                     "value": var.DB_PASSWORD
+                },
+                {
+                  "name": "STORAGE_FOLDER",
+                  "value": "diagrams"
                 }
       ]
     }
@@ -54,5 +62,5 @@ resource "aws_ecs_task_definition" "weekly-report-task-def" {
   network_mode             = "awsvpc"
   memory                   = 3072
   cpu                      = 1024
-  execution_role_arn       = data.aws_iam_role.ecs-role.arn
+  execution_role_arn       = data.aws_iam_role.ecs-task-role.arn
 }
