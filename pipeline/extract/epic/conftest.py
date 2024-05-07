@@ -4,7 +4,7 @@ import pytest
 
 
 @pytest.fixture
-def epic_game_post_response() -> Dict:
+def epic_game_post_response() -> dict:
     '''Returns an example post response.'''
     return {
         "data": {
