@@ -33,7 +33,7 @@ def gog_tags() -> list[BeautifulSoup]:
 
 
 @pytest.fixture
-def gog_tags_bad() -> list[BeautifulSoup]:
+def gog_tags_bad() -> BeautifulSoup:
     '''Returns a bad example of a Soup of game tags.'''
     return BeautifulSoup(
         '''<span class="detail">tag7</span>
