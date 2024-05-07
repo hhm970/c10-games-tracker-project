@@ -119,7 +119,7 @@ def epic_game_data_game_obj() -> Dict:
 
 
 @pytest.fixture
-def epic_empty_post_request():
+def epic_empty_post_request() -> Dict:
     '''Returns an empty post response.'''
     return {
         "data": {
