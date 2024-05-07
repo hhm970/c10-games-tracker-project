@@ -46,6 +46,10 @@ resource "aws_ecs_task_definition" "weekly-report-task-def" {
                 {
                     "name": "DB_PASSWORD",
                     "value": var.DB_PASSWORD
+                },
+                {
+                    "name": "STORAGE_FOLDERS",
+                    "value": "diagrams"
                 }
       ]
     }
