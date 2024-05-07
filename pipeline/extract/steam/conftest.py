@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 
 
 @pytest.fixture
-def steam_rating_soup():
+def steam_rating_soup() -> BeautifulSoup:
     '''Returns an example of html for the number of reviews.'''
     return BeautifulSoup(""" <div class="review_ctn"> 
                          <label for="review_type_positive">Positive&nbsp;<span class="user_reviews_count">(105)</span></label><br> 
