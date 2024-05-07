@@ -1,6 +1,9 @@
 ## Description
 
-This Folder is responsible for defining and creating the tables in our database.
+This folder is responsible for defining and creating the tables in our database. 
+
+### The Why
+This folder is important to organise our data in a structured and efficient way, for easy interrogation. 
 
 
 ## Requirements
@@ -9,11 +12,11 @@ There are no requirements for this folder.
 ## Environment Variables
 In order to run the scripts you will need the following environment variables, in a *.env* file:
 
-- DB_PASSWORD
-- DB_NAME
-- DB_USER
-- DB_HOST
-- DB_PORT
+- ```DB_PASSWORD```
+- ```DB_NAME```
+- ```DB_USER```
+- ```DB_HOST```
+- ```DB_PORT```
 
 ## The Scripts
 This folder contains the following scripts:
@@ -25,13 +28,13 @@ This script drops the tables that may be in the database already, then redefines
 This script is used to run **schema.sql**.  
   
   Run from the command line using: 
-  >bash run_script.sh
+  >```bash run_script.sh```
   
 - **connect.sh**  
 This script is used to connect to the database.  
   
   Run from the command line using:
-  >bash connect.sh
+  >```bash connect.sh```
 
 ## ERD Diagram
 

@@ -20,12 +20,12 @@
 
 ### Pre-requisites
 
-- Python 3.11
-- pip3
-- awscli
-- Docker
-- Terraform
-- PostgreSQL
+- ```Python 3.11```
+- `pip3`
+- `awscli`
+- `Docker`
+- `Terraform`
+- `PostgreSQL`
 
 ### Imports
 Each sub-folder in this repository holds their own `requirements.txt` file. This is has been done to ensure clarity in what modules the scripts require.

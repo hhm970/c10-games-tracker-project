@@ -1,24 +1,27 @@
 ## Description
 
-This Folder contains all the terraform files to create all our AWS services.
+This folder contains all the terraform files to create all our AWS services.
+
+### The Why
+This folder is important because it allows us to quickly and easily create and destroy AWS services. It is a good idea to run scripts remotely on AWS, because they can be self-sufficient and run at set times. It is also useful that they can be easily destroyed, because then we can easily remove them, should we no longer need them.
 
 
 ## Requirements
-- Terraform
+- ```Terraform```
 
 ## Environment Variables
 In order to run the scripts you will need the following environment variables in a *terraform.tfvars* file:
 
-- DB_PASSWORD
-- DB_NAME
-- DB_USER
-- DB_HOST
-- DB_PORT
-- GOG_BASE_URL
-- EPIC_BASE_URL
-- STEAM_BASE_URL
-- AWS_KEY
-- AWS_SECRET
+- ```DB_PASSWORD```
+- ```DB_NAME```
+- ```DB_USER```
+- ```DB_HOST```
+- ```DB_PORT```
+- ```GOG_BASE_URL```
+- ```EPIC_BASE_URL```
+- ```STEAM_BASE_URL```
+- ```AWS_KEY```
+- ```AWS_SECRET```
 
 ## The Scripts
 This folder contains the following scripts:
@@ -51,10 +54,10 @@ This script defines the types for all the secret variables.
   
   
 To create all the AWS services defined here, in the command line run:
-> terraform apply
+> ```terraform apply```
 
 To destroy the terraformed AWS services defined here, in the command line run:
-> terraform destroy
+>``` terraform destroy```
 
 > [!NOTE]  
 > The ECR repositories used in these terraform scripts were made via the AWS console. In order to be able to run the terraform scripts you must create the following ECR repositories listed below before.
