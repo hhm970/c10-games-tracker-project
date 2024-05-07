@@ -25,7 +25,7 @@ def gog_fake_links_bad() -> list[BeautifulSoup]:
 
 
 @pytest.fixture
-def gog_tags() -> list[BeautifulSoup]:
+def gog_tags() -> BeautifulSoup:
     '''Returns an example of a Soup of game tags.'''
     return BeautifulSoup(
         '''<span class="details__link-text">tag7</span>
