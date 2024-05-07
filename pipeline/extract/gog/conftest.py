@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 
 @pytest.fixture
-def gog_fake_links():
+def gog_fake_links() -> list[BeautifulSoup]:
     '''Returns an example of href links to find publisher.'''
     return [BeautifulSoup(
         '<a href="/gam">seven</a>', features='html.parser').find('a'), BeautifulSoup(
