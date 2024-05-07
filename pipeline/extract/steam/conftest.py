@@ -101,7 +101,7 @@ def steam_publisher_good() -> BeautifulSoup:
 
 
 @pytest.fixture
-def search_result():
+def search_result() -> BeautifulSoup:
     '''Returns an example of html for general information about a game.'''
     return BeautifulSoup("""<span class="title">Culling of Normality</span>
 <div class="discount_final_price free">Free</div>
