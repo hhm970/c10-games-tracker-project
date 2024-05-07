@@ -30,7 +30,10 @@ This script uploads data to our database.
 
    Run from the command line using: 
   >python3 load.py
-  
+
+- **load_tag_exceptions.py**
+This script contains all discrepancies in game tags along platforms, and is used to avoid duplicate values when uploading to the database.
+
 - **Dockerfile**  
 This script is used to dockerise **load.py**.  
   

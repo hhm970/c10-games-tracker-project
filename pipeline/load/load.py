@@ -14,10 +14,7 @@ from psycopg2 import connect
 from psycopg2.extras import RealDictCursor, RealDictRow
 from psycopg2.extensions import connection
 
-
-TAG_EXCEPTIONS = {'Single Player': 'Singleplayer',
-                  'Rogue-Lite': 'Roguelite',
-                  }
+from load_tag_exceptions import tag_exception_dict
 
 
 def get_db_connection(config) -> connection:
@@ -166,6 +163,8 @@ def input_game_tags_into_db(game_data: list[list], conn: connection) -> None:
     different to each website, we refer to the constant variable TAG_EXCEPTIONS,
     appending the tag iterand into the table if no similar entries are detected."""
 
+    tag_exceptions = tag_exception_dict()
+
     with conn.cursor() as cur:
         for game in game_data:
 
@@ -177,8 +176,8 @@ def input_game_tags_into_db(game_data: list[list], conn: connection) -> None:
                 for tag in game_tags:
                     tag_formatted = tag.title()
 
-                    if tag_formatted in TAG_EXCEPTIONS.keys():
-                        tag_formatted = TAG_EXCEPTIONS[tag_formatted]
+                    if tag_formatted in tag_exceptions.keys():
+                        tag_formatted = tag_exceptions[tag_formatted]
 
                     cur.execute("""SELECT tag_id FROM tag
                                 WHERE tag_name = %s""",
