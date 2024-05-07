@@ -66,7 +66,7 @@ def epic_game_post_response() -> Dict:
 
 
 @pytest.fixture
-def epic_game_data_game_obj():
+def epic_game_data_game_obj() -> Dict:
     '''Returns an example post response.'''
     return {
         "title": "Vengeance of Mr. Peppermint",
