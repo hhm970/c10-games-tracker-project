@@ -49,7 +49,7 @@ def gog_title() -> BeautifulSoup:
 
 
 @pytest.fixture
-def gog_description():
+def gog_description() -> BeautifulSoup:
     '''Returns an example of a game description.'''
     return BeautifulSoup(
         '''<div class="description" >a very nice really thorough description </div>''', features='html.parser')
