@@ -1,8 +1,11 @@
+'''A conftest file that defines functions used in test_epic.py.'''
+
 import pytest
 
 
 @pytest.fixture
 def epic_game_post_response():
+    '''Returns an example post response.'''
     return {
         "data": {
             "Catalog": {
@@ -64,6 +67,7 @@ def epic_game_post_response():
 
 @pytest.fixture
 def epic_game_data_game_obj():
+    '''Returns an example post response.'''
     return {
         "title": "Vengeance of Mr. Peppermint",
         "releaseDate": "2024-04-24T16:00:00.000Z",
@@ -116,6 +120,7 @@ def epic_game_data_game_obj():
 
 @pytest.fixture
 def epic_empty_post_request():
+    '''Returns an empty post response.'''
     return {
         "data": {
             "Catalog": {
