@@ -78,7 +78,7 @@ def steam_developer_none() -> BeautifulSoup:
 
 
 @pytest.fixture
-def steam_publisher_good():
+def steam_publisher_good() -> BeautifulSoup:
     '''Returns an example of html for the publisher.'''
     return BeautifulSoup("""[<div class="dev_row">
 <div class="subtitle column">Developer:</div>
