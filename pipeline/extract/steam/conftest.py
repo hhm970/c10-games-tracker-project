@@ -68,7 +68,7 @@ def steam_developer_good() -> BeautifulSoup:
 
 
 @pytest.fixture
-def steam_developer_none():
+def steam_developer_none() -> BeautifulSoup:
     '''Returns an example of html for the developer,
     when there is none.'''
     return BeautifulSoup("""<div class="review_ctn"> 
