@@ -5,7 +5,8 @@ from bs4 import BeautifulSoup
 
 
 @pytest.fixture
-def steam_rating_soup():
+def steam_rating_soup() -> BeautifulSoup:
+    '''Returns an example of html for the number of reviews.'''
     return BeautifulSoup(""" <div class="review_ctn"> 
                          <label for="review_type_positive">Positive&nbsp;<span class="user_reviews_count">(105)</span></label><br> 
                          <label for="review_type_negative">Negative&nbsp;<span class="user_reviews_count">(103)</span></label>
@@ -13,35 +14,42 @@ def steam_rating_soup():
 
 
 @pytest.fixture
-def steam_no_rating_soup():
+def steam_no_rating_soup() -> BeautifulSoup:
+    '''Returns an example of html for no reviews.'''
     return BeautifulSoup(""" <div class="review_ctn"> 
                         "There are no reviews for this product"
                          </div>""", features='html.parser')
 
 
 @pytest.fixture
-def steam_rating_soup_positive_only():
+def steam_rating_soup_positive_only() -> BeautifulSoup:
+    '''Returns an example of html for the number of reviews,
+    when there are only positive reviews.'''
     return BeautifulSoup(""" <div class="review_ctn"> 
                          <label for="review_type_positive">Positive&nbsp;<span class="user_reviews_count">(105)</span></label><br> 
                          </div>""", features='html.parser')
 
 
 @pytest.fixture
-def steam_rating_soup_negative_only():
+def steam_rating_soup_negative_only() -> BeautifulSoup:
+    '''Returns an example of html for the number of reviews,
+    when there are only negative reviews.'''
     return BeautifulSoup(""" <div class="review_ctn"> 
                          <label for="review_type_negative">Negative&nbsp;<span class="user_reviews_count">(103)</span></label>
                          </div>""", features='html.parser')
 
 
 @pytest.fixture
-def steam_tags_good():
+def steam_tags_good() -> BeautifulSoup:
+    '''Returns an example of html for game tags.'''
     return BeautifulSoup(""" <a href="https://store.steampowered.com/tags/en/Horror/?snr=1_5_9__409" class="app_tag" style="display: none;"> Horror	</a>
                          <a href="https://store.steampowered.com/tags/en/Atmospheric/?snr=1_5_9__409" class="app_tag" style="display: none;">Atmospheric</a>""",
                          features='html.parser')
 
 
 @pytest.fixture
-def steam_tags_none():
+def steam_tags_none() -> BeautifulSoup:
+    '''Returns an example of html for the tags, when there are none.'''
     return BeautifulSoup("""<div class="review_ctn"> 
                          <label for="review_type_negative">Negative&nbsp;<span class="user_reviews_count">(103)</span></label>
                          </div>""",
@@ -49,7 +57,8 @@ def steam_tags_none():
 
 
 @pytest.fixture
-def steam_developer_good():
+def steam_developer_good() -> BeautifulSoup:
+    '''Returns an example of html for the developer.'''
     return BeautifulSoup("""</div>
 <div class="dev_row">
 <div class="subtitle column">Developer:</div>
@@ -59,7 +68,9 @@ def steam_developer_good():
 
 
 @pytest.fixture
-def steam_developer_none():
+def steam_developer_none() -> BeautifulSoup:
+    '''Returns an example of html for the developer,
+    when there is none.'''
     return BeautifulSoup("""<div class="review_ctn"> 
                          <label for="review_type_negative">Negative&nbsp;<span class="user_reviews_count">(103)</span></label>
                          </div>""",
@@ -67,7 +78,8 @@ def steam_developer_none():
 
 
 @pytest.fixture
-def steam_publisher_good():
+def steam_publisher_good() -> BeautifulSoup:
+    '''Returns an example of html for the publisher.'''
     return BeautifulSoup("""[<div class="dev_row">
 <div class="subtitle column">Developer:</div>
 <div class="summary column" id="developers_list">
@@ -89,7 +101,8 @@ def steam_publisher_good():
 
 
 @pytest.fixture
-def search_result():
+def search_result() -> BeautifulSoup:
+    '''Returns an example of html for general information about a game.'''
     return BeautifulSoup("""<span class="title">Culling of Normality</span>
 <div class="discount_final_price free">Free</div>
 <div class="col search_released responsive_secondrow"> 24 Apr, 2024</div>""", features='html.parser')

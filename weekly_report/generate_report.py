@@ -8,6 +8,9 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.graphics.shapes import *
+from reportlab.lib import styles
+from reportlab.platypus import Frame, Paragraph
 from psycopg2 import connect
 from psycopg2.extras import RealDictCursor
 from psycopg2.extensions import connection
@@ -76,8 +79,8 @@ class StatsRetriever():
             games['release_date'] = games['release_date'].astype(str)
 
             chart = alt.Chart(games, title='Number of game releases per day').mark_bar(size=30).encode(
-                x='release_date',
-                y='count',
+                x=alt.X('release_date', title='Date'),
+                y=alt.Y('count', title='Count'),
             ).properties(
                 width=800,
                 height=200
@@ -284,6 +287,8 @@ class ReportMaker():
     def __init__(self, config) -> None:
         """Initialises configuration to use."""
         self.config = config
+        self.page_width = 595
+        self.page_length = 842
 
     def generate_summary_text(self, canvas_obj, sum):
         """Generates the summary page text for the report."""
@@ -318,34 +323,67 @@ class ReportMaker():
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
 
-        canvas_obj.drawString(50, 350, 'Top 3 Developers:')
-        x = 330
-        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        for developer in sum.top_three_developers():
-            canvas_obj.drawString(50, x, f'- {developer}')
-            x -= 20
+        # Create a custom style
+        custom_style = styles.getSampleStyleSheet(
+        )['Normal']  # Start with a default style
+        custom_style.fontName = 'jersey_15'
+        custom_style.fontSize = 20
+        custom_style.textColor = (0.6, 0.50, 30.0)
+        custom_style.alignment = 0
+        custom_style.leading = 17
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(400, 350, 'Top 3 Publishers:')
-        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        x = 330
-        for publisher in sum.top_three_publishers():
-            canvas_obj.drawString(400, x, f'- {publisher}')
-            x -= 20
+        canvas_obj.drawString(50, 335, 'Top 3 Developers:')
+        frame = Frame(50, 270, 250, 70, showBoundary=0)
+        developer_list = sum.top_three_developers()
+        for x in range(len(developer_list)):
+            if developer_list[x] is None:
+                developer_list[x] = "None"
+        frame.addFromList([Paragraph(f"- {string}\n", custom_style)
+                           for string in developer_list], canvas_obj)
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(50, 260, ' Top Tags:')
+        canvas_obj.drawString(330, 335, 'Top 3 Publishers:')
+        frame = Frame(330, 270, 240, 70, showBoundary=0)
+        publisher_list = sum.top_three_publishers()
+        for x in range(len(publisher_list)):
+            if publisher_list[x] is None:
+                publisher_list[x] = "None"
+        frame.addFromList([Paragraph(f"- {string}\n", custom_style)
+                           for string in publisher_list], canvas_obj)
+
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(50, 220, ' Top Tags:')
 
         canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/tags_sum_wordcloud.png',
-                             x=50, y=130, width=175, height=112.5)
+                             x=45, y=70, width=210, height=135)
         canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/pie_chart_sum.png',
-                             x=320, y=50, width=280, height=200)
+                             x=295, y=45, width=280, height=200)
 
         canvas_obj.drawImage(
-            f'{self.config["STORAGE_FOLDER"]}/chart_sum.png', x=75, y=380, width=450, height=200)
+            f'{self.config["STORAGE_FOLDER"]}/chart_sum.png', x=75, y=370, width=450, height=200)
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(300, 20, f'{canvas_obj.getPageNumber()}')
+        canvas_obj.drawString((self.page_width/2.0), 20,
+                              f'{canvas_obj.getPageNumber()}')
+
+        canvas_obj.setStrokeColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0, 0.15)
+        canvas_obj.roundRect(25, 585, 550, 125, 4, stroke=1, fill=1)
+
+        canvas_obj.setStrokeColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.roundRect(25, 370, 550, 200, 4, stroke=1, fill=0)
+
+        canvas_obj.setStrokeColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0, 0.15)
+        canvas_obj.roundRect(25, 260, 550, 95, 4, stroke=1, fill=1)
+
+        canvas_obj.setStrokeColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.roundRect(25, 45, 250, 200, 4, stroke=1, fill=0)
+
+        canvas_obj.setStrokeColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.roundRect(290, 45, 285, 200, 4, stroke=1, fill=0)
+        canvas_obj.setStrokeColorRGB(0.6, 0.09, 10.8, 0.5)
 
     def individual_summary(self, canvas_obj, website_stats_retriever: StatsRetriever, website_id: int, name: str):
         """Creates individual report text for a website source."""
@@ -353,16 +391,20 @@ class ReportMaker():
         website_stats_retriever.num_games_per_website()
         website_stats_retriever.num_games_over_week()
         website_stats_retriever.get_word_cloud()
-        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+
         canvas_obj.setFont('jersey_15', 20)
-        canvas_obj.drawString(50, 715, f'Summary - {name}')
         canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        canvas_obj.drawString(50, 695, f'Date: {str(datetime.now().date())}')
+        canvas_obj.drawString(50, 715, f'Date: {str(datetime.now().date())}')
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(50, 695, f'Summary - {name}')
         canvas_obj.setFont('jersey_15', 30)
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(100, 750, 'GameScraper Weekly Report')
+        text_width = pdfmetrics.stringWidth(
+            'GameScraper Weekly Report', 'jersey_15', 30)
+        canvas_obj.drawString((self.page_width-text_width) /
+                              2.0, 750, 'GameScraper Weekly Report')
         canvas_obj.drawImage('game_scraper_logo.png',
-                             x=430, y=735, width=50, height=50)
+                             x=470, y=735, width=50, height=50)
         canvas_obj.setFont('jersey_15', 20)
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
         canvas_obj.drawString(50, 670, 'Number of Games released:')
@@ -388,46 +430,67 @@ class ReportMaker():
         canvas_obj.drawString(
             400, 600, f'{website_stats_retriever.top_platform()}')
 
-        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-
-        canvas_obj.drawString(50, 350, 'Top 3 Developers:')
-        x = 330
-        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        for developer in website_stats_retriever.top_three_developers():
-            if developer != None:
-                if len(developer) > 21:
-                    canvas_obj.drawString(50, x, f'- {developer[0:20]}')
-                else:
-                    canvas_obj.drawString(50, x, f'- {developer}')
-                x -= 20
+        # Create a custom style
+        custom_style = styles.getSampleStyleSheet(
+        )['Normal']  # Start with a default style
+        custom_style.fontName = 'jersey_15'
+        custom_style.fontSize = 20
+        custom_style.textColor = (0.6, 0.50, 30.0)
+        custom_style.alignment = 0
+        custom_style.leading = 17
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(400, 350, 'Top 3 Publishers:')
-        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0)
-        x = 330
-        for publisher in website_stats_retriever.top_three_publishers():
-            if publisher != None:
-                if len(publisher) > 21:
-                    canvas_obj.drawString(400, x, f'- {publisher[0:21]}')
-                else:
-                    canvas_obj.drawString(400, x, f'- {publisher}')
-            x -= 20
+        canvas_obj.drawString(50, 335, 'Top 3 Developers:')
+        frame = Frame(50, 270, 250, 70, showBoundary=0)
+        developer_list = website_stats_retriever.top_three_developers()
+        for x in range(len(developer_list)):
+            if developer_list[x] is None:
+                developer_list[x] = "None"
+        frame.addFromList([Paragraph(f"- {string}\n", custom_style)
+                           for string in developer_list], canvas_obj)
+        x = 310
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(50, 260, ' Top Tags:')
+        canvas_obj.drawString(330, 335, 'Top 3 Publishers:')
+        frame = Frame(330, 270, 240, 70, showBoundary=0)
+        publisher_list = website_stats_retriever.top_three_publishers()
+        for x in range(len(publisher_list)):
+            if publisher_list[x] is None:
+                publisher_list[x] = "None"
+        frame.addFromList([Paragraph(f"- {string}\n", custom_style)
+                           for string in publisher_list], canvas_obj)
+#
+        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.drawString(50, 220, ' Top Tags:')
 
         canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/tags_wordcloud_{website_id}.png',
-                             x=50, y=130, width=175, height=112.5)
+                             x=45, y=70, width=210, height=135)
         canvas_obj.drawImage(f'{self.config["STORAGE_FOLDER"]}/tags_pie_chart_{website_id}.png',
                              x=320, y=50, width=250, height=200)
 
         canvas_obj.drawImage(
-            f'{self.config["STORAGE_FOLDER"]}/chart_{website_id}.png',  x=75, y=380, width=450, height=200)
+            f'{self.config["STORAGE_FOLDER"]}/chart_{website_id}.png',  x=75, y=370, width=450, height=200)
 
         canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(300, 20, f'{canvas_obj.getPageNumber()}')
-        canvas_obj.setFillColorRGB(0.6, 0.09, 10.8)
-        canvas_obj.drawString(300, 20, f'{canvas_obj.getPageNumber()}')
+        canvas_obj.drawString((self.page_width/2.0), 20,
+                              f'{canvas_obj.getPageNumber()}')
+
+        canvas_obj.setStrokeColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0, 0.15)
+        canvas_obj.roundRect(25, 585, 550, 125, 4, stroke=1, fill=1)
+
+        canvas_obj.setStrokeColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.roundRect(25, 370, 550, 200, 4, stroke=1, fill=0)
+
+        canvas_obj.setStrokeColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.setFillColorRGB(0.6, 0.50, 30.0, 0.15)
+        canvas_obj.roundRect(25, 260, 550, 95, 4, stroke=1, fill=1)
+
+        canvas_obj.setStrokeColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.roundRect(25, 45, 250, 200, 4, stroke=1, fill=0)
+
+        canvas_obj.setStrokeColorRGB(0.6, 0.09, 10.8)
+        canvas_obj.roundRect(290, 45, 285, 200, 4, stroke=1, fill=0)
 
     def generate_report(self):
         """This function is responsible in generating a 
@@ -441,13 +504,16 @@ class ReportMaker():
             f'{self.config["STORAGE_FOLDER"]}/Weekly_Report.pdf', pagesize=letter)
         c.setFont('jersey_15', 30)
         c.setFillColorRGB(0.6, 0.09, 10.8)
-        c.drawString(100, 750, 'GameScraper Weekly Report')
+        text_width = pdfmetrics.stringWidth(
+            'GameScraper Weekly Report', 'jersey_15', 30)
+        c.drawString((self.page_width-text_width) /
+                     2.0, 750, 'GameScraper Weekly Report')
         c.drawImage('game_scraper_logo.png',
-                    x=430, y=735, width=50, height=50)
+                    x=470, y=735, width=50, height=50)
         c.setFont('jersey_15', 20)
-        c.drawString(50, 715, 'Summary')
+        c.drawString(50, 695, 'Summary')
         c.setFillColorRGB(0.6, 0.50, 30.0)
-        c.drawString(50, 695, f'Date: {str(datetime.now().date())}')
+        c.drawString(50, 715, f'Date: {str(datetime.now().date())}')
         self.generate_summary_text(c, sum)
         c.showPage()
         # Individual reports
@@ -533,9 +599,4 @@ def handler(event: dict = None, context: dict = None) -> dict:
 
 
 if __name__ == "__main__":
-    load_dotenv()
-    report_maker_obj = ReportMaker(os.environ)
-    report_maker_obj.generate_report()
-    emailer_obj = Alerter(os.environ)
-    subscribers = emailer_obj.get_subscription_emails()
-    emailer_obj.send_email(subscribers)
+    handler()
