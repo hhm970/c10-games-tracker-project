@@ -15,9 +15,10 @@ def test_game_data() -> list[list[list]]:
 
 
 @pytest.fixture
-def test_game_data2() -> list[list[list]]:
-    """Returns a list with a singular video game embedded in it."""
-    return [["Among Us", "A great game", 4.99, "Me",
-            "Me", "2000-11-29 14:48:00", 5, 2,
+def test_game_data_no_dev_no_pub() -> list[list[list]]:
+    """Returns a list with a singular video game embedded in it, where there is no
+    developer or publisher."""
+    return [["Among Us", "A great game", 4.99, None,
+            None, "2000-11-29 14:48:00", 5, 2,
              ["A", "Great", "Game"], [1]]
             ]
