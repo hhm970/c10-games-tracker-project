@@ -8,3 +8,4 @@ pandas
 vl-convert-python
 boto3
 wordcloud
+python-dotenv
