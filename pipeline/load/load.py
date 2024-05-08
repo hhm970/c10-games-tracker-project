@@ -148,17 +148,17 @@ def input_game_plat_into_db(game_data: list[list], conn: connection) -> None:
 
     game_plat_input = []
 
-    for game in game_data:
-
-        game_id = get_game_id_from_inputted_game(game, cur)
-
-        game_plat_list = game[-1]
-
-        for plat in game_plat_list:
-
-            game_plat_input.append([plat, game_id])
-
     with conn.cursor() as cur:
+
+        for game in game_data:
+
+            game_id = get_game_id_from_inputted_game(game, cur)
+
+            game_plat_list = game[-1]
+
+            for plat in game_plat_list:
+
+                game_plat_input.append([plat, game_id])
 
         execute_values(cur, """INSERT INTO platform_assignment (platform_id, game_id)
         VALUES %s;""", game_plat_input)
