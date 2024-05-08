@@ -11,7 +11,7 @@ from datetime import datetime
 from os import environ as ENV
 
 from psycopg2 import connect
-from psycopg2.extras import RealDictCursor, RealDictRow
+from psycopg2.extras import execute_values, RealDictCursor, RealDictRow
 from psycopg2.extensions import connection
 
 from load_tag_exceptions import tag_exception_dict
@@ -123,18 +123,21 @@ def input_game_into_db(game_data: list[list], conn: connection) -> None:
     the platforms and tags. We convert developer name and publisher name into
     their respective ids."""
 
+    initial_game_input = []
+
+    for game in game_data:
+
+        if game[3] is not None:
+            game[3] = input_game_dev_get_dev_id(game, conn)
+        if game[4] is not None:
+            game[4] = input_game_pub_get_pub_id(game, conn)
+
+        initial_game_input.append(game[:8])
+
     with conn.cursor() as cur:
-        for game in game_data:
-
-            if game[3] is not None:
-                game[3] = input_game_dev_get_dev_id(game, conn)
-            if game[4] is not None:
-                game[4] = input_game_pub_get_pub_id(game, conn)
-
-            cur.execute(
-                """INSERT INTO game (name, description, price, developer_id, 
-                publisher_id, release_date, rating, website_id)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s);""", (game[:8]))
+        execute_values(cur, """INSERT INTO game (name, description, price, 
+                       developer_id, publisher_id, release_date, rating, website_id)
+                       VALUES %s;""", initial_game_input)
 
     conn.commit()
 
@@ -143,17 +146,22 @@ def input_game_plat_into_db(game_data: list[list], conn: connection) -> None:
     """For each game in our input data, we input all of its supported platforms
     into the platform_assignment table."""
 
+    game_plat_input = []
+
+    for game in game_data:
+
+        game_id = get_game_id_from_inputted_game(game, cur)
+
+        game_plat_list = game[-1]
+
+        for plat in game_plat_list:
+
+            game_plat_input.append([plat, game_id])
+
     with conn.cursor() as cur:
-        for game in game_data:
 
-            game_id = get_game_id_from_inputted_game(game, cur)
-
-            game_plat_list = game[-1]
-
-            for plat in game_plat_list:
-                cur.execute(
-                    """INSERT INTO platform_assignment (platform_id, game_id)
-                VALUES (%s, %s);""", (plat, game_id))
+        execute_values(cur, """INSERT INTO platform_assignment (platform_id, game_id)
+        VALUES %s;""", game_plat_input)
 
     conn.commit()
 
@@ -164,6 +172,8 @@ def input_game_tags_into_db(game_data: list[list], conn: connection) -> None:
     appending the tag iterand into the table if no similar entries are detected."""
 
     tag_exceptions = tag_exception_dict()
+
+    game_tag_input = []
 
     with conn.cursor() as cur:
         for game in game_data:
@@ -196,8 +206,10 @@ def input_game_tags_into_db(game_data: list[list], conn: connection) -> None:
 
                     tag_id = tag_id_match['tag_id']
 
-                    cur.execute("""INSERT INTO game_tag_matching (game_id, tag_id)
-                                VALUES (%s, %s);""", (game_id, tag_id))
+                    game_tag_input.append([game_id, tag_id])
+
+        execute_values(cur, """INSERT INTO game_tag_matching (game_id, tag_id)
+                    VALUES %s;""", game_tag_input)
 
     conn.commit()
 
