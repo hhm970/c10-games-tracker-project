@@ -1,10 +1,36 @@
-data "aws_iam_role" "ecs-task-role" {
-    name = "ecsTaskExecutionRole"
+data "aws_iam_policy_document" "eventbridge-report-permissions-policy" {
+  statement {
+    effect = "Allow"
+
+    resources = ["*"]
+ 
+    actions = ["states:StartExecution"]
+  }
 }
 
-data "aws_ecs_cluster" "c10-ecs-cluster" {
-  cluster_name = "c10-ecs-cluster"
+data "aws_iam_policy_document" "eventbridge-report-trust-policy" {
+  statement {
+    effect = "Allow"
+
+    principals {
+       type        = "Service"
+       identifiers = ["scheduler.amazonaws.com"]
+     }
+ 
+    actions = ["sts:AssumeRole"]
+  }
 }
+
+
+resource "aws_iam_role" "ecs-task-role" {
+  name               = "c10-games-terraform-eventbridge-role-report-tf"
+  assume_role_policy = data.aws_iam_policy_document.eventbridge-trust-policy.json
+  inline_policy {
+    name = "ecsTaskExecutionRole"
+    policy = data.aws_iam_policy_document.eventbridge-permissions-policy.json
+  }
+}
+
 
 data "aws_ecr_repository" "ecr-repo-weekly-report" {
   name = "c10-games-weekly-report"
@@ -62,5 +88,5 @@ resource "aws_ecs_task_definition" "weekly-report-task-def" {
   network_mode             = "awsvpc"
   memory                   = 3072
   cpu                      = 1024
-  execution_role_arn       = data.aws_iam_role.ecs-task-role.arn
+  execution_role_arn       = resource.aws_iam_role.ecs-task-role.arn
 }
