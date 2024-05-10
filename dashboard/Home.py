@@ -299,7 +299,7 @@ if __name__ == "__main__":
                       delta=no_games-no_games_delta)
         with col2:
             if pd.isna(avg_rating):
-                st.metric("Average ratinf of new releases:", '-')
+                st.metric("Average rating of new releases:", '-')
             else:
                 st.metric("Average rating of new releases:",
                           f'{round(avg_rating,2)}%', delta=round(avg_rating-avg_rating_delta, 2))
