@@ -92,7 +92,7 @@ root: Contains the following files:
 ![ERD Diagram](<diagrams/ERD diagram.png>)
 
 ## Architecture Diagram
-![Architecture Diagram](<diagrams/game-tracker.drawio.png>)
+![Architecture Diagram](<diagrams/games-tracker.drawio.png>)
 [Architecture Drawio](https://drive.google.com/file/d/1eyiUtG28TyXLwHTw9276TIMAXI4Pgwh3/view?usp=sharing)
 
 
